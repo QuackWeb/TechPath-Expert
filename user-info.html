@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information | TechPath Expert</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Page-specific styles: loading overlay and education card selector */
+
+        /* --- Loading Overlay --- */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.92);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 4px solid rgba(0, 240, 255, 0.1);
+            border-top: 4px solid var(--cyan);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem auto;
+            animation: spin 1s linear infinite, pulse-glow 2s ease-in-out infinite;
+        }
+
+        .loader-content h3 {
+            color: var(--text);
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .loader-content p {
+            color: var(--cyan);
+            font-size: 0.95rem;
+            animation: blink 1.5s infinite;
+        }
+
+        .processing-bar {
+            width: 250px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 1.5rem auto 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .processing-fill {
+            height: 100%;
+            background: var(--cyan);
+            width: 0%;
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        /* Page-specific animations not in style.css */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--glow); }
+            50%       { box-shadow: 0 0 30px var(--cyan); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
+
+        @keyframes fillProgress {
+            0%   { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* --- Education card selector --- */
+        .edu-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            align-items: stretch;
+        }
+
+        .edu-options > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .edu-option {
+            display: none;
+        }
+
+        .edu-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 1.2rem 0.8rem;
+            flex: 1;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 240, 255, 0.18);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .edu-label:hover {
+            border-color: rgba(0, 240, 255, 0.45);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .edu-option:checked + .edu-label {
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        .edu-icon { font-size: 1.6rem; }
+
+        .edu-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .edu-subtitle {
+            font-size: 0.72rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .edu-option:checked + .edu-label .edu-title {
+            color: var(--cyan);
+        }
+
+        @media (max-width: 380px) {
+            .edu-options { grid-template-columns: 1fr; }
+            .edu-label { flex-direction: row; justify-content: flex-start; text-align: left; padding: .9rem 1rem; gap: .8rem; }
+            .edu-icon { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <h3>Initializing Inference Engine...</h3>
+            <p>Processing user profile data</p>
+            <div class="processing-bar">
+                <div id="processingFill" class="processing-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <header class="header-container">
+        <nav class="navbar">
+            <div class="logo"><h1>Tech<span class="text-cyan">Path</span></h1></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="knowledge-base.html">Career List</a></li>
+                <li><a href="about.html">About System</a></li>
+                <li><a href="cgpa.html">CGPA Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container form-layout">
+        <section class="glass-card form-container">
+            <div class="progress-wrapper">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 20%;"></div>
+                </div>
+                <p class="progress-text">Step 1 of 5: Profile Information</p>
+            </div>
+
+            <div class="form-header">
+                <h2>Get to Know You</h2>
+                <p>Please enter your basic information to begin the assessment.</p>
+            </div>
+
+            <form id="userInfoForm">
+                <div class="form-group">
+                    <label for="userName">Full Name</label>
+                    <input type="text" id="userName" name="userName" required placeholder="Enter your full name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="userAge">Age</label>
+                        <input type="number" id="userAge" name="userAge" required placeholder="Example: 21" min="18" max="60">
+                    </div>
+                    <div class="form-group half">
+                        <label for="userGender">Gender</label>
+                        <select id="userGender" name="userGender" required>
+                            <option value="" disabled selected>Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Education Level <span style="color:#ef4444;font-size:0.75rem;margin-left:0.3rem;">(Required)</span></label>
+                    <div class="edu-options">
+                        <div>
+                            <input class="edu-option" type="radio" id="eduDiploma" name="userEducation" value="Diploma" required>
+                            <label class="edu-label" for="eduDiploma">
+                                <span class="edu-title">Diploma</span>
+                                <span class="edu-subtitle">Diploma / Foundation / Matriculation</span>
+                            </label>
+                        </div>
+                        <div>
+                            <input class="edu-option" type="radio" id="eduDegree" name="userEducation" value="Degree" required>
+                            <label class="edu-label" for="eduDegree">
+                                <span class="edu-title">Degree</span>
+                                <span class="edu-subtitle">Bachelor's Degree (Sarjana Muda)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Eligibility notice bawah education cards -->
+                    <div style="margin-top:0.7rem;padding:.8rem 1rem;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.15);border-left:3px solid var(--cyan);border-radius:8px;">
+                        <p style="font-size:.78rem;color:var(--muted);line-height:1.6;margin:0;"><strong style="color:var(--cyan);">Diploma &amp; Degree Students Only</strong> — This system is designed specifically for students and graduates at Diploma or Bachelor's Degree level who are exploring IT career pathways.</p>
+                    </div>
+
+                    <p id="eduError" style="display:none;color:#f87171;font-size:0.8rem;margin-top:0.5rem;">Please select your education level to continue.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="userMajor">Current / Previous Field of Study</label>
+                    <input type="text" id="userMajor" name="userMajor" required placeholder="Example: Computer Science, Business, Pure Science">
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn btn-primary btn-block">Start Interest Assessment <span class="arrow">→</span></button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+
+    <script>
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = 'rgba(0, 240, 255, 0.5)';
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particles = [];
+            let numberOfParticles = (canvas.width * canvas.height) / 15000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${0.15 - distance/800})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        init();
+        animateParticles();
+    </script>
+
+    <script>
+        document.getElementById('userInfoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 1. Validate education radio selection
+            const selectedEdu = document.querySelector('input[name="userEducation"]:checked');
+            const eduError    = document.getElementById('eduError');
+
+            if (!selectedEdu) {
+                eduError.style.display = 'block';
+                document.querySelector('.edu-options').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            eduError.style.display = 'none';
+
+            // 2. Build user profile
+            const userProfile = {
+                nama:       document.getElementById('userName').value.trim(),
+                umur:       document.getElementById('userAge').value,
+                jantina:    document.getElementById('userGender').value,
+                pendidikan: selectedEdu.value,
+                bidang:     document.getElementById('userMajor').value.trim()
+            };
+
+            // 3. Save to Local Storage
+            localStorage.setItem('techpath_userProfile', JSON.stringify(userProfile));
+
+            // 4. Show loading overlay
+            const overlay        = document.getElementById('loadingOverlay');
+            const processingFill = document.getElementById('processingFill');
+            overlay.classList.add('active');
+            processingFill.style.animation = 'fillProgress 2s ease-in-out forwards';
+
+            // 5. Redirect after 2.5s
+            setTimeout(function() {
+                window.location.href = 'assessment-1.html';
+            }, 2500);
+        });
+
+        // Hide edu error on any radio click
+        document.querySelectorAll('input[name="userEducation"]').forEach(r => {
+            r.addEventListener('change', () => {
+                document.getElementById('eduError').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

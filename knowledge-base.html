@@ -1,0 +1,1218 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Explorer | TechPath Expert</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Page-specific aliases for local CSS */
+            --primary-cyan:  #00f0ff;
+            --primary-glow:  rgba(0,240,255,0.6);
+            --card-bg:       rgba(17,24,39,0.65);
+            --text-main:     #f3f4f6;
+            --text-muted:    #9ca3af;
+            --border-subtle: rgba(255,255,255,0.07);
+            --border-cyan:   rgba(0,240,255,0.25);
+            --mono:          'Courier New', Courier, monospace;
+        }
+
+        /* ── HEADER — explicit so it matches all other pages exactly ── */
+        .header-container {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(3,7,18,.85);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,240,255,.12);
+            width: 100%;
+        }
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.3rem 5%; max-width: 1300px; min-height: 70px; margin: 0 auto;
+        }
+        .logo h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; margin: 0; color: var(--text-main); }
+        .text-cyan { color: var(--primary-cyan); text-shadow: 0 0 12px var(--primary-glow); }
+        .nav-links { list-style: none; display: flex; gap: 2rem; }
+        .nav-links a {
+            text-decoration: none; color: var(--text-main); font-weight: 400;
+            font-size: 0.95rem; position: relative; transition: .3s;
+        }
+        .nav-links a::after {
+            content: ''; position: absolute; width: 0; height: 2px;
+            bottom: -4px; left: 0; background: var(--primary-cyan); transition: width .3s;
+        }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary-cyan); text-shadow: 0 0 8px var(--primary-glow); }
+
+        /* cursor glow — page specific */
+        .cursor-glow { width:300px; height:300px; background:radial-gradient(circle,rgba(0,240,255,.05) 0%,transparent 70%); border-radius:50%; position:fixed; pointer-events:none; transform:translate(-50%,-50%); z-index:0; transition:left .12s ease,top .12s ease; }
+
+        /* LAYOUT */
+        .page-wrapper { max-width:1300px; margin:0 auto; padding:2.5rem 5% 5rem; position:relative; z-index:10; }
+
+        /* HERO */
+        .page-hero { text-align:center; margin-bottom:3rem; padding-top:1rem; }
+        .page-hero h2 { font-size:2.8rem; font-weight:700; margin-bottom:0.7rem; letter-spacing:-.5px; }
+        .page-hero h2 span {
+            background:linear-gradient(135deg, var(--primary-cyan) 0%, var(--purple) 60%, var(--primary-cyan) 100%);
+            background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            animation:gradFlow 4s linear infinite;
+        }
+        @keyframes gradFlow { 0% { background-position:0% center; } 100% { background-position:200% center; } }
+        .page-hero p { color:var(--text-muted); font-size:1.05rem; max-width:580px; margin:0 auto 1.2rem; line-height:1.7; }
+        .career-count-badge {
+            display:inline-flex; align-items:center; gap:0.6rem; padding:0.45rem 1.2rem;
+            background:rgba(0,240,255,0.06); border:1px solid var(--border-cyan); border-radius:50px;
+            font-size:0.8rem; color:var(--primary-cyan); letter-spacing:.5px; text-transform:uppercase; font-weight:600;
+        }
+        .badge-pulse { width:6px; height:6px; background:var(--primary-cyan); border-radius:50%; box-shadow:0 0 6px var(--primary-cyan); animation:bpulse 1.5s infinite; }
+        @keyframes bpulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,240,255,.7);} 70%{box-shadow:0 0 0 6px rgba(0,240,255,0);} }
+
+        /* SEARCH */
+        .search-wrapper { position:relative; max-width:580px; margin:0 auto 2rem; }
+        .search-icon { position:absolute; left:1.1rem; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:.78rem; font-weight:700; letter-spacing:1px; font-family:var(--mono); pointer-events:none; }
+        #searchInput { width:100%; padding:0.9rem 1rem 0.9rem 3.5rem; background:rgba(17,24,39,0.8); border:1px solid var(--border-cyan); border-radius:12px; color:var(--text-main); font-family:'Poppins',sans-serif; font-size:0.95rem; transition:all 0.3s; outline:none; }
+        #searchInput::placeholder { color:var(--text-muted); }
+        #searchInput:focus { border-color:var(--primary-cyan); box-shadow:0 0 0 3px rgba(0,240,255,0.1),0 0 20px rgba(0,240,255,0.12); background:rgba(0,240,255,0.03); }
+
+        /* FILTER BAR */
+        .filter-bar { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:2rem; }
+        .filter-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.45rem 1rem; background:rgba(17,24,39,0.6); border:1px solid var(--border-subtle); border-radius:6px; color:var(--text-muted); font-family:'Poppins',sans-serif; font-size:0.78rem; font-weight:500; cursor:pointer; transition:all 0.25s; white-space:nowrap; text-transform:uppercase; letter-spacing:.5px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; }
+        .filter-btn:hover { border-color:var(--border-cyan); color:var(--primary-cyan); background:rgba(0,240,255,0.05); }
+        .filter-btn.active { background:rgba(0,240,255,0.1); border-color:var(--primary-cyan); color:var(--primary-cyan); box-shadow:0 0 14px rgba(0,240,255,0.15); }
+        .filter-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+
+        /* RESULTS BAR */
+        .results-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; font-size:0.875rem; color:var(--text-muted); }
+        .results-bar strong { color:var(--text-main); }
+
+        /* GRID */
+        .career-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+
+        /* CARD */
+        .career-card {
+            background:var(--card-bg); backdrop-filter:blur(16px);
+            border:1px solid rgba(255,255,255,.06);
+            border-radius:22px;
+            padding:1.6rem; display:flex; flex-direction:column; gap:.9rem;
+            position:relative; overflow:hidden;
+            transition:all .32s ease;
+            animation:cardIn .4s ease-out forwards; opacity:0; transform:translateY(14px);
+        }
+        @keyframes cardIn { to { opacity:1; transform:translateY(0); } }
+        .career-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,transparent,var(--primary-cyan),transparent);
+            opacity:0; transition:opacity .32s;
+        }
+        .career-card:hover { transform:translateY(-6px); border-color:rgba(0,240,255,.22); box-shadow:0 18px 38px rgba(0,0,0,.5), 0 0 22px rgba(0,240,255,.1); }
+        .career-card:hover::before { opacity:1; }
+
+        /* badges */
+        .card-badges { display:flex; gap:.4rem; flex-wrap:wrap; min-height:20px; }
+        .badge { display:inline-flex; align-items:center; padding:.15rem .65rem; border-radius:50px; font-size:.62rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+        .badge-trending  { background:rgba(239,68,68,.1);  border:1px solid rgba(239,68,68,.25);  color:#f87171; }
+        .badge-beginner  { background:rgba(34,197,94,.1);  border:1px solid rgba(34,197,94,.25);  color:#4ade80; }
+        .badge-highsalary{ background:rgba(168,85,247,.1); border:1px solid rgba(168,85,247,.25); color:#c084fc; }
+
+        /* content */
+        .card-category { display:inline-flex; align-items:center; gap:.4rem; font-size:.67rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.7px; font-weight:600; }
+        .cat-tag { padding:.16rem .6rem; border-radius:50px; font-size:.6rem; font-weight:700; letter-spacing:.4px; }
+        .card-title { font-size:1.08rem; font-weight:600; color:var(--text-main); transition:color .25s; line-height:1.3; }
+        .career-card:hover .card-title { color:var(--primary-cyan); text-shadow:0 0 10px rgba(0,240,255,.25); }
+        .card-desc { font-size:.835rem; color:var(--text-muted); line-height:1.7; flex-grow:1; }
+
+        .skill-tags { display:flex; flex-wrap:wrap; gap:.3rem; }
+        .skill-tag  { padding:.14rem .55rem; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:50px; font-size:.67rem; color:var(--text-muted); transition:all .2s; }
+        .career-card:hover .skill-tag { border-color:rgba(0,240,255,.16); color:var(--text-main); }
+
+        /* demand */
+        .card-demand { display:flex; align-items:center; justify-content:space-between; font-size:.78rem; }
+        .demand-label { color:var(--text-muted); }
+        .demand-right { display:flex; align-items:center; gap:.4rem; }
+        .demand-dots  { display:flex; gap:3px; }
+        .demand-dot   { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.12); }
+        .demand-dot.filled { background:var(--primary-cyan); box-shadow:0 0 5px rgba(0,240,255,.5); }
+        .demand-text  { color:var(--primary-cyan); font-weight:600; font-size:.76rem; }
+
+        /* explore button */
+        .explore-btn { display:flex; align-items:center; justify-content:center; gap:.45rem; width:100%; padding:.6rem; background:transparent; border:1px solid rgba(0,240,255,.22); border-radius:50px; color:var(--primary-cyan); font-family:'Poppins',sans-serif; font-size:.78rem; font-weight:600; cursor:pointer; transition:all .28s; margin-top:auto; }
+        .explore-btn:hover { background:rgba(0,240,255,.1); box-shadow:0 0 16px rgba(0,240,255,.18); }
+        .explore-btn .btn-arrow { transition:transform .28s; }
+        .explore-btn:hover .btn-arrow { transform:translateX(4px); }
+
+        /* empty state */
+        .empty-state { grid-column:1/-1; text-align:center; padding:4rem 2rem; color:var(--text-muted); }
+        .empty-state .empty-icon { width:60px; height:60px; border:1px solid var(--border-cyan); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem; font-size:.75rem; font-weight:700; color:var(--primary-cyan); font-family:var(--mono); }
+        .empty-state h3 { font-size:1.2rem; color:var(--text-main); margin-bottom:.5rem; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay { position:fixed; inset:0; z-index:2000; background:rgba(3,7,18,0.9); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; padding:1.5rem; opacity:0; visibility:hidden; transition:opacity 0.3s,visibility 0.3s; }
+        .modal-overlay.active { opacity:1; visibility:visible; }
+        .modal-container { background:rgba(8,13,28,0.98); border:1px solid var(--border-cyan); border-radius:20px; max-width:880px; width:100%; max-height:92vh; overflow-y:auto; padding:2.5rem; position:relative; transform:scale(0.93) translateY(18px); transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 30px 70px rgba(0,0,0,0.8),0 0 40px rgba(0,240,255,0.07); }
+        .modal-overlay.active .modal-container { transform:scale(1) translateY(0); }
+        .modal-container::-webkit-scrollbar { width:4px; }
+        .modal-container::-webkit-scrollbar-track { background:transparent; }
+        .modal-container::-webkit-scrollbar-thumb { background:var(--border-cyan); border-radius:4px; }
+        .modal-close { position:absolute; top:1.2rem; right:1.2rem; width:32px; height:32px; background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); border-radius:8px; color:var(--text-muted); font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+        .modal-close:hover { background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.4); color:#f87171; }
+
+        /* Modal header */
+        .modal-header { margin-bottom:1.8rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); }
+        .modal-title { font-size:1.9rem; font-weight:700; margin-bottom:0.85rem; }
+        .modal-meta { display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+        .modal-meta-item { display:flex; align-items:center; gap:0.45rem; font-size:0.855rem; color:var(--text-muted); }
+        .modal-meta-item strong { color:var(--text-main); }
+        .diff-bar { display:flex; gap:3px; }
+        .diff-seg { width:26px; height:4px; border-radius:3px; background:rgba(255,255,255,0.1); }
+        .diff-seg.d-beginner { background:#4ade80; }
+        .diff-seg.d-intermediate { background:#fb923c; }
+        .diff-seg.d-advanced { background:#f87171; }
+        .diff-badge { padding:0.3rem 0.8rem; border-radius:8px; font-size:0.8rem; font-weight:600; }
+        .diff-badge.b { background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.3); color:#4ade80; }
+        .diff-badge.i { background:rgba(251,146,60,0.12); border:1px solid rgba(251,146,60,0.3); color:#fb923c; }
+        .diff-badge.a { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#f87171; }
+
+        /* Modal body */
+        .modal-full-desc { font-size:0.93rem; color:var(--text-muted); line-height:1.9; margin-bottom:1.8rem; }
+        .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; margin-bottom:1.1rem; }
+        .modal-section { background:rgba(0,0,0,0.22); border:1px solid var(--border-subtle); border-radius:12px; padding:1.3rem; }
+        .modal-section.full { grid-column:1/-1; }
+        .modal-sec-title { font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--primary-cyan); margin-bottom:0.9rem; }
+        .modal-list { list-style:none; display:flex; flex-direction:column; gap:0.5rem; }
+        .modal-list li { font-size:0.855rem; color:var(--text-muted); display:flex; align-items:flex-start; gap:0.5rem; line-height:1.6; }
+        .modal-list li::before { content:'▹'; color:var(--primary-cyan); flex-shrink:0; margin-top:0.05rem; }
+        .modal-tags { display:flex; flex-wrap:wrap; gap:0.45rem; }
+        .modal-tag-cyan   { padding:0.28rem 0.75rem; background:rgba(0,240,255,0.07);   border:1px solid rgba(0,240,255,0.2);   border-radius:8px; font-size:0.78rem; color:var(--primary-cyan); }
+        .modal-tag-purple { padding:0.28rem 0.75rem; background:rgba(168,85,247,0.07); border:1px solid rgba(168,85,247,0.2); border-radius:8px; font-size:0.78rem; color:#c084fc; }
+        .salary-pair { display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; }
+        .salary-box { background:rgba(0,240,255,0.04); border:1px solid rgba(0,240,255,0.13); border-radius:10px; padding:1rem; text-align:center; }
+        .salary-label { font-size:0.72rem; color:var(--text-muted); margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.5px; }
+        .salary-value { font-size:0.98rem; font-weight:600; color:#a7f3d0; }
+        .prog-flow { display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem; }
+        .prog-step { padding:0.32rem 0.7rem; background:rgba(0,240,255,0.06); border:1px solid var(--border-cyan); border-radius:8px; font-size:0.76rem; color:var(--text-main); white-space:nowrap; }
+        .prog-arrow { color:var(--primary-cyan); font-size:0.85rem; }
+
+        /* ===== ROLE BADGES ===== */
+        .role-badges-row { display:flex; flex-wrap:wrap; gap:0.45rem; margin-bottom:1rem; }
+        .role-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.28rem 0.75rem; border-radius:8px; font-size:0.75rem; font-weight:600; }
+        .rb-beginner    { background:rgba(34,197,94,0.1);  border:1px solid rgba(34,197,94,0.25);  color:#4ade80; }
+        .rb-careergrowth{ background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.25); color:#60a5fa; }
+        .rb-highdemand  { background:rgba(239,68,68,0.1);  border:1px solid rgba(239,68,68,0.25);  color:#f87171; }
+        .rb-entrypoint  { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:#fbbf24; }
+        .rb-specialist  { background:rgba(251,146,60,0.1); border:1px solid rgba(251,146,60,0.25); color:#fb923c; }
+        .rb-leadership  { background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.25); color:#c084fc; }
+
+        /* ===== MODAL DIVIDER + SECTION HEADING ===== */
+        .modal-divider { height:1px; background:rgba(255,255,255,0.07); margin:2rem 0; }
+        .modal-sh { font-size:.72rem; font-weight:700; color:var(--primary-cyan); margin-bottom:1.2rem; padding-bottom:0.6rem; border-bottom:1px solid rgba(0,240,255,0.12); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:.6rem; }
+        .modal-sh::before { content:''; display:inline-block; width:3px; height:14px; background:var(--primary-cyan); border-radius:2px; flex-shrink:0; }
+
+        /* ===== SIMILAR CAREERS ===== */
+        .similar-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0.9rem; }
+        .similar-card { background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:1.2rem; cursor:pointer; transition:all 0.25s; display:flex; flex-direction:column; }
+        .similar-card:hover { border-color:var(--border-cyan); background:rgba(0,240,255,0.04); transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.4); }
+        .s-icon  { font-size:1.6rem; margin-bottom:0.5rem; }
+        .s-name  { font-size:0.95rem; font-weight:600; color:var(--text-main); margin-bottom:0.2rem; transition:color 0.2s; }
+        .similar-card:hover .s-name { color:var(--primary-cyan); }
+        .s-cat   { font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.6rem; }
+        .s-desc  { font-size:0.8rem; color:var(--text-muted); line-height:1.5; flex-grow:1; margin-bottom:0.9rem; }
+        .s-btn   { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.8rem; color:var(--primary-cyan); background:none; border:1px solid rgba(0,240,255,0.2); border-radius:7px; padding:0.32rem 0.7rem; cursor:pointer; font-family:'Poppins',sans-serif; transition:all 0.2s; }
+        .s-btn:hover { background:rgba(0,240,255,0.08); }
+
+        /* ===== HOW IS THIS DIFFERENT ===== */
+        .diff-block { background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:1.3rem; margin-bottom:1rem; }
+        .diff-block:last-child { margin-bottom:0; }
+        .diff-vs-header { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.7rem; flex-wrap:wrap; }
+        .diff-this-pill  { padding:0.22rem 0.75rem; background:rgba(0,240,255,0.09);   border:1px solid rgba(0,240,255,0.3);   border-radius:6px; font-size:0.78rem; font-weight:600; color:var(--primary-cyan); }
+        .diff-other-pill { padding:0.22rem 0.75rem; background:rgba(168,85,247,0.09); border:1px solid rgba(168,85,247,0.3); border-radius:6px; font-size:0.78rem; font-weight:600; color:#c084fc; }
+        .diff-vs-txt { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; }
+        .diff-intro-txt { font-size:0.855rem; color:var(--text-muted); margin-bottom:1rem; font-style:italic; line-height:1.65; }
+        .diff-cols { display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; }
+        .diff-col-box { background:rgba(0,0,0,0.15); border-radius:8px; padding:0.9rem; }
+        .diff-col-lbl { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; padding:0.22rem 0.6rem; border-radius:6px; margin-bottom:0.75rem; display:inline-block; }
+        .diff-col-lbl.is-this  { background:rgba(0,240,255,0.08); color:var(--primary-cyan); border:1px solid rgba(0,240,255,0.2); }
+        .diff-col-lbl.is-other { background:rgba(168,85,247,0.08); color:#c084fc; border:1px solid rgba(168,85,247,0.2); }
+        .diff-col-box ul { list-style:none; display:flex; flex-direction:column; gap:0.45rem; }
+        .diff-col-box li { font-size:0.8rem; color:var(--text-muted); display:flex; align-items:flex-start; gap:0.45rem; line-height:1.55; }
+        .diff-col-box.is-this  li::before { content:'✓'; color:var(--primary-cyan); flex-shrink:0; font-size:0.75rem; margin-top:0.08rem; }
+        .diff-col-box.is-other li::before { content:'◈'; color:#c084fc;             flex-shrink:0; font-size:0.75rem; margin-top:0.08rem; }
+
+        /* RESPONSIVE */
+        @media (max-width:1024px) { .career-grid { grid-template-columns:repeat(2,1fr); } }
+        @media (max-width:768px) {
+            .nav-links { display:none; }
+            .navbar { flex-direction:row; padding:1rem 5%; min-height:60px; }
+            .page-hero h2 { font-size:2rem; }
+            /* Filter bar wraps on mobile — semua buttons visible tanpa scroll */
+            .filter-bar {
+                flex-wrap: wrap !important;
+                overflow-x: visible !important;
+                justify-content: center !important;
+                gap: 0.4rem !important;
+            }
+            .filter-btn {
+                min-height: 40px;
+                font-size: 0.75rem;
+                padding: 0.4rem 0.85rem;
+            }
+            /* Modal full-screen on mobile */
+            .modal-overlay { padding: 0; align-items: flex-end; }
+            .modal-container {
+                border-radius: 20px 20px 0 0;
+                max-height: 92vh;
+                padding: 1.5rem 1.2rem;
+            }
+            .career-grid { grid-template-columns:1fr; }
+            .modal-grid { grid-template-columns:1fr; }
+            .diff-cols { grid-template-columns:1fr; }
+            .similar-grid { grid-template-columns:1fr; }
+            .modal-title { font-size:1.5rem; }
+            .salary-pair { grid-template-columns:1fr; }
+        }
+        @media (max-width:480px) {
+            .page-hero h2 { font-size:1.6rem; }
+            .page-hero p { font-size:.92rem; }
+            .career-card { padding:1.2rem; gap:.7rem; }
+            .modal-container { padding:1.2rem .9rem; }
+            .modal-title { font-size:1.25rem; }
+            .modal-section { padding:1rem; }
+            .similar-card { padding:1rem; }
+            .diff-block { padding:1rem; }
+            .diff-col-box { padding:.7rem; }
+            .role-badge { font-size:.68rem; padding:.24rem .6rem; }
+            .filter-btn { font-size:.7rem; padding:.38rem .7rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
+<canvas id="particle-canvas"></canvas>
+
+<header class="header-container">
+    <nav class="navbar">
+        <div class="logo"><h1>Tech<span class="text-cyan">Path</span></h1></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="knowledge-base.html" class="active">Career List</a></li>
+            <li><a href="about.html">About System</a></li>
+            <li><a href="cgpa.html">CGPA Calculator</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="page-wrapper">
+    <div class="page-hero">
+        <h2>IT Career <span>Explorer</span></h2>
+        <p>Browse, filter, and deep-dive into 18 IT career paths — with side-by-side comparisons to help you tell similar roles apart.</p>
+        <span class="career-count-badge"><span class="badge-pulse"></span><span id="totalCount">18</span> Careers Available</span>
+    </div>
+
+    <div class="search-wrapper">
+        <span class="search-icon">SRCH</span>
+        <input type="text" id="searchInput" placeholder="Search by career, skill, or keyword…">
+    </div>
+
+    <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-filter="all"                     onclick="setFilter(this,'all')"                    ><span class="filter-dot" style="background:#9ca3af"></span>All</button>
+        <button class="filter-btn"        data-filter="Software Development"     onclick="setFilter(this,'Software Development')"   ><span class="filter-dot" style="background:#00f0ff"></span>Software Dev</button>
+        <button class="filter-btn"        data-filter="Cybersecurity"            onclick="setFilter(this,'Cybersecurity')"          ><span class="filter-dot" style="background:#f87171"></span>Cybersecurity</button>
+        <button class="filter-btn"        data-filter="Data &amp; AI"            onclick="setFilter(this,'Data & AI')"              ><span class="filter-dot" style="background:#c084fc"></span>Data &amp; AI</button>
+        <button class="filter-btn"        data-filter="Networking &amp; Cloud"   onclick="setFilter(this,'Networking & Cloud')"     ><span class="filter-dot" style="background:#60a5fa"></span>Networking &amp; Cloud</button>
+        <button class="filter-btn"        data-filter="Support / IT Operations"  onclick="setFilter(this,'Support / IT Operations')"><span class="filter-dot" style="background:#fb923c"></span>IT Operations</button>
+        <button class="filter-btn"        data-filter="Design &amp; Product"     onclick="setFilter(this,'Design & Product')"       ><span class="filter-dot" style="background:#4ade80"></span>Design &amp; Product</button>
+    </div>
+
+    <div class="results-bar">
+        <span>Showing <strong id="showingCount">18</strong> of <strong>18</strong> careers</span>
+        <span id="activeFilterLabel" style="color:var(--primary-cyan);font-size:0.8rem;"></span>
+    </div>
+
+    <div class="career-grid" id="careerGrid"></div>
+</main>
+
+<!-- Modal close button — fixed outside scrollable container -->
+<button id="modalClose"
+        style="display:none; position:fixed; top:1rem; right:1rem; z-index:2001;
+               width:44px; height:44px; border-radius:50%;
+               background:rgba(17,24,39,.95); border:1px solid rgba(0,240,255,.4);
+               color:#00f0ff; font-size:1.2rem; cursor:pointer;
+               align-items:center; justify-content:center;
+               box-shadow:0 0 15px rgba(0,240,255,.2);"
+        onclick="document.getElementById('modalOverlay').classList.remove('active'); document.body.style.overflow=''; this.style.display='none';"
+        aria-label="Close">✕</button>
+
+<div class="modal-overlay" id="modalOverlay"
+     onclick="if(event.target===this){this.classList.remove('active');document.body.style.overflow='';document.getElementById('modalClose').style.display='none';}">
+    <div class="modal-container" id="modalContainer">
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// ROLE BADGE CONFIG
+// ─────────────────────────────────────────────
+const ROLE_BADGE_MAP = {
+    beginner:     { cls:'rb-beginner',     label:'Beginner Friendly' },
+    careergrowth: { cls:'rb-careergrowth', label:'Career Growth' },
+    highdemand:   { cls:'rb-highdemand',   label:'High Demand' },
+    entrypoint:   { cls:'rb-entrypoint',   label:'Entry Point Role' },
+    specialist:   { cls:'rb-specialist',   label:'Specialist Role' },
+    leadership:   { cls:'rb-leadership',   label:'Leadership Path' },
+};
+
+const CAT_STYLE = {
+    'Software Development':    { tag:'SW-DEV',  color:'#00f0ff' },
+    'Cybersecurity':           { tag:'CYBER',   color:'#f87171' },
+    'Data & AI':               { tag:'DATA·AI', color:'#c084fc' },
+    'Networking & Cloud':      { tag:'CLOUD',   color:'#60a5fa' },
+    'Support / IT Operations': { tag:'IT-OPS',  color:'#fb923c' },
+    'Design & Product':        { tag:'DESIGN',  color:'#4ade80' },
+};
+function getCatTag(cat) {
+    const s = CAT_STYLE[cat] || { tag:'IT', color:'#9ca3af' };
+    return `<span class="cat-tag" style="background:${s.color}18;border:1px solid ${s.color}44;color:${s.color}">${s.tag}</span>`;
+}
+
+// ─────────────────────────────────────────────
+// CAREER DATA
+// ─────────────────────────────────────────────
+const careers = [
+  {
+    name:"Software Developer", category:"Software Development", icon:"💻",
+    desc:"Creates, tests, and maintains software applications and systems for end-users or businesses.",
+    fullDesc:"Software Developers are the architects of the digital world. They design, build, test, and maintain software applications ranging from desktop programs to enterprise systems. This role requires strong analytical thinking and proficiency in multiple programming languages. Developers collaborate closely with product, design, and QA teams to turn business requirements into reliable, efficient software.",
+    difficulty:"Intermediate", demand:"High", demandLevel:4,
+    skills:["JavaScript","Python","Java","Git","SQL","OOP","Algorithms"],
+    softSkills:["Problem Solving","Teamwork","Communication","Attention to Detail"],
+    responsibilities:["Design and develop applications based on user requirements","Write clean, efficient, and well-documented code","Debug and troubleshoot complex software issues","Collaborate with design, QA, and product teams","Participate in code reviews to maintain quality","Optimize applications for performance and scalability"],
+    certs:["Oracle Certified Professional (Java)","Microsoft Certified: Azure Developer","AWS Certified Developer – Associate"],
+    courses:["CS50 by Harvard (edX — Free)","The Odin Project (Free)","Full Stack Open – University of Helsinki"],
+    junior:"RM3,000 – RM5,500", senior:"RM8,000 – RM15,000+",
+    progression:"Junior Developer → Mid-Level Developer → Senior Developer → Tech Lead → Engineering Manager / CTO",
+    badges:["trending"],
+    roleBadges:["highdemand","careergrowth","specialist"],
+    similar:["Web Developer","Mobile App Developer"],
+    differences:{
+      "Web Developer":{
+        intro:"Both are developers who write code, but they target different platforms and have different scopes of work.",
+        thisCareer:["Builds broad software: enterprise systems, desktop apps, APIs, and embedded tools","Works across multiple platforms — Windows, Linux, macOS, server-side","Deeper focus on system design, data structures, and algorithms","Can work in any domain: finance, healthcare, gaming, logistics"],
+        otherCareer:["Specializes exclusively in browser-based web applications and websites","Works primarily with HTML, CSS, JavaScript, and web frameworks (React, Next.js)","Strong emphasis on UI/UX integration, responsiveness, and browser compatibility","Domain is the web — front-end, back-end web servers, or full-stack"]
+      },
+      "Mobile App Developer":{
+        intro:"Both build software applications, but engineered for completely different platforms with different constraints.",
+        thisCareer:["Builds general software without mobile-specific constraints","Works with general-purpose languages: Java, Python, C#, Go","Software can run on cloud, desktop, or server environments","No App Store submission or platform guidelines to follow"],
+        otherCareer:["Builds apps specifically for iOS and Android smartphones","Uses Swift (iOS), Kotlin (Android), or Flutter/React Native","Must optimize for battery, small screens, touch, and offline use","Deploys through App Store or Google Play with strict review rules"]
+      }
+    }
+  },
+  {
+    name:"Web Developer", category:"Software Development", icon:"💻",
+    desc:"Builds responsive, interactive, and performant websites and web applications used by millions.",
+    fullDesc:"Web Developers specialize in creating everything users see and interact with on the internet. They work on front-end (UI), back-end (server logic), or both (full-stack). This career requires mastery of modern web technologies and a solid grasp of user experience, accessibility, and browser compatibility to build fast, inclusive web products.",
+    difficulty:"Beginner", demand:"Very High", demandLevel:5,
+    skills:["HTML","CSS","JavaScript","React","Node.js","REST APIs","Git"],
+    softSkills:["Creativity","Attention to Detail","Problem Solving","Self-Learning"],
+    responsibilities:["Build and maintain websites and web applications","Ensure cross-browser compatibility and mobile responsiveness","Integrate front-end with back-end APIs","Optimize websites for speed and Core Web Vitals","Collaborate with designers to implement visual designs","Maintain and upgrade existing web systems"],
+    certs:["Meta Front-End Developer Certificate","AWS Certified Developer – Associate","freeCodeCamp Full Stack Certification"],
+    courses:["The Odin Project (Free)","Frontend Masters","Full Stack Open – University of Helsinki (Free)"],
+    junior:"RM2,800 – RM5,000", senior:"RM7,000 – RM14,000+",
+    progression:"Junior Web Dev → Mid-Level Developer → Senior Developer → Full-Stack Lead → Engineering Director",
+    badges:["beginner","trending"],
+    roleBadges:["beginner","highdemand","entrypoint"],
+    similar:["Software Developer","UI/UX Designer"],
+    differences:{
+      "Software Developer":{
+        intro:"Web Developers are a specialized type of developer; Software Developers have a much broader platform scope.",
+        thisCareer:["Specializes in browser-based applications and websites only","Works deeply with HTML, CSS, JavaScript, and web frameworks","Focus on web performance, SEO, and browser compatibility","Natural path toward full-stack web engineering"],
+        otherCareer:["Builds software across all platforms: desktop, mobile, enterprise, embedded","Uses a wider variety of programming languages and paradigms","Deeper focus on algorithms, data structures, and system architecture","Works in any technical domain — not limited to the web"]
+      },
+      "UI/UX Designer":{
+        intro:"Both work on the user-facing side of products, but one codes while the other designs.",
+        thisCareer:["Writes actual code to build and deploy functional web interfaces","Implements design files (from Figma) into working HTML/CSS/JS","Focuses on technical accuracy, performance, and browser behavior","Primarily an engineering role with creative awareness"],
+        otherCareer:["Does not write production code — focuses on design and research","Creates wireframes, mockups, and prototypes in Figma or Adobe XD","Focuses on user psychology, usability, and information architecture","Primarily a design and research role with strong empathy skills"]
+      }
+    }
+  },
+  {
+    name:"Cybersecurity Analyst", category:"Cybersecurity", icon:"🔐",
+    desc:"Monitors, detects, and responds to cyber threats to protect organizational IT infrastructure.",
+    fullDesc:"Cybersecurity Analysts are the digital guardians of organizations. They monitor networks and systems for suspicious activity, investigate security incidents, and implement defenses to prevent breaches. As threats evolve rapidly, analysts must continuously update their knowledge of attack vectors and defensive strategies. This is one of the most in-demand and recession-proof IT careers globally.",
+    difficulty:"Intermediate", demand:"Very High", demandLevel:5,
+    skills:["SIEM Tools","Incident Response","Network Security","Firewalls","Linux","Threat Intelligence"],
+    softSkills:["Analytical Thinking","Attention to Detail","Problem Solving","Written Communication"],
+    responsibilities:["Monitor networks and systems for suspicious activity in real-time","Investigate and respond to security alerts and breach incidents","Conduct vulnerability assessments and risk analysis","Manage security tools: SIEM, IDS/IPS, and EDR platforms","Develop and update security policies and incident playbooks","Create incident reports and present findings to management"],
+    certs:["CompTIA Security+","CEH (Certified Ethical Hacker)","CISSP","CompTIA CySA+"],
+    courses:["Google Cybersecurity Certificate (Coursera)","TryHackMe SOC Analyst Path","Blue Team Labs Online (Free)"],
+    junior:"RM3,500 – RM6,500", senior:"RM8,000 – RM18,000+",
+    progression:"SOC Analyst L1 → SOC Analyst L2/L3 → Security Analyst → Security Engineer → CISO",
+    badges:["trending","highsalary"],
+    roleBadges:["highdemand","careergrowth","specialist"],
+    similar:["Security Engineer","Penetration Tester"],
+    differences:{
+      "Security Engineer":{
+        intro:"Both work in cybersecurity, but Analysts react to threats while Engineers design and build the defenses.",
+        thisCareer:["Monitors systems in real-time for security incidents","Responds to and investigates active security alerts and breaches","Works primarily with existing security tools: SIEM, EDR, IDS","Focuses on detection, response, and incident handling"],
+        otherCareer:["Architects and builds the security infrastructure from the ground up","Creates the tools, frameworks, and systems that analysts use","Requires deeper software engineering and systems design skills","Focuses on long-term security architecture and resilience planning"]
+      },
+      "Penetration Tester":{
+        intro:"Both work in security, but Analysts defend while Penetration Testers go on the offense.",
+        thisCareer:["Defensive role — protects the organization from real incoming threats","Monitors and responds reactively when threats are detected","Works continuously in real-time SOC operations","Day-to-day: alert triage, threat hunting, and incident response"],
+        otherCareer:["Offensive role — authorized to actively attack and exploit systems","Works on planned, scoped engagements — not real-time reactive","Goal: find weaknesses before attackers do and document them","Day-to-day: reconnaissance, exploitation, and vulnerability reports"]
+      }
+    }
+  },
+  {
+    name:"Mobile App Developer", category:"Software Development", icon:"💻",
+    desc:"Designs and builds native or cross-platform mobile applications for iOS and Android devices.",
+    fullDesc:"Mobile App Developers create applications for smartphones and tablets, targeting iOS, Android, or both simultaneously. With billions of smartphone users worldwide, mobile developers are in high demand. They must consider unique constraints — battery life, screen sizes, touch interfaces, and offline functionality — when building apps that users love.",
+    difficulty:"Intermediate", demand:"High", demandLevel:4,
+    skills:["Swift","Kotlin","Flutter","React Native","Firebase","REST APIs","Git"],
+    softSkills:["Creativity","UX Awareness","Problem Solving","Attention to Detail"],
+    responsibilities:["Design and develop iOS and/or Android mobile applications","Write clean, efficient code for mobile platforms","Integrate apps with backend APIs and cloud services","Test for performance, bugs, and device compatibility","Publish and maintain apps on App Store and Google Play","Collaborate with designers and backend developers"],
+    certs:["Google Associate Android Developer","Apple Development with Swift Certificate","Meta React Native Developer"],
+    courses:["Android with Kotlin (Udacity)","Flutter & Dart – The Complete Guide (Udemy)","iOS Development with Swift (Apple)"],
+    junior:"RM3,500 – RM6,000", senior:"RM8,000 – RM16,000+",
+    progression:"Junior Mobile Dev → Mobile Developer → Senior Mobile Dev → Lead Engineer → Mobile Architect",
+    badges:["trending"],
+    roleBadges:["highdemand","specialist"],
+    similar:["Software Developer","Web Developer"],
+    differences:{
+      "Software Developer":{
+        intro:"Mobile App Developers are a specialized subset of software development focused exclusively on mobile platforms.",
+        thisCareer:["Builds apps for iOS and Android mobile devices only","Uses Swift, Kotlin, Flutter, or React Native","Must optimize for battery, touch input, small screens, and offline mode","Deploys through App Store/Google Play with strict platform review rules"],
+        otherCareer:["Builds software for any platform: web, desktop, server, or enterprise systems","Uses a broad range of general-purpose languages","No mobile-specific constraints or platform approval processes","Can deploy to cloud, on-premise, or any operating environment"]
+      },
+      "Web Developer":{
+        intro:"Both build interactive applications, but for fundamentally different platforms.",
+        thisCareer:["Builds native or hybrid apps that run directly on the mobile OS","Full access to device APIs: camera, GPS, push notifications, Bluetooth","Apps must pass App Store / Google Play review process","Offline-first design is a primary engineering consideration"],
+        otherCareer:["Builds applications that run inside a browser on any device","Limited access to device hardware compared to native apps","Deployed instantly via web servers — no app store approval needed","Focus on responsive design to support multiple screen sizes"]
+      }
+    }
+  },
+  {
+    name:"Data Analyst", category:"Data & AI", icon:"📊",
+    desc:"Collects, processes, and analyzes data to generate actionable insights that drive business decisions.",
+    fullDesc:"Data Analysts transform raw data into meaningful insights that drive decisions. They work with large datasets using SQL, Python, and BI platforms to identify trends, create visualizations, and present findings to stakeholders. This role sits at the intersection of business and technology — strong communication skills are as critical as technical ability.",
+    difficulty:"Beginner", demand:"High", demandLevel:4,
+    skills:["SQL","Python","Excel","Tableau","Power BI","Statistics","Data Visualization"],
+    softSkills:["Analytical Thinking","Communication","Storytelling with Data","Attention to Detail"],
+    responsibilities:["Collect, clean, and process large datasets from various sources","Perform statistical analysis to identify trends and patterns","Create dashboards and visualizations for business stakeholders","Present data insights and recommendations to decision-makers","Develop and maintain data pipelines and reporting tools","Collaborate with business units to understand their data needs"],
+    certs:["Google Data Analytics Certificate","Microsoft Power BI Data Analyst (PL-300)","IBM Data Analyst Professional Certificate"],
+    courses:["Google Data Analytics (Coursera)","DataCamp Data Analyst Track","Statistics with Python – University of Michigan (Coursera)"],
+    junior:"RM3,200 – RM5,500", senior:"RM7,500 – RM15,000+",
+    progression:"Junior Data Analyst → Data Analyst → Senior Analyst → Analytics Manager → Chief Data Officer",
+    badges:["beginner","trending"],
+    roleBadges:["beginner","highdemand","entrypoint","careergrowth"],
+    similar:["Data Scientist","Business Analyst"],
+    differences:{
+      "Data Scientist":{
+        intro:"Both work with data, but Analysts explain what happened while Data Scientists predict what will happen.",
+        thisCareer:["Analyzes existing historical data to uncover trends and patterns","Creates dashboards, reports, and visualizations for stakeholders","Uses SQL, Excel, Tableau, and basic Python/R","Answers the question: 'What happened and why?'"],
+        otherCareer:["Builds predictive models using machine learning and advanced statistics","Develops algorithms to forecast future outcomes and behaviors","Requires deep knowledge of ML frameworks: TensorFlow, scikit-learn, PyTorch","Answers the question: 'What will happen next, and what should we do?'"]
+      },
+      "Business Analyst":{
+        intro:"Both bridge data and business decisions, but from very different angles and using different tools.",
+        thisCareer:["Primarily a data role — works with numbers, databases, and BI tools","Produces data-driven dashboards, charts, and analytical insights","Technical focus: SQL, Python, data pipelines, statistical analysis","Output: dashboards, trend reports, and quantitative insights"],
+        otherCareer:["Primarily a process and communication role — works with people and requirements","Gathers requirements through interviews, workshops, and documentation","Less technical depth; more focus on business process and stakeholder management","Output: user stories, BRDs, process flow diagrams, and requirements specs"]
+      }
+    }
+  },
+  {
+    name:"Data Scientist", category:"Data & AI", icon:"📊",
+    desc:"Builds predictive models and applies advanced statistics and ML to solve complex business problems.",
+    fullDesc:"Data Scientists combine statistical expertise, programming skills, and domain knowledge to extract deep insights and build predictive models. Unlike Analysts who describe what happened, Data Scientists predict what will happen using machine learning, statistical modelling, and experimentation. This is one of the highest-paying and most prestigious tech careers globally.",
+    difficulty:"Advanced", demand:"Very High", demandLevel:5,
+    skills:["Python","R","Machine Learning","SQL","TensorFlow","Statistics","Feature Engineering"],
+    softSkills:["Critical Thinking","Research Skills","Communication","Curiosity","Problem Solving"],
+    responsibilities:["Develop ML models for prediction, classification, and clustering","Conduct exploratory data analysis (EDA) on complex datasets","Design and run A/B tests and controlled experiments","Work with engineering teams to deploy models to production","Communicate findings and model performance to stakeholders","Research and apply state-of-the-art ML and statistical techniques"],
+    certs:["Microsoft Azure Data Scientist Associate (DP-100)","Google Professional Data Engineer","Databricks Certified ML Professional"],
+    courses:["Machine Learning Specialization – Andrew Ng (Coursera)","fast.ai Practical Deep Learning (Free)","DataCamp Data Science Track"],
+    junior:"RM4,000 – RM7,000", senior:"RM10,000 – RM20,000+",
+    progression:"Junior Data Scientist → Data Scientist → Senior Data Scientist → Lead Data Scientist → Head of AI/ML",
+    badges:["highsalary","trending"],
+    roleBadges:["highdemand","careergrowth","specialist"],
+    similar:["Data Analyst","Machine Learning Engineer"],
+    differences:{
+      "Data Analyst":{
+        intro:"Both work with data, but at very different levels of technical depth and purpose.",
+        thisCareer:["Builds predictive and prescriptive models using ML and statistics","Experiments with algorithms to forecast, classify, or cluster data","Requires deep statistical knowledge and Python/R proficiency","Answers future-facing questions: 'What will happen?'"],
+        otherCareer:["Describes and summarizes historical data to find business trends","Uses SQL, Excel, and BI tools for visualization and reporting","Does not build predictive models or use ML frameworks","Answers past-facing questions: 'What happened and why?'"]
+      },
+      "Machine Learning Engineer":{
+        intro:"Data Scientists research and build models; ML Engineers deploy and scale them into production.",
+        thisCareer:["Research-oriented role — experiments, notebooks, and model development","Focuses on model accuracy, interpretability, and statistical insight","May hand off models to engineering for deployment","Statistical and domain expertise are the core of the role"],
+        otherCareer:["Engineering-oriented role — deploys, monitors, and scales ML models","Focuses on MLOps: pipelines, feature stores, CI/CD for ML, and serving","Takes models from data scientists and makes them production-ready","Requires strong DevOps, Docker, and Kubernetes skills"]
+      }
+    }
+  },
+  {
+    name:"AI Engineer", category:"Data & AI", icon:"📊",
+    desc:"Designs, builds, and deploys AI-powered systems including NLP, computer vision, and generative AI.",
+    fullDesc:"AI Engineers are at the forefront of one of the most transformative technologies in history. They build systems that understand language, recognize images, generate content, and make autonomous decisions. This role bridges software engineering and ML research — requiring deep knowledge of both to ship production-ready AI products at scale.",
+    difficulty:"Advanced", demand:"Very High", demandLevel:5,
+    skills:["Python","TensorFlow","PyTorch","NLP","Computer Vision","LLMs","MLOps"],
+    softSkills:["Research Mindset","Problem Solving","Creativity","Continuous Learning"],
+    responsibilities:["Design and build AI models for specific business use cases","Work with LLMs, NLP pipelines, and computer vision systems","Optimize AI model performance, accuracy, and inference efficiency","Build and maintain AI/ML infrastructure and serving pipelines","Collaborate with product teams to create user-facing AI features","Stay current with the latest AI research and apply it practically"],
+    certs:["AWS Certified Machine Learning – Specialty","Google Professional ML Engineer","NVIDIA Deep Learning Institute Certification"],
+    courses:["Deep Learning Specialization – Andrew Ng (Coursera)","Hugging Face NLP Course (Free)","Fast.ai Practical Deep Learning (Free)"],
+    junior:"RM4,500 – RM7,500", senior:"RM12,000 – RM25,000+",
+    progression:"Junior AI Engineer → AI Engineer → Senior AI Engineer → Principal AI Engineer → VP of AI",
+    badges:["highsalary","trending"],
+    roleBadges:["highdemand","careergrowth","specialist"],
+    similar:["Machine Learning Engineer","Data Scientist"],
+    differences:{
+      "Machine Learning Engineer":{
+        intro:"Both build AI/ML systems, but AI Engineers focus on the AI product while ML Engineers focus on the ML pipeline.",
+        thisCareer:["Builds complete AI-powered products: NLP apps, vision tools, LLM integrations","Works with cutting-edge AI: Generative AI, LLMs, multimodal models","Combines software engineering + AI research + product thinking","Creates user-facing AI features people interact with directly"],
+        otherCareer:["Specializes in the ML pipeline: training, deployment, and monitoring at scale","Builds MLOps infrastructure — feature stores, model registries, CI/CD for ML","Emphasizes reliability, latency, and cost-efficiency of ML serving systems","Less focused on the end-user AI product experience"]
+      },
+      "Data Scientist":{
+        intro:"Both leverage AI and ML, but with fundamentally different goals and deliverables.",
+        thisCareer:["Goal: Build and ship AI-powered products and systems users interact with","Engineering-heavy — production code, APIs, and deployed AI applications","Focused on AI capabilities and integration into real-world products","Output: Working AI features, APIs, and deployed AI systems"],
+        otherCareer:["Goal: Generate insights and predictive models from data","Research-heavy — experimentation, statistical analysis, and notebooks","Focused on understanding data and optimizing model accuracy","Output: Analytical insights, reports, and experimental ML models"]
+      }
+    }
+  },
+  {
+    name:"Machine Learning Engineer", category:"Data & AI", icon:"📊",
+    desc:"Designs and deploys scalable, production-ready ML systems and automated training pipelines at scale.",
+    fullDesc:"Machine Learning Engineers bridge the gap between data science research and production software. While Data Scientists build models, ML Engineers make those models reliable, scalable, and deployable at enterprise scale. This demands strong software engineering skills combined with solid understanding of ML algorithms and MLOps practices.",
+    difficulty:"Advanced", demand:"Very High", demandLevel:5,
+    skills:["Python","PyTorch","MLOps","Docker","Kubernetes","Apache Spark","Feature Engineering"],
+    softSkills:["Systems Thinking","Problem Solving","Collaboration","Communication"],
+    responsibilities:["Build and maintain scalable ML training and inference pipelines","Deploy ML models to production using MLOps best practices","Monitor model performance and detect data drift in production","Collaborate with data scientists to productionize their models","Optimize ML infrastructure for cost, latency, and throughput","Implement feature stores and real-time model serving systems"],
+    certs:["Google Professional ML Engineer","Databricks Certified ML Associate","AWS Machine Learning – Specialty"],
+    courses:["MLOps Specialization (Coursera)","Made With ML (Free)","Full Stack Deep Learning (Free)"],
+    junior:"RM4,500 – RM7,500", senior:"RM12,000 – RM22,000+",
+    progression:"Junior ML Engineer → ML Engineer → Senior ML Engineer → Staff Engineer → Principal Engineer / ML Director",
+    badges:["highsalary","trending"],
+    roleBadges:["highdemand","specialist"],
+    similar:["AI Engineer","Data Scientist"],
+    differences:{
+      "AI Engineer":{
+        intro:"Both work with AI/ML, but ML Engineers focus on the infrastructure pipeline while AI Engineers focus on the AI product.",
+        thisCareer:["Specializes in ML pipeline: training infrastructure, model serving, and monitoring","Builds MLOps systems — feature stores, model registries, and CI/CD for ML","Focus on reliability, scalability, and efficiency of ML systems at scale","Strong DevOps, distributed systems, and platform engineering mindset"],
+        otherCareer:["Builds complete AI-powered products and user-facing AI features","Works with a broader range of AI: LLMs, Generative AI, computer vision, NLP","More product-oriented — creates AI features end users directly interact with","Balances AI research, product requirements, and engineering implementation"]
+      },
+      "Data Scientist":{
+        intro:"Data Scientists research and build model ideas; ML Engineers take those ideas to production.",
+        thisCareer:["Takes models built by data scientists and deploys them at production scale","Strong software engineering background is the core requirement","Works in production environments with strict SLAs and reliability requirements","Focuses on performance, monitoring, and ML model lifecycle management"],
+        otherCareer:["Experiments and researches to discover new ML approaches","Works mostly in Python notebooks and analytics environments","Statistical depth and domain knowledge are more important than SRE skills","Focuses on model accuracy, interpretability, and actionable insights"]
+      }
+    }
+  },
+  {
+    name:"Security Engineer", category:"Cybersecurity", icon:"🔐",
+    desc:"Architects and builds robust IT security systems and infrastructure to defend against sophisticated threats.",
+    fullDesc:"Security Engineers take a proactive architectural role — designing the security systems, tooling, and frameworks that the whole organization relies on. Unlike analysts who react to incidents, engineers build the infrastructure that prevents them. This requires deep technical knowledge of both systems internals and attacker mindset to build truly resilient defenses.",
+    difficulty:"Advanced", demand:"High", demandLevel:4,
+    skills:["Security Architecture","Firewalls","Encryption","Zero Trust","PKI","Python","Linux"],
+    softSkills:["Analytical Thinking","Problem Solving","Technical Documentation","Leadership"],
+    responsibilities:["Design and implement enterprise security architectures","Build and maintain internal security tooling and automation","Conduct security design reviews for new systems and services","Define and enforce security standards across the organization","Lead response and remediation for critical security incidents","Evaluate and integrate new security technologies and products"],
+    certs:["CISSP","CISM","CompTIA CASP+","GIAC Security Expert (GSE)"],
+    courses:["SANS Security Courses","Offensive Security (OffSec) Training","Cloud Security Alliance (CSA) Certificate Courses"],
+    junior:"RM4,000 – RM7,000", senior:"RM9,000 – RM20,000+",
+    progression:"Security Analyst → Security Engineer → Senior Security Engineer → Security Architect → CISO",
+    badges:["highsalary"],
+    roleBadges:["specialist","leadership"],
+    similar:["Cybersecurity Analyst","Penetration Tester"],
+    differences:{
+      "Cybersecurity Analyst":{
+        intro:"Security Engineers build the fortress; Cybersecurity Analysts guard it day-to-day.",
+        thisCareer:["Proactive role — designs and builds defenses before attacks happen","Creates the security systems, tools, and frameworks others use","Requires deep software and systems engineering skills","Focused on long-term security architecture and resilient system design"],
+        otherCareer:["Reactive role — monitors and responds to active threats and incidents","Uses pre-built security tools (SIEM, EDR, firewall dashboards)","Focused on real-time detection, alert triage, and incident response","Works continuously in SOC (Security Operations Center) environments"]
+      },
+      "Penetration Tester":{
+        intro:"Security Engineers build the walls; Penetration Testers test if those walls can hold.",
+        thisCareer:["Builds and maintains defensive security systems and infrastructure","Designs firewalls, encryption, IAM policies, and security controls","Works inside the organization as a permanent security team member","Long-term role: continuous security hardening and resilience"],
+        otherCareer:["Simulates attacks to expose gaps in the security systems the engineer built","Uses offensive tools and exploitation techniques to test defenses","Often works as a consultant on time-boxed penetration test engagements","Delivers vulnerability findings and fix recommendations to the security team"]
+      }
+    }
+  },
+  {
+    name:"Penetration Tester", category:"Cybersecurity", icon:"🔐",
+    desc:"Legally simulates real-world cyberattacks to discover and report exploitable vulnerabilities before attackers do.",
+    fullDesc:"Penetration Testers (Ethical Hackers) are paid to think and act like attackers — using the same techniques as malicious hackers, but with explicit written authorization — to expose security weaknesses before criminals do. This is one of the most exciting and specialized roles in cybersecurity, requiring continuous learning as attack techniques constantly evolve.",
+    difficulty:"Advanced", demand:"High", demandLevel:4,
+    skills:["Kali Linux","Metasploit","Burp Suite","Network Exploitation","Python","OWASP Top 10","Social Engineering"],
+    softSkills:["Curiosity","Analytical Thinking","Technical Report Writing","Ethics","Problem Solving"],
+    responsibilities:["Plan and execute authorized penetration tests on apps, networks, and infrastructure","Identify and safely exploit vulnerabilities in target systems","Write detailed technical reports with findings and remediation steps","Conduct web application security testing following OWASP methodology","Perform social engineering and phishing simulations","Stay current with latest CVEs, techniques, and exploitation tools"],
+    certs:["OSCP (Offensive Security Certified Professional)","CEH (Certified Ethical Hacker)","CompTIA PenTest+","eJPT (eLearnSecurity Junior Penetration Tester)"],
+    courses:["TryHackMe (Free + Premium paths)","Hack The Box Academy","TCM Security – Practical Ethical Hacking"],
+    junior:"RM3,500 – RM6,500", senior:"RM9,000 – RM18,000+",
+    progression:"Junior Pentester → Penetration Tester → Senior Pentester → Red Team Lead → Security Consultant",
+    badges:["trending"],
+    roleBadges:["highdemand","specialist"],
+    similar:["Cybersecurity Analyst","Security Engineer"],
+    differences:{
+      "Cybersecurity Analyst":{
+        intro:"Penetration Testers attack; Cybersecurity Analysts defend. Two sides of the same security coin.",
+        thisCareer:["Offensive role — authorized to actively attack and exploit systems","Works on planned, scoped engagements with defined start/end dates","Goal: find vulnerabilities before malicious attackers do","Highly specialized in offensive techniques, CVEs, and exploitation"],
+        otherCareer:["Defensive role — monitors and responds to real security incidents","Works continuously in real-time SOC operations, not time-boxed engagements","Goal: detect, contain, and recover from active security incidents","Broader role covering threat intelligence, monitoring, and incident response"]
+      },
+      "Security Engineer":{
+        intro:"Penetration Testers find gaps; Security Engineers build and fix the systems being tested.",
+        thisCareer:["Tests the effectiveness of existing security measures through simulated attacks","Finds and documents exploitable weaknesses in apps and infrastructure","Output is knowledge: what is broken and how attackers could exploit it","Often a consultancy or red team engagement role"],
+        otherCareer:["Designs and builds the security infrastructure being tested","Implements the fixes that penetration test reports recommend","Requires broader systems, software engineering, and cloud security skills","Output is working, hardened security systems and tools"]
+      }
+    }
+  },
+  {
+    name:"Network Engineer", category:"Networking & Cloud", icon:"🌐",
+    desc:"Plans, designs, and manages data communication networks that keep organizations reliably connected.",
+    fullDesc:"Network Engineers are responsible for the backbone of organizational IT — the networks connecting users, servers, and the internet. They design, implement, and maintain routers, switches, firewalls, and other networking equipment. With the rise of cloud and SD-WAN, modern network engineers also need cloud networking skills to manage hybrid environments effectively.",
+    difficulty:"Intermediate", demand:"Medium-High", demandLevel:3,
+    skills:["Cisco IOS","OSPF / BGP","Switching","TCP/IP","Firewalls","VPN","SD-WAN"],
+    softSkills:["Problem Solving","Attention to Detail","Technical Documentation","Communication"],
+    responsibilities:["Design, implement, and maintain enterprise network infrastructure","Configure and troubleshoot routers, switches, and firewall policies","Monitor network performance and optimize bandwidth utilization","Implement network security controls and access policies","Create and maintain network documentation and topology diagrams","Plan and execute network upgrades and migrations"],
+    certs:["CCNA (Cisco Certified Network Associate)","CCNP Enterprise","CompTIA Network+","Juniper JNCIA-Junos"],
+    courses:["Cisco NetAcad CCNA","CBT Nuggets CCNA","David Bombal Networking Courses (YouTube — Free)"],
+    junior:"RM3,000 – RM5,500", senior:"RM7,500 – RM16,000+",
+    progression:"Network Technician → Network Engineer → Senior Network Engineer → Network Architect → IT Infrastructure Director",
+    badges:[],
+    roleBadges:["specialist"],
+    similar:["System Administrator","Cloud Engineer"],
+    differences:{
+      "System Administrator":{
+        intro:"Both manage IT infrastructure, but at completely different layers of the stack.",
+        thisCareer:["Manages the network layer: routers, switches, firewalls, and connectivity","Ensures data flows reliably between users, servers, and the internet","Works with networking protocols: TCP/IP, OSPF, BGP, VLAN, VPN","Focuses on network design, segmentation, and bandwidth optimization"],
+        otherCareer:["Manages the server and OS layer: Windows Server, Linux, Active Directory","Ensures servers and services are running, patched, and backed up","Works with virtualization, user account management, and system performance","Focuses on compute resources and availability — not network traffic flow"]
+      },
+      "Cloud Engineer":{
+        intro:"Both manage infrastructure, but in completely different environments — physical hardware vs. cloud.",
+        thisCareer:["Manages physical or on-premise networking equipment (routers, switches, cabling)","Works with hardware vendors: Cisco, Juniper, Palo Alto","Designs physical network topologies for data centers and branch offices","Deep knowledge of hardware configuration and networking protocols required"],
+        otherCareer:["Manages virtual cloud infrastructure on AWS, Azure, or GCP","Works with software-defined networking (SDN) and cloud VPCs","Designs scalable, cloud-native architectures using Terraform/IaC","Hardware knowledge is minimal — cloud APIs and IaC tools are the focus"]
+      }
+    }
+  },
+  {
+    name:"Cloud Engineer", category:"Networking & Cloud", icon:"🌐",
+    desc:"Builds, manages, and optimizes scalable and secure cloud infrastructure on AWS, Azure, or GCP.",
+    fullDesc:"Cloud Engineers are among the most sought-after IT professionals today, as virtually every organization is expanding their cloud footprint. They design, deploy, and manage cloud infrastructure to be scalable, secure, cost-efficient, and highly available. Deep expertise in at least one major cloud provider combined with Infrastructure as Code skills is essential for this role.",
+    difficulty:"Intermediate", demand:"Very High", demandLevel:5,
+    skills:["AWS / Azure / GCP","Terraform","Docker","Kubernetes","Linux","Networking","CI/CD"],
+    softSkills:["Problem Solving","Cost-Consciousness","Documentation","Collaboration"],
+    responsibilities:["Design and provision cloud infrastructure (IaaS, PaaS, SaaS)","Implement Infrastructure as Code (IaC) using Terraform or CloudFormation","Manage cloud security, IAM policies, and compliance controls","Monitor cloud resources and optimize for cost efficiency","Build and maintain cloud-native architectures for scalability","Lead migration of on-premise systems to cloud environments"],
+    certs:["AWS Solutions Architect – Associate","Azure Administrator (AZ-104)","Google Associate Cloud Engineer","HashiCorp Terraform Associate"],
+    courses:["A Cloud Guru / Pluralsight","Adrian Cantrill AWS SAA Course","Microsoft Learn Azure Fundamentals (Free)"],
+    junior:"RM4,000 – RM6,500", senior:"RM9,000 – RM20,000+",
+    progression:"Cloud Support Engineer → Cloud Engineer → Senior Cloud Engineer → Cloud Architect → Principal Architect / CTO",
+    badges:["trending","highsalary"],
+    roleBadges:["highdemand","careergrowth","specialist"],
+    similar:["DevOps Engineer","System Administrator"],
+    differences:{
+      "DevOps Engineer":{
+        intro:"Cloud Engineers build and manage the platform; DevOps Engineers automate the software delivery that runs on that platform.",
+        thisCareer:["Focuses on provisioning and managing cloud infrastructure: servers, networking, storage","Ensures the cloud environment is secure, scalable, and cost-optimized","Uses IaC (Terraform) to build repeatable infrastructure environments","Less involved in developer workflows or software delivery pipelines"],
+        otherCareer:["Focuses on automating the software delivery lifecycle (CI/CD pipelines)","Bridges development and operations teams to ship software faster and reliably","Uses cloud infrastructure as a platform — it's the means, not the goal","Deeply involved in developer tooling, deployment, monitoring, and release velocity"]
+      },
+      "System Administrator":{
+        intro:"Both manage infrastructure, but one is cloud-native while the other is traditionally on-premise.",
+        thisCareer:["Manages virtual cloud-based infrastructure on AWS, Azure, or GCP","Uses IaC for automated, reproducible environments — no manual server setup","Scales resources elastically on-demand based on actual usage","Pay-per-use model requires constant cost monitoring and optimization"],
+        otherCareer:["Manages physical or on-premise servers, OS, and hardware","Manually installs, configures, and patches hardware and software","Fixed capacity — must plan and provision servers months in advance","Deeper knowledge of hardware, OS internals, and networking required"]
+      }
+    }
+  },
+  {
+    name:"System Administrator", category:"Support / IT Operations", icon:"⚙️",
+    desc:"Manages and maintains servers, operating systems, and IT infrastructure to keep organizations running.",
+    fullDesc:"System Administrators (SysAdmins) keep the lights on in IT departments. They install, configure, and maintain the servers and systems that organizations depend on daily. A great SysAdmin ensures high availability, strong security, and efficient performance of all IT infrastructure — often responding to critical incidents at any hour to restore services swiftly.",
+    difficulty:"Intermediate", demand:"Medium", demandLevel:3,
+    skills:["Windows Server","Linux","Active Directory","PowerShell","Virtualization","Backup & Recovery"],
+    softSkills:["Problem Solving","Patience","Technical Documentation","Time Management"],
+    responsibilities:["Install, configure, and maintain servers and operating systems","Manage user accounts, permissions, and Active Directory / LDAP","Implement backup, recovery, and disaster recovery procedures","Monitor system performance and proactively troubleshoot issues","Apply security patches and perform regular system updates","Manage virtualization platforms: VMware, Hyper-V, or Proxmox"],
+    certs:["CompTIA Server+","Red Hat RHCSA","Microsoft Certified: Windows Server Hybrid Administrator","VMware VCP-DCV"],
+    courses:["Linux Foundation System Administration Courses","Microsoft Learn Windows Server (Free)","CBT Nuggets SysAdmin Track"],
+    junior:"RM2,800 – RM5,000", senior:"RM6,500 – RM13,000+",
+    progression:"IT Helpdesk → Junior SysAdmin → System Administrator → Senior SysAdmin → IT Manager → IT Director",
+    badges:[],
+    roleBadges:["beginner","entrypoint"],
+    similar:["IT Support Specialist","Network Engineer"],
+    differences:{
+      "IT Support Specialist":{
+        intro:"IT Support helps the people; System Administration manages the infrastructure those people rely on.",
+        thisCareer:["Manages backend IT infrastructure: servers, OS, Active Directory, and backups","Deals with system-level tasks affecting the entire organization","Less direct interaction with individual end-users","Mid-level role — typically the step up from IT Support"],
+        otherCareer:["Helps individual end-users resolve their day-to-day technical problems","Handles user-facing issues: password resets, software installs, printer setup","Works directly with people in a helpdesk environment — high human interaction","Entry-level role — the best starting point for any IT career path"]
+      },
+      "Network Engineer":{
+        intro:"Both manage IT infrastructure, but each owns a different layer of the technical stack.",
+        thisCareer:["Manages compute resources: servers, OS, Active Directory, and storage","Ensures applications and services are running and highly available","Works with hypervisors, backup tools, and system performance monitoring","Focus: server uptime, OS health, and service availability"],
+        otherCareer:["Manages network resources: routers, switches, firewalls, and VPNs","Ensures data flows reliably across the organization and to the internet","Works with network protocols, VLANs, subnets, and traffic analysis tools","Focus: network connectivity, bandwidth, and segmentation policy"]
+      }
+    }
+  },
+  {
+    name:"DevOps Engineer", category:"Networking & Cloud", icon:"🌐",
+    desc:"Bridges development and operations to automate delivery pipelines and accelerate reliable software releases.",
+    fullDesc:"DevOps Engineers are the enablers of modern software delivery. They build the automation pipelines, tools, and practices that allow development teams to release software faster and more reliably. This role requires both software development skills and systems operations knowledge, combined with expertise in CI/CD, containers, and cloud platforms.",
+    difficulty:"Advanced", demand:"Very High", demandLevel:5,
+    skills:["CI/CD (Jenkins / GitHub Actions)","Docker","Kubernetes","Terraform","Linux","Python / Bash","Monitoring (Prometheus / Grafana)"],
+    softSkills:["Collaboration","Systems Thinking","Problem Solving","Communication"],
+    responsibilities:["Build and maintain CI/CD pipelines for automated software delivery","Manage containerized applications with Docker and Kubernetes","Implement Infrastructure as Code for reproducible environments","Monitor application and infrastructure health in production","Collaborate with developers to improve build and deploy processes","Ensure system reliability and performance (SRE practices)"],
+    certs:["Certified Kubernetes Administrator (CKA)","AWS DevOps Engineer Professional","HashiCorp Terraform Associate","GitHub Actions Certification"],
+    courses:["TechWorld with Nana (YouTube — Free)","Linux Foundation DevOps Bootcamp","A Cloud Guru DevOps Engineer Path"],
+    junior:"RM4,000 – RM7,000", senior:"RM10,000 – RM22,000+",
+    progression:"Junior DevOps → DevOps Engineer → Senior DevOps / SRE → Platform Engineer → Engineering Director",
+    badges:["trending","highsalary"],
+    roleBadges:["highdemand","careergrowth","specialist"],
+    similar:["Cloud Engineer","Software Developer"],
+    differences:{
+      "Cloud Engineer":{
+        intro:"DevOps Engineers automate delivery pipelines; Cloud Engineers build and manage the infrastructure those pipelines run on.",
+        thisCareer:["Automates the software development lifecycle — CI/CD, testing, and deployment","Bridges development teams and operations to reduce shipping friction","Key tools: Jenkins, GitHub Actions, ArgoCD, Kubernetes, monitoring stacks","Deeply involved in developer workflows and release velocity optimization"],
+        otherCareer:["Designs and manages cloud infrastructure: compute, networking, and storage","Ensures the cloud platform is secure, scalable, and cost-optimized","Key tools: Terraform, CloudFormation, AWS/Azure/GCP console","Less involved in software delivery pipelines — focuses on platform stability"]
+      },
+      "Software Developer":{
+        intro:"Software Developers build the application code; DevOps Engineers build the system that ships it reliably.",
+        thisCareer:["Builds the automation infrastructure for delivering and operating software","Does not typically write the application business logic or features","Focuses on reliability, deployment speed, and operational observability","Enabler role — makes development teams faster and more productive"],
+        otherCareer:["Writes the actual application code that delivers user-facing features","Focused on business logic, product functionality, and software quality","Relies on DevOps tooling for deployments but does not typically build it","Primary output: working software features and bug fixes"]
+      }
+    }
+  },
+  {
+    name:"UI/UX Designer", category:"Design & Product", icon:"🎨",
+    desc:"Designs intuitive, user-centered digital interfaces that balance visual beauty with functional clarity.",
+    fullDesc:"UI/UX Designers combine aesthetic sensibility with deep understanding of human psychology and behavior to create digital products people love using. UX focuses on the overall experience and user flows, while UI handles the visual design and interaction details. Great designers bridge user needs and business goals through research, rapid prototyping, and continuous iteration.",
+    difficulty:"Beginner", demand:"Medium-High", demandLevel:3,
+    skills:["Figma","Adobe XD","Wireframing","Prototyping","User Research","Usability Testing","Design Systems"],
+    softSkills:["Empathy","Creativity","Communication","Attention to Detail","Collaboration"],
+    responsibilities:["Conduct user research, interviews, and usability testing sessions","Create user personas, journey maps, and information architecture","Design wireframes and high-fidelity interactive prototypes","Build and maintain scalable design systems and component libraries","Collaborate with developers to ensure pixel-accurate design implementation","Iterate on designs based on user feedback and product analytics"],
+    certs:["Google UX Design Professional Certificate","Interaction Design Foundation (IDF) Certification","Nielsen Norman Group UX Certification"],
+    courses:["Google UX Design Certificate (Coursera)","Design+Code","Figma Official Learn Tutorials (Free)"],
+    junior:"RM2,800 – RM4,800", senior:"RM6,500 – RM12,000+",
+    progression:"Junior UI/UX Designer → UX Designer → Senior UX Designer → Lead Designer → Head of Design / Creative Director",
+    badges:["beginner"],
+    roleBadges:["beginner","entrypoint"],
+    similar:["Web Developer","Business Analyst"],
+    differences:{
+      "Web Developer":{
+        intro:"Both work on the user-facing side of digital products, but one designs while the other builds.",
+        thisCareer:["Creates wireframes, mockups, and prototypes without writing production code","Focuses on user research, usability, and information architecture","Works in design tools: Figma, Adobe XD, Maze","Output: Design files, prototypes, and UX research reports"],
+        otherCareer:["Takes the designer's files and codes them into actual working web pages","Works in HTML, CSS, JavaScript, and front-end frameworks","Focuses on technical accuracy, browser compatibility, and performance","Output: Deployed, functional web applications running in browsers"]
+      },
+      "Business Analyst":{
+        intro:"Both understand user and business needs, but apply that understanding in completely different ways.",
+        thisCareer:["Focuses on how users interact with and experience a product visually and emotionally","Uses user research, journey mapping, and usability testing","Output is visual: wireframes, prototypes, and design systems","Primary stakeholder: the end-user of the product"],
+        otherCareer:["Focuses on business processes, functional requirements, and project scope","Uses stakeholder interviews, workshops, and requirements documentation","Output is documentary: user stories, BRDs, and process flow diagrams","Primary stakeholder: business sponsors and the project team"]
+      }
+    }
+  },
+  {
+    name:"IT Support Specialist", category:"Support / IT Operations", icon:"⚙️",
+    desc:"Provides frontline technical helpdesk support, resolves hardware/software issues, and assists end-users.",
+    fullDesc:"IT Support Specialists are the first point of contact when technology fails. They help employees and customers resolve issues with computers, software, networks, and peripherals. This is the most beginner-friendly entry point into the IT industry — providing hands-on exposure to a wide variety of technologies while building the foundational knowledge for almost every other IT career path.",
+    difficulty:"Beginner", demand:"High", demandLevel:4,
+    skills:["Troubleshooting","Windows OS","Hardware","Networking Basics","Active Directory","Customer Service","Ticketing Systems"],
+    softSkills:["Patience","Communication","Empathy","Problem Solving","Time Management"],
+    responsibilities:["Respond to and resolve helpdesk tickets and user service requests","Troubleshoot hardware, software, and network issues for end-users","Set up and configure computers, printers, and peripheral devices","Manage user accounts and permissions in Active Directory / Azure AD","Document solutions and maintain knowledge base articles","Escalate complex unresolved issues to Tier 2 or Tier 3 support"],
+    certs:["CompTIA A+","Google IT Support Professional Certificate","Microsoft 365 Fundamentals (MS-900)","HDI Support Center Analyst"],
+    courses:["Google IT Support Professional Certificate (Coursera — Free audit)","Professor Messer CompTIA A+ (YouTube — Free)","CompTIA A+ Study Cram (YouTube — Free)"],
+    junior:"RM2,000 – RM3,500", senior:"RM4,500 – RM8,000+",
+    progression:"IT Support L1 → IT Support L2 / L3 → System Administrator → IT Manager → IT Director",
+    badges:["beginner"],
+    roleBadges:["beginner","entrypoint"],
+    similar:["System Administrator","Network Engineer"],
+    differences:{
+      "System Administrator":{
+        intro:"IT Support helps the people using the systems; System Administrators manage the systems themselves.",
+        thisCareer:["Helps individual end-users with their specific day-to-day tech problems","Handles user-facing issues: password resets, software crashes, printer errors","Very high human interaction — communication and patience are critical","Entry-level role that opens the door to almost every IT career path"],
+        otherCareer:["Manages the backend servers and infrastructure supporting the entire organization","Deals with OS-level tasks: patching, backup, AD management, virtualization","Less direct end-user interaction — more infrastructure and system health focus","Mid-level role — typically the next career step after IT Support"]
+      },
+      "Network Engineer":{
+        intro:"IT Support fixes a user's network problem; Network Engineers design and run the network that caused it.",
+        thisCareer:["Troubleshoots connectivity issues for individual users (Wi-Fi, VPN, slow internet)","Uses basic networking knowledge: IP config, DNS, cable testing","Does not design or configure the actual network infrastructure","User-facing and highly communicative role — customer service is core"],
+        otherCareer:["Designs, configures, and manages the entire enterprise network infrastructure","Works with advanced protocols: OSPF, BGP, VLANs, firewall policies, SD-WAN","Requires advanced certifications: CCNA, CCNP (Cisco)","Infrastructure-focused — rarely interacts with individual end-users"]
+      }
+    }
+  },
+  {
+    name:"Database Administrator", category:"Support / IT Operations", icon:"⚙️",
+    desc:"Designs, installs, and maintains organizational databases for performance, security, and high availability.",
+    fullDesc:"Database Administrators (DBAs) are the custodians of an organization's most valuable asset — its data. They ensure databases run efficiently, securely, and reliably. DBAs handle database design, query optimization, backup strategies, and disaster recovery. With the rise of cloud databases, the modern DBA role is evolving to include cloud-native data management and data engineering skills.",
+    difficulty:"Intermediate", demand:"Medium", demandLevel:3,
+    skills:["SQL","Oracle DB","MySQL / PostgreSQL","Backup & Recovery","Performance Tuning","Replication","Python"],
+    softSkills:["Attention to Detail","Problem Solving","Technical Documentation","Reliability"],
+    responsibilities:["Design, install, and configure relational and cloud database systems","Monitor database performance and optimize slow-running queries","Implement backup, high-availability, and disaster recovery strategies","Manage database security, access control, and data encryption","Perform database migrations, upgrades, and version management","Troubleshoot and resolve database-related production incidents"],
+    certs:["Oracle Database 19c Administrator Certified Professional","Microsoft SQL Server Certification","PostgreSQL Certified Associate"],
+    courses:["Oracle DBA 19c – The Complete Guide (Udemy)","Microsoft SQL Server Administration (Pluralsight)","Stanford Databases MOOC (edX — Free audit)"],
+    junior:"RM3,000 – RM5,500", senior:"RM7,500 – RM15,000+",
+    progression:"Junior DBA → Database Administrator → Senior DBA → Data Architect → Chief Data Officer",
+    badges:[],
+    roleBadges:["specialist"],
+    similar:["Data Analyst","System Administrator"],
+    differences:{
+      "Data Analyst":{
+        intro:"Both work with databases, but for completely different purposes — management vs. analysis.",
+        thisCareer:["Manages and maintains the database infrastructure itself: performance, security, backups","Ensures databases are available, fast, properly backed up, and secure","Writes complex SQL for optimization, indexing, and query tuning — not for business insights","Thinks about storage architecture, replication, and disaster recovery"],
+        otherCareer:["Queries existing databases to extract and analyze business data","Uses SQL and Python to answer business questions and generate dashboards","Does not manage the database infrastructure, security, or backups","Thinks about data quality, trends, and actionable business insights"]
+      },
+      "System Administrator":{
+        intro:"Both manage IT infrastructure, but each specializes in a distinct technical layer.",
+        thisCareer:["Specializes in database systems: Oracle, SQL Server, MySQL, PostgreSQL","Manages query performance, indexing strategies, and data integrity","Responsible for database-specific backup, HA, and recovery","Deep expertise in one layer: the data storage and access tier"],
+        otherCareer:["Manages the broader IT compute infrastructure: servers, OS, and networking","Handles Active Directory, virtualization, patching, and system uptime","Database management is just one of many responsibilities on their plate","Broad expertise across the entire IT infrastructure stack"]
+      }
+    }
+  },
+  {
+    name:"Business Analyst", category:"Design & Product", icon:"🎨",
+    desc:"Bridges business and IT by identifying needs, analyzing processes, and translating them into tech solutions.",
+    fullDesc:"Business Analysts are the translators between the business world and technology. They gather requirements from stakeholders, analyze business processes, identify problems and opportunities, and work with technical teams to implement solutions that create measurable value. This role demands both strong analytical skills and excellent communication — ideal for those who enjoy working with both people and data.",
+    difficulty:"Beginner", demand:"High", demandLevel:4,
+    skills:["Requirements Gathering","Process Modeling","Agile / Scrum","SQL (Basic)","Jira","Stakeholder Management"],
+    softSkills:["Communication","Critical Thinking","Negotiation","Empathy","Presentation Skills"],
+    responsibilities:["Elicit and document business and functional requirements from stakeholders","Analyze current business processes and identify improvement opportunities","Create user stories, use cases, and process flow diagrams","Work with developers to ensure requirements are correctly implemented","Facilitate workshops, sprint planning, and stakeholder review sessions","Conduct user acceptance testing (UAT) and manage sign-off"],
+    certs:["CBAP (Certified Business Analysis Professional)","PMI-PBA","Agile Analysis Certification (AAC)","IIBA ECBA (Entry Level Certificate in BA)"],
+    courses:["Business Analysis Fundamentals (Udemy)","Agile Business Analysis (LinkedIn Learning)","IIBA Endorsed Business Analysis Courses"],
+    junior:"RM3,200 – RM5,500", senior:"RM8,000 – RM16,000+",
+    progression:"Junior BA → Business Analyst → Senior BA → Lead BA / Product Owner → Product Manager / Business Architect",
+    badges:["beginner"],
+    roleBadges:["beginner","entrypoint","careergrowth"],
+    similar:["Data Analyst","UI/UX Designer"],
+    differences:{
+      "Data Analyst":{
+        intro:"Both analyze information to support decisions, but through very different lenses and toolsets.",
+        thisCareer:["Gathers requirements through stakeholder interviews, workshops, and documentation","Analyzes business processes and identifies operational or strategic improvements","Primary tools: communication, Jira, Confluence, process modeling software","Output: user stories, BRDs, process flows, and acceptance criteria"],
+        otherCareer:["Analyzes quantitative data using SQL, Python, and BI dashboards","Identifies data trends, performance metrics, and statistical patterns","Primary tools: SQL, Python, Tableau, Power BI, and Excel","Output: dashboards, analytical reports, and data-driven recommendations"]
+      },
+      "UI/UX Designer":{
+        intro:"Both serve users and stakeholders, but through different expertise and outputs.",
+        thisCareer:["Focuses on business processes, functional requirements, and system scope","Works primarily with business stakeholders and project sponsors","Output: functional requirements docs, user stories, and process diagrams","Bridge between business needs and the development team"],
+        otherCareer:["Focuses on how users emotionally and visually interact with a product","Works primarily with end-users through research and usability testing","Output: wireframes, interactive prototypes, and UX research reports","Bridge between end-user experience and the product/development team"]
+      }
+    }
+  }
+];
+
+// ─────────────────────────────────────────────
+// UTILITY FUNCTIONS
+// ─────────────────────────────────────────────
+let activeFilter = 'all';
+let searchTerm   = '';
+
+function getDemandDots(level) {
+    let h = '';
+    for (let i = 1; i <= 5; i++) h += `<span class="demand-dot ${i <= level ? 'filled' : ''}"></span>`;
+    return h;
+}
+
+function getCardBadgeHTML(b) {
+    const map = { trending:'Trending', beginner:'Beginner Friendly', highsalary:'High Salary' };
+    const cls = { trending:'badge-trending', beginner:'badge-beginner', highsalary:'badge-highsalary' };
+    return `<span class="badge ${cls[b]}">${map[b]}</span>`;
+}
+
+function getRoleBadgesHTML(arr) {
+    return arr.map(k => {
+        const rb = ROLE_BADGE_MAP[k];
+        return rb ? `<span class="role-badge ${rb.cls}">${rb.label}</span>` : '';
+    }).join('');
+}
+
+function getDiffSegments(diff) {
+    const count = diff==='Beginner'?1:diff==='Intermediate'?2:3;
+    const cls   = diff==='Beginner'?'d-beginner':diff==='Intermediate'?'d-intermediate':'d-advanced';
+    let h = '';
+    for (let i = 0; i < 3; i++) h += `<span class="diff-seg ${i < count ? cls : ''}"></span>`;
+    return h;
+}
+
+function getDiffBadgeClass(diff) {
+    return diff==='Beginner'?'b':diff==='Intermediate'?'i':'a';
+}
+
+// ─────────────────────────────────────────────
+// RENDER GRID
+// ─────────────────────────────────────────────
+function renderGrid(data) {
+    const grid = document.getElementById('careerGrid');
+    document.getElementById('showingCount').textContent = data.length;
+
+    if (!data.length) {
+        grid.innerHTML = `<div class="empty-state"><div class="empty-icon">404</div><h3>No careers found</h3><p>Try a different keyword or clear the active filter.</p></div>`;
+        return;
+    }
+
+    grid.innerHTML = data.map((c, i) => {
+        const vis   = c.skills.slice(0, 4);
+        const extra = c.skills.length - 4;
+        const tags  = vis.map(s => `<span class="skill-tag">${s}</span>`).join('') +
+                      (extra > 0 ? `<span class="skill-tag">+${extra}</span>` : '');
+
+        return `
+        <div class="career-card" style="animation-delay:${i * 0.04}s">
+            <div class="card-badges">${c.badges.map(getCardBadgeHTML).join('')}</div>
+            <div>
+                <div class="card-category">${getCatTag(c.category)} ${c.category}</div>
+                <div class="card-title">${c.name}</div>
+            </div>
+            <div class="card-desc">${c.desc}</div>
+            <div class="skill-tags">${tags}</div>
+            <div class="card-demand">
+                <span class="demand-label">Market Demand</span>
+                <div class="demand-right">
+                    <div class="demand-dots">${getDemandDots(c.demandLevel)}</div>
+                    <span class="demand-text">${c.demand}</span>
+                </div>
+            </div>
+            <button class="explore-btn" onclick="openModal('${c.name.replace(/'/g,"\\'")}')">
+                Explore Career <span class="btn-arrow">→</span>
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function getFiltered() {
+    return careers.filter(c => {
+        const matchCat  = activeFilter === 'all' || c.category === activeFilter;
+        const term      = searchTerm.toLowerCase();
+        const matchSrch = !term ||
+            c.name.toLowerCase().includes(term) ||
+            c.desc.toLowerCase().includes(term) ||
+            c.skills.some(s => s.toLowerCase().includes(term)) ||
+            c.category.toLowerCase().includes(term);
+        return matchCat && matchSrch;
+    });
+}
+
+function refresh() {
+    renderGrid(getFiltered());
+    const lbl = document.getElementById('activeFilterLabel');
+    lbl.textContent = activeFilter !== 'all' ? `Filtered: ${activeFilter}` : '';
+}
+
+// ─────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────
+function openModal(name) {
+    const c = careers.find(x => x.name === name);
+    if (!c) return;
+
+    // Progression steps
+    const progSteps = c.progression.split(' → ');
+    const progHTML  = progSteps.map((s, i) =>
+        `<span class="prog-step">${s}</span>${i < progSteps.length-1 ? '<span class="prog-arrow">→</span>' : ''}`
+    ).join('');
+
+    // Similar career mini-cards
+    const simCardsHTML = c.similar.map(sName => {
+        const sc = careers.find(x => x.name === sName);
+        if (!sc) return '';
+        const safeN = sName.replace(/'/g, "\\'");
+        const cs = CAT_STYLE[sc.category] || { tag:'IT', color:'#9ca3af' };
+        return `
+        <div class="similar-card" onclick="openModal('${safeN}')">
+            <div class="s-icon" style="font-size:.65rem;font-weight:700;letter-spacing:.5px;padding:.4rem .7rem;background:${cs.color}15;border:1px solid ${cs.color}33;border-radius:8px;color:${cs.color};margin-bottom:.6rem;display:inline-block">${cs.tag}</div>
+            <div class="s-name">${sc.name}</div>
+            <div class="s-cat">${sc.category}</div>
+            <p class="s-desc">${sc.desc}</p>
+            <button class="s-btn">Explore Career →</button>
+        </div>`;
+    }).join('');
+
+    // How Is This Different blocks
+    const diffHTML = c.similar.map(sName => {
+        const d  = c.differences[sName];
+        const sc = careers.find(x => x.name === sName);
+        if (!d || !sc) return '';
+        return `
+        <div class="diff-block">
+            <div class="diff-vs-header">
+                <span class="diff-this-pill">${c.name}</span>
+                <span class="diff-vs-txt">vs</span>
+                <span class="diff-other-pill">${sName}</span>
+            </div>
+            <p class="diff-intro-txt">${d.intro}</p>
+            <div class="diff-cols">
+                <div class="diff-col-box is-this">
+                    <span class="diff-col-lbl is-this">${c.name}</span>
+                    <ul>${d.thisCareer.map(p => `<li>${p}</li>`).join('')}</ul>
+                </div>
+                <div class="diff-col-box is-other">
+                    <span class="diff-col-lbl is-other">${sName}</span>
+                    <ul>${d.otherCareer.map(p => `<li>${p}</li>`).join('')}</ul>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('modalContent').innerHTML = `
+        <div class="modal-header">
+            <div class="modal-title">${c.name}</div>
+            <div class="role-badges-row">${getRoleBadgesHTML(c.roleBadges)}</div>
+            <div class="modal-meta">
+                <div class="modal-meta-item">${getCatTag(c.category)} <strong>${c.category}</strong></div>
+                <div class="modal-meta-item">
+                    <span class="diff-badge ${getDiffBadgeClass(c.difficulty)}">${c.difficulty}</span>
+                    <div class="diff-bar">${getDiffSegments(c.difficulty)}</div>
+                </div>
+                <div class="modal-meta-item">
+                    <div class="demand-dots">${getDemandDots(c.demandLevel)}</div>
+                    <strong>${c.demand}</strong>&nbsp;Demand
+                </div>
+            </div>
+        </div>
+
+        <p class="modal-full-desc">${c.fullDesc}</p>
+
+        <div class="modal-grid">
+            <div class="modal-section">
+                <div class="modal-sec-title">Main Responsibilities</div>
+                <ul class="modal-list">${c.responsibilities.map(r=>`<li>${r}</li>`).join('')}</ul>
+            </div>
+            <div class="modal-section">
+                <div class="modal-sec-title">Technical Skills</div>
+                <div class="modal-tags">${c.skills.map(s=>`<span class="modal-tag-cyan">${s}</span>`).join('')}</div>
+                <div class="modal-sec-title" style="margin-top:1rem;">Soft Skills</div>
+                <div class="modal-tags">${c.softSkills.map(s=>`<span class="modal-tag-purple">${s}</span>`).join('')}</div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-sec-title">Recommended Certifications</div>
+                <ul class="modal-list">${c.certs.map(x=>`<li>${x}</li>`).join('')}</ul>
+            </div>
+            <div class="modal-section">
+                <div class="modal-sec-title">Learning Resources</div>
+                <ul class="modal-list">${c.courses.map(x=>`<li>${x}</li>`).join('')}</ul>
+            </div>
+            <div class="modal-section full">
+                <div class="modal-sec-title">Salary Range — Malaysia</div>
+                <div class="salary-pair">
+                    <div class="salary-box"><div class="salary-label">Junior / Entry Level</div><div class="salary-value">${c.junior}</div></div>
+                    <div class="salary-box"><div class="salary-label">Senior / Expert Level</div><div class="salary-value">${c.senior}</div></div>
+                </div>
+            </div>
+            <div class="modal-section full">
+                <div class="modal-sec-title">Career Progression Pathway</div>
+                <div class="prog-flow">${progHTML}</div>
+            </div>
+        </div>
+
+        <div class="modal-divider"></div>
+
+        <div class="modal-sh">Similar Careers</div>
+        <p style="font-size:0.855rem;color:var(--text-muted);margin-bottom:1.2rem;">People who explore <strong style="color:var(--text-main);">${c.name}</strong> often also consider these roles. Click to compare.</p>
+        <div class="similar-grid">${simCardsHTML}</div>
+
+        <div class="modal-divider"></div>
+
+        <div class="modal-sh">How Is This Different?</div>
+        <p style="font-size:0.855rem;color:var(--text-muted);margin-bottom:1.2rem;">Side-by-side breakdown so you can clearly tell these similar-looking careers apart.</p>
+        ${diffHTML}
+    `;
+
+    document.getElementById('modalOverlay').classList.add('active');
+    document.getElementById('modalContainer').scrollTop = 0;
+    document.getElementById('modalClose').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.getElementById('modalClose').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─────────────────────────────────────────────
+// FILTER + SEARCH
+// ─────────────────────────────────────────────
+function setFilter(btn, filterVal) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = filterVal;
+    refresh();
+}
+
+// Fallback event delegation (backup)
+document.getElementById('filterBar').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    setFilter(btn, btn.dataset.filter);
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+    searchTerm = e.target.value;
+    refresh();
+});
+
+refresh();
+
+// Auto-open career modal from URL parameter (passed from result.html)
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get('career');
+    if (target) {
+        setTimeout(() => openModal(decodeURIComponent(target)), 200);
+    }
+})();
+</script>
+
+<script src="script.js"></script>
+
+<script>
+// Cursor glow
+const cgEl = document.getElementById('cursorGlow');
+document.addEventListener('mousemove', e => { cgEl.style.left = e.clientX+'px'; cgEl.style.top = e.clientY+'px'; });
+
+const canvas = document.getElementById('particle-canvas');
+const ctx    = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+    }
+    update() {
+        this.x += this.speedX; this.y += this.speedY;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+    }
+    draw() {
+        ctx.fillStyle = 'rgba(0,240,255,0.5)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+function init() {
+    particles = [];
+    const n = (canvas.width * canvas.height) / 15000;
+    for (let i = 0; i < n; i++) particles.push(new Particle());
+}
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p, i) => {
+        p.update(); p.draw();
+        for (let j = i + 1; j < particles.length; j++) {
+            const dx = p.x - particles[j].x, dy = p.y - particles[j].y;
+            const d  = Math.sqrt(dx*dx + dy*dy);
+            if (d < 120) {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(0,240,255,${0.15 - d/800})`;
+                ctx.lineWidth = 1;
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.stroke();
+            }
+        }
+    });
+    requestAnimationFrame(animate);
+}
+init(); animate();
+</script>
+</body>
+</html>

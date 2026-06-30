@@ -1,0 +1,840 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About System | TechPath Expert</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg:          #030712;
+            --cyan:        #00f0ff;
+            --glow:        rgba(0, 240, 255, 0.55);
+            --purple:      #8b5cf6;
+            --card:        rgba(17, 24, 39, 0.5);
+            --text:        #f3f4f6;
+            --muted:       #9ca3af;
+            --mono:        'Share Tech Mono', monospace;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ── BACKGROUNDS ── */
+        .grid-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background-image:
+                linear-gradient(rgba(0,240,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,240,255,.025) 1px, transparent 1px);
+            background-size: 55px 55px;
+            animation: gridDrift 30s linear infinite;
+        }
+        @keyframes gridDrift {
+            to { background-position: 55px 55px; }
+        }
+
+        .glow-orb {
+            position: fixed; border-radius: 50%;
+            filter: blur(110px); z-index: -1; opacity: .25;
+            animation: floatOrb 18s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 450px; height: 450px; background: var(--cyan);   top: 5%;  left: -8%; }
+        .orb-2 { width: 500px; height: 500px; background: var(--purple);  bottom: 5%; right: -10%; animation-delay: -7s; }
+        @keyframes floatOrb {
+            0%   { transform: translate(0,0) scale(1); }
+            100% { transform: translate(25px,-45px) scale(1.08); }
+        }
+
+        #particle-canvas {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
+        }
+
+        .cursor-glow {
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(0,240,255,.055) 0%, transparent 70%);
+            border-radius: 50%; position: fixed; pointer-events: none;
+            transform: translate(-50%,-50%); z-index: 0;
+            transition: left .12s ease, top .12s ease;
+        }
+
+
+        /* ── HERO ── */
+        .page-hero {
+            text-align: center; padding: 6rem 5% 3rem;
+            position: relative; z-index: 10;
+        }
+        .page-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: .45rem 1.1rem; margin-bottom: 1.5rem;
+            background: rgba(0,240,255,.05);
+            border: 1px solid var(--cyan); border-radius: 50px;
+            font-size: .82rem; color: var(--cyan);
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+            box-shadow: 0 0 18px rgba(0,240,255,.15);
+        }
+        .badge-dot {
+            width: 7px; height: 7px; background: var(--cyan);
+            border-radius: 50%; box-shadow: 0 0 8px var(--cyan);
+            animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot {
+            0%  { box-shadow: 0 0 0 0 rgba(0,240,255,.7); }
+            70% { box-shadow: 0 0 0 8px rgba(0,240,255,0); }
+            100%{ box-shadow: 0 0 0 0 rgba(0,240,255,0); }
+        }
+        .page-hero h1 {
+            font-size: 3.5rem; font-weight: 700; line-height: 1.15;
+            color: #fff; margin-bottom: 1.2rem;
+        }
+        .page-hero h1 span {
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 60%, var(--cyan) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradFlow 4s linear infinite;
+        }
+        @keyframes gradFlow {
+            0%  { background-position: 0% center; }
+            100%{ background-position: 200% center; }
+        }
+        .page-hero p {
+            color: var(--muted); font-size: 1.15rem; max-width: 600px;
+            margin: 0 auto 2rem; line-height: 1.75;
+        }
+        .hero-divider {
+            display: flex; align-items: center; justify-content: center; gap: 1rem;
+            margin: 0 auto 4rem; max-width: 300px;
+        }
+        .hero-divider span { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,240,255,.35)); }
+        .hero-divider span:last-child { background: linear-gradient(90deg, rgba(0,240,255,.35), transparent); }
+        .hero-divider i { color: var(--cyan); font-size: 1.2rem; }
+
+        /* ── SHARED SECTION WRAPPER ── */
+        .section-wrap {
+            max-width: 1100px; margin: 0 auto 5rem; padding: 0 5%;
+            position: relative; z-index: 10;
+        }
+        .section-label {
+            text-align: center; margin-bottom: 2.5rem;
+        }
+        .section-label h2 {
+            font-size: 2rem; font-weight: 700; color: #fff; margin-bottom: .5rem;
+        }
+        .section-label p { color: var(--muted); font-size: 1rem; }
+        .section-label .underline-bar {
+            width: 60px; height: 3px; margin: .8rem auto 0;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(0,240,255,.4);
+        }
+
+        /* ── WHAT IS CARD ── */
+        .intro-card {
+            background: var(--card);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.06);
+            border-top: 1px solid rgba(255,255,255,.15);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,.5), 0 0 30px rgba(0,240,255,.06);
+            position: relative; overflow: hidden;
+        }
+        .intro-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+        }
+        .intro-inner {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;
+        }
+        .intro-text h3 { font-size: 1.7rem; color: #fff; margin-bottom: 1.2rem; }
+        .intro-text p  { color: var(--muted); line-height: 1.8; font-size: 1rem; }
+        .intro-text p + p { margin-top: .9rem; }
+        .highlight { color: var(--cyan); font-weight: 600; }
+
+        .intro-stats {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+        }
+        .stat-box {
+            background: rgba(0,0,0,.35);
+            border: 1px solid rgba(0,240,255,.12);
+            border-radius: 16px; padding: 1.5rem;
+            text-align: center;
+            transition: all .3s ease;
+        }
+        .stat-box:hover {
+            border-color: rgba(0,240,255,.4);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,240,255,.12);
+        }
+        .stat-num {
+            font-size: 2.2rem; font-weight: 700;
+            color: var(--cyan); font-family: var(--mono);
+            text-shadow: 0 0 12px rgba(0,240,255,.4);
+            margin-bottom: .3rem;
+        }
+        .stat-desc { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+
+        /* ── HOW IT WORKS ── */
+        .how-step {
+            background: var(--card); backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,.05);
+            border-radius: 20px; padding: 2rem 1.5rem;
+            position: relative; overflow: hidden;
+            transition: all .4s cubic-bezier(.175,.885,.32,1.275);
+        }
+        .how-step:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0,240,255,.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,.5), 0 0 25px rgba(0,240,255,.12);
+        }
+        .how-step::before {
+            content: ''; position: absolute;
+            top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,240,255,.04), transparent);
+            transition: left .5s ease;
+        }
+        .how-step:hover::before { left: 150%; }
+
+        .step-num {
+            font-size: .72rem; font-family: var(--mono); color: var(--cyan);
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1rem;
+            opacity: .7;
+        }
+        .step-icon {
+            width: 60px; height: 60px; border-radius: 14px; margin-bottom: 1.2rem;
+            background: linear-gradient(135deg, rgba(0,240,255,.15), rgba(0,240,255,.04));
+            border: 1px solid rgba(0,240,255,.25);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            transition: transform .3s ease, box-shadow .3s ease;
+        }
+        .how-step:hover .step-icon {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 0 22px rgba(0,240,255,.35);
+        }
+        .how-step h4 { font-size: 1.05rem; color: #fff; margin-bottom: .6rem; }
+        .how-step p  { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+
+        /* connector arrows between steps */
+        .how-arrows {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0; margin: 1.5rem 0;
+        }
+        .arrow-flow {
+            display: flex; align-items: center; gap: .5rem; color: rgba(0,240,255,.35);
+            font-size: .8rem; font-family: var(--mono);
+        }
+        .arrow-flow span { font-size: 1.2rem; animation: arrowPulse 1.8s ease-in-out infinite; }
+        @keyframes arrowPulse {
+            0%,100% { opacity: .35; transform: translateX(0); }
+            50%      { opacity: 1;   transform: translateX(4px); }
+        }
+
+        /* ── TECH ARCHITECTURE CARD ── */
+        .arch-card {
+            background: var(--card); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 24px; padding: 2.5rem;
+            position: relative; overflow: hidden;
+        }
+        .arch-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--purple), var(--cyan), transparent);
+        }
+        .arch-layers {
+            display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;
+        }
+        .arch-layer {
+            display: flex; align-items: center; gap: 1.2rem;
+            background: rgba(0,0,0,.3);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 12px; padding: 1rem 1.5rem;
+            transition: border-color .3s ease, transform .3s ease;
+        }
+        .arch-layer:hover {
+            border-color: rgba(0,240,255,.3); transform: translateX(6px);
+        }
+        .arch-layer-icon {
+            width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+        }
+        .layer-cyan   { background: rgba(0,240,255,.12); border: 1px solid rgba(0,240,255,.25); }
+        .layer-purple { background: rgba(139,92,246,.12); border: 1px solid rgba(139,92,246,.25); }
+        .layer-green  { background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.25); }
+        .layer-yellow { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.25); }
+
+        .arch-layer-info h5 { font-size: .95rem; color: #fff; margin-bottom: .2rem; }
+        .arch-layer-info p  { font-size: .8rem;  color: var(--muted); }
+
+        .arch-layer-tag {
+            margin-left: auto; flex-shrink: 0;
+            font-family: var(--mono); font-size: .7rem;
+            padding: .25rem .7rem; border-radius: 20px;
+            background: rgba(0,240,255,.08);
+            border: 1px solid rgba(0,240,255,.2);
+            color: var(--cyan);
+        }
+
+        /* ── TECH STACK ── */
+        .tech-pills {
+            display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .tech-pill {
+            display: inline-flex; align-items: center; gap: .5rem;
+            padding: .5rem 1.1rem; border-radius: 50px;
+            font-size: .83rem; font-weight: 500;
+            background: rgba(0,240,255,.06);
+            border: 1px solid rgba(0,240,255,.2);
+            color: var(--cyan); cursor: default;
+            transition: all .3s ease;
+        }
+        .tech-pill:hover {
+            background: rgba(0,240,255,.14);
+            box-shadow: 0 0 18px rgba(0,240,255,.2);
+            transform: translateY(-2px);
+        }
+        .tech-pill span { font-size: 1rem; }
+
+        /* ── HOW GRID ROWS ── */
+        .how-grid {
+            display: grid; gap: 1.5rem;
+        }
+        .how-grid-top {
+            grid-template-columns: repeat(3, 1fr);
+            margin-bottom: 1.5rem;
+        }
+        .how-grid-bottom {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 700px; margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            .how-grid-top, .how-grid-bottom { grid-template-columns: 1fr; max-width: 100%; }
+        }
+
+        /* ── CONFLICT RESOLUTION ── */
+        .crs-card {
+            background: var(--card); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 20px; padding: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .crs-intro { color: var(--muted); font-size: .92rem; line-height: 1.8; margin-bottom: 1.5rem; max-width: 800px; }
+        .crs-intro strong { color: var(--cyan); }
+        .crs-formula {
+            background: rgba(0,0,0,.3); border: 1px solid rgba(0,240,255,.15);
+            border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
+            font-family: var(--mono); font-size: .85rem; color: var(--cyan);
+            text-align: center; letter-spacing: .5px;
+        }
+        .crs-example { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .crs-example-box {
+            background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.07);
+            border-radius: 12px; padding: 1.2rem;
+        }
+        .crs-example-box.winner { border-color: rgba(0,240,255,.35); background: rgba(0,240,255,.04); }
+        .crs-example-title { font-size: .82rem; font-weight: 700; color: #fff; margin-bottom: .8rem; }
+        .crs-rule-line { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); padding: .35rem 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+        .crs-rule-line span:last-child { color: var(--cyan); font-family: var(--mono); font-weight: 700; }
+        .crs-total { display: flex; justify-content: space-between; font-size: .85rem; color: #fff; font-weight: 700; padding-top: .7rem; margin-top: .4rem; }
+        .crs-total span:last-child { color: #4ade80; font-family: var(--mono); }
+
+        .crs-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .crs-table th { text-align: left; font-size: .68rem; text-transform: uppercase; letter-spacing: .6px; color: var(--cyan); padding: .7rem .9rem; border-bottom: 1px solid rgba(0,240,255,.15); }
+        .crs-table td { padding: .8rem .9rem; font-size: .83rem; color: var(--muted); border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: top; }
+        .crs-table tr.chosen td { background: rgba(0,240,255,.04); }
+        .crs-table td strong { color: #fff; }
+        .crs-chosen-badge { display: inline-block; padding: .15rem .55rem; background: rgba(74,222,128,.12); border: 1px solid rgba(74,222,128,.3); color: #4ade80; border-radius: 50px; font-size: .62rem; font-weight: 700; margin-left: .5rem; vertical-align: middle; }
+
+        @media (max-width: 768px) {
+            .crs-example { grid-template-columns: 1fr; }
+            .crs-card { padding: 1.4rem; }
+            .crs-table { font-size: .75rem; min-width: 560px; }
+            .crs-table th, .crs-table td { padding: .55rem .6rem; }
+        }
+
+        /* ── TEAM ── */
+        .team-grid {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .team-grid-bottom { margin-top: 1.5rem; }
+        .team-card {
+            width: 200px; text-align: center;
+            background: rgba(0,0,0,.3);
+            border: 1px solid rgba(0,240,255,.1);
+            border-radius: 20px; padding: 2rem 1.2rem 1.5rem;
+            position: relative; overflow: hidden;
+            transition: all .35s cubic-bezier(.175,.885,.32,1.275);
+        }
+        .team-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0; transition: opacity .3s ease;
+        }
+        .team-card:hover { transform: translateY(-10px); border-color: rgba(0,240,255,.4); box-shadow: 0 15px 35px rgba(0,0,0,.5), 0 0 25px rgba(0,240,255,.15); }
+        .team-card:hover::before { opacity: 1; }
+
+        .member-ring {
+            width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1.1rem;
+            padding: 3px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            box-shadow: 0 0 20px rgba(0,240,255,.3);
+            transition: box-shadow .3s ease, transform .3s ease;
+        }
+        .team-card:hover .member-ring {
+            box-shadow: 0 0 35px rgba(0,240,255,.5);
+            transform: scale(1.05);
+        }
+        .member-ring img {
+            width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover;
+            background: #111;
+            border: 3px solid var(--bg);
+        }
+        .member-name { color: #fff; font-size: 1rem; font-weight: 600; margin-bottom: .25rem; }
+        .member-role {
+            color: var(--cyan); font-size: .75rem; letter-spacing: .5px;
+            font-family: var(--mono);
+        }
+        .member-id {
+            margin-top: .5rem; font-size: .7rem; color: rgba(156,163,175,.5);
+            font-family: var(--mono);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center; padding: 2.5rem;
+            border-top: 1px solid rgba(255,255,255,.05);
+            color: var(--muted); font-size: .9rem;
+            background: rgba(3,7,18,.8); backdrop-filter: blur(10px);
+            position: relative; z-index: 10;
+        }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .page-hero { padding: 4rem 5% 2.5rem; }
+            .page-hero h1 { font-size: 2.2rem; }
+            .intro-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .intro-card { padding: 1.6rem; }
+            .arch-card { padding: 1.6rem; }
+            .arch-layer { flex-wrap: wrap; gap: .7rem; padding: .9rem 1.1rem; }
+            .arch-layer-tag { margin-left: 0; }
+            .team-card { width: 160px; }
+        }
+        @media (max-width: 480px) {
+            .page-hero h1 { font-size: 1.7rem; }
+            .page-hero p { font-size: .95rem; }
+            .intro-stats { grid-template-columns: 1fr 1fr; gap: .8rem; }
+            .stat-box { padding: 1rem .8rem; }
+            .stat-num { font-size: 1.7rem; }
+            .stat-desc { font-size: .68rem; }
+            .how-step { padding: 1.5rem 1.2rem; }
+            .crs-card { padding: 1rem; }
+            .team-grid { gap: 1rem; }
+            .team-card { width: 130px; padding: 1.5rem .8rem 1.1rem; }
+            .member-ring { width: 75px; height: 75px; }
+            .member-name { font-size: .88rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- ── NAV ── -->
+    <header class="header-container">
+        <nav class="navbar">
+            <div class="logo">
+                <h1>Tech<span class="text-cyan">Path</span></h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="knowledge-base.html">Career List</a></li>
+                <li><a href="about.html" class="active">About System</a></li>
+                <li><a href="cgpa.html">CGPA Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ── PAGE HERO ── -->
+        <section class="page-hero">
+            <div class="page-badge"><span class="badge-dot"></span> Rule-Based Expert System</div>
+            <h1>About <span>TechPath Expert</span></h1>
+            <p>An intelligent IT career guidance system built to help Malaysian students and graduates discover their best-fit tech career path — powered by Forward Chaining logic.</p>
+            <div class="hero-divider">
+                <span></span>
+                <i>⬡</i>
+                <span></span>
+            </div>
+        </section>
+
+        <!-- ── WHAT IS IT ── -->
+        <div class="section-wrap reveal">
+            <div class="intro-card">
+                <div class="intro-inner">
+                    <div class="intro-text">
+                        <h3>What is an <span class="text-cyan">Expert System?</span></h3>
+                        <p>TechPath is a <span class="highlight">Rule-Based Expert System</span> that emulates the decision-making process of a seasoned IT career counsellor. It was designed specifically to bridge the gap between academic knowledge and real-world career expectations.</p>
+                        <p>Instead of guessing, the system uses <span class="highlight">logical inference rules</span> derived from actual industry knowledge to produce accurate, personalised career recommendations tailored to the Malaysian tech landscape.</p>
+                        <div style="margin-top:1.2rem;padding:.9rem 1.1rem;background:rgba(0,240,255,.05);border:1px solid rgba(0,240,255,.18);border-left:3px solid var(--cyan);border-radius:10px;">
+                            <p style="font-size:.82rem;color:var(--muted);line-height:1.65;margin:0;"><span style="color:var(--cyan);font-weight:600;">Diploma &amp; Degree Students Only</span> — This system is designed specifically for students and graduates at Diploma or Bachelor's Degree level who are exploring IT career pathways in Malaysia.</p>
+                        </div>
+                    </div>
+                    <div class="intro-stats">
+                        <div class="stat-box">
+                            <div class="stat-num" data-target="135">0</div>
+                            <div class="stat-desc">Inference Rules</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" data-target="18">0</div>
+                            <div class="stat-desc">IT Careers</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" data-target="100">0</div>
+                            <div class="stat-desc">Rule Coverage %</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" data-target="5">0</div>
+                            <div class="stat-desc">Profile Parameters</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── HOW IT WORKS ── -->
+        <div class="section-wrap">
+            <div class="section-label reveal">
+                <h2>How Does It <span class="text-cyan">Work?</span></h2>
+                <p>A 5-stage pipeline from user input to personalised career recommendation</p>
+                <div class="underline-bar"></div>
+            </div>
+
+            <!-- Row 1: Stages 1–3 -->
+            <div class="how-grid how-grid-top">
+                <div class="how-step reveal">
+                    <div class="step-num">// STAGE 01</div>
+                    <div class="step-icon">📋</div>
+                    <h4>Data Collection</h4>
+                    <p>Users complete a structured assessment covering Interests, Skills, Personality, Academic Background, and Technology Exposure.</p>
+                </div>
+                <div class="how-step reveal">
+                    <div class="step-num">// STAGE 02</div>
+                    <div class="step-icon">⚙️</div>
+                    <h4>Inference Engine</h4>
+                    <p>The Forward Chaining engine fires rules sequentially — starting from known facts and deriving new conclusions until a final match is reached.</p>
+                </div>
+                <div class="how-step reveal">
+                    <div class="step-num">// STAGE 03</div>
+                    <div class="step-icon">📐</div>
+                    <h4>Rule Matching</h4>
+                    <p>Your profile is compared against 135 IF-THEN rules. Each matching rule adds weight to candidate careers, building a ranked score list.</p>
+                </div>
+            </div>
+
+            <!-- Row 2: Stages 4–5 side by side -->
+            <div class="how-grid how-grid-bottom">
+                <div class="how-step reveal">
+                    <div class="step-num">// STAGE 04</div>
+                    <div class="step-icon">🧠</div>
+                    <h4>Knowledge Base</h4>
+                    <p>Scores are matched against a curated knowledge base of 18 Malaysia-relevant IT careers with salary data, skills, and certifications.</p>
+                </div>
+                <div class="how-step reveal">
+                    <div class="step-num">// STAGE 05</div>
+                    <div class="step-icon">🗺️</div>
+                    <h4>Career Roadmap</h4>
+                    <p>The top-matching career is presented with a full learning roadmap, recommended tools, and certification pathways to get you started.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CONFLICT RESOLUTION STRATEGY ── -->
+        <div class="section-wrap">
+            <div class="section-label reveal">
+                <h2>How The System <span class="text-cyan">Resolves Conflicts</span></h2>
+                <p>When multiple rules fire for multiple careers at once, how does TechPath decide the winner?</p>
+                <div class="underline-bar"></div>
+            </div>
+
+            <div class="crs-card reveal">
+                <p class="crs-intro">
+                    In rule-based Expert Systems, it is common for <strong>multiple rules to fire simultaneously</strong>,
+                    sometimes pointing toward different conclusions. TechPath resolves this using an
+                    <strong>Additive Weighted Scoring</strong> strategy — rather than letting the first matching rule
+                    win, or relying on a fixed priority order, every rule that fires contributes its weight to a
+                    running total for its associated career. The career with the highest accumulated score across
+                    all 135 rules is selected as the final recommendation.
+                </p>
+
+                <div class="crs-formula">Score(career) = Σ (points of every rule that fired for that career)</div>
+
+                <div class="crs-example">
+                    <div class="crs-example-box winner">
+                        <div class="crs-example-title">🏆 AI Engineer (Winner) — Example</div>
+                        <div class="crs-rule-line"><span>R7 — Primary match</span><span>+30</span></div>
+                        <div class="crs-rule-line"><span>R25 — Supporting match</span><span>+15</span></div>
+                        <div class="crs-rule-line"><span>R74 — Excellence Bonus</span><span>+20</span></div>
+                        <div class="crs-rule-line"><span>R94 — Synergy</span><span>+10</span></div>
+                        <div class="crs-total"><span>Total (4 rules fired)</span><span>75</span></div>
+                    </div>
+                    <div class="crs-example-box">
+                        <div class="crs-example-title">Data Scientist — Example</div>
+                        <div class="crs-rule-line"><span>R24 — Supporting match</span><span>+15</span></div>
+                        <div class="crs-rule-line"><span>R76 — Excellence Bonus</span><span>+20</span></div>
+                        <div class="crs-rule-line"><span>R103 — Synergy</span><span>+8</span></div>
+                        <div class="crs-total"><span>Total (3 rules fired)</span><span>43</span></div>
+                    </div>
+                </div>
+
+                <p class="crs-intro" style="margin-bottom:0;">
+                    Even though both careers had rules firing, AI Engineer wins because <strong>more independent
+                    pieces of evidence</strong> (interest, skill, personality, and academic synergy) pointed toward
+                    it — not because of rule order in the code. This is the same logic shown to the user in the
+                    <strong>"Why This Career?"</strong> explanation facility on the results page.
+                </p>
+            </div>
+
+            <div class="crs-card reveal">
+                <h4 style="font-size:1rem;color:#fff;margin-bottom:1rem;">Why Additive Scoring Over Other Strategies?</h4>
+                <div style="overflow-x:auto;">
+                <table class="crs-table">
+                    <thead>
+                        <tr>
+                            <th style="width:170px;">Strategy</th>
+                            <th>Description</th>
+                            <th>Why Not Used Here</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>First Match</strong></td>
+                            <td>Stops at the first rule that fires; ignores every rule after it.</td>
+                            <td>Results would depend on rule <em>order</em> in the code, not the actual strength of the user's profile.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Priority Ordering</strong></td>
+                            <td>Rules are ranked by fixed priority; the highest-priority match wins outright.</td>
+                            <td>Ignores supporting evidence — a career with one high-priority rule would always beat a career with five well-rounded moderate matches.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Means-End Analysis</strong></td>
+                            <td>Works backward from a goal state, selecting rules that reduce the gap to that goal.</td>
+                            <td>Suited for planning/goal-seeking problems, not classification-style profile matching like career recommendation.</td>
+                        </tr>
+                        <tr class="chosen">
+                            <td><strong>Additive Weighted Scoring</strong><span class="crs-chosen-badge">USED</span></td>
+                            <td>Every fired rule contributes its weight; the career with the highest cumulative score wins.</td>
+                            <td><strong style="color:#4ade80;">Rewards consistent, multi-dimensional evidence</strong> (interest + skill + personality + academic background) — which mirrors how real career fit is actually judged.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TEAM ── -->
+        <div class="section-wrap">
+            <div class="section-label reveal">
+                <h2>Meet The <span class="text-cyan">Developers</span></h2>
+                <p>The brilliant minds behind TechPath Expert System</p>
+                <div class="underline-bar"></div>
+            </div>
+            <!-- Row 1: 3 ahli -->
+            <div class="team-grid">
+                <div class="team-card reveal">
+                    <div class="member-ring">
+                        <img src="img/mem1.png" alt="Aqil Izzuan">
+                    </div>
+                    <div class="member-name">Aqil Izzuan</div>
+                    <div class="member-role">Lead Developer</div>
+                    <div class="member-id">// SYS.CORE</div>
+                </div>
+                <div class="team-card reveal">
+                    <div class="member-ring">
+                        <img src="img/mem2.png" alt="Muhammad Sufi">
+                    </div>
+                    <div class="member-name">Muhammad Sufi</div>
+                    <div class="member-role">Knowledge Engineer</div>
+                    <div class="member-id">// KB.ARCH</div>
+                </div>
+                <div class="team-card reveal">
+                    <div class="member-ring">
+                        <img src="img/mem3.png" alt="Azhad Fauzan">
+                    </div>
+                    <div class="member-name">Azhad Fauzan</div>
+                    <div class="member-role">UI/UX Designer</div>
+                    <div class="member-id">// UI.LAYER</div>
+                </div>
+            </div>
+            <!-- Row 2: Kesuma & Mahmud selaras centered -->
+            <div class="team-grid team-grid-bottom">
+                <div class="team-card reveal">
+                    <div class="member-ring">
+                        <img src="img/mem4.png" alt="Kesuma Jaya">
+                    </div>
+                    <div class="member-name">Kesuma Jaya</div>
+                    <div class="member-role">System Analyst</div>
+                    <div class="member-id">// SYS.LOGIC</div>
+                </div>
+                <div class="team-card reveal">
+                    <div class="member-ring">
+                        <img src="img/mem5.png" alt="Mahmud Sufi">
+                    </div>
+                    <div class="member-name">Mahmud Sufi</div>
+                    <div class="member-role">QA Tester</div>
+                    <div class="member-id">// QA.VERIFY</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TechPath Expert System</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script>
+        // ── Particle Canvas ──
+        const canvas = document.getElementById('particle-canvas');
+        const ctx    = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: null, y: null, radius: 130 };
+
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout',  () => { mouse.x = undefined; mouse.y = undefined; });
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size   = Math.random() * 1.8 + .4;
+                this.speedX = Math.random() * .8 - .4;
+                this.speedY = Math.random() * .8 - .4;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                const dx = mouse.x - this.x, dy = mouse.y - this.y;
+                this.size = Math.sqrt(dx*dx + dy*dy) < mouse.radius ? 2.8 : Math.random() * 1.8 + .4;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0,240,255,.55)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particles = [];
+            const n = (canvas.width * canvas.height) / 12000;
+            for (let i = 0; i < n; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.update(); p.draw();
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = p.x - particles[j].x, dy = p.y - particles[j].y;
+                    const d  = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 110) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0,240,255,${.12 - d/900})`;
+                        ctx.lineWidth = .8;
+                        ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+                if (mouse.x != null) {
+                    const dx = p.x - mouse.x, dy = p.y - mouse.y;
+                    const d  = Math.sqrt(dx*dx + dy*dy);
+                    if (d < mouse.radius) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0,240,255,${.3 - d/250})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+        init(); animate();
+
+        // ── Cursor Glow ──
+        const glow = document.getElementById('cursorGlow');
+        document.addEventListener('mousemove', e => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top  = e.clientY + 'px';
+        });
+
+        // ── Scroll Reveal ──
+        const revealObs = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 100);
+                }
+            });
+        }, { threshold: .1 });
+        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+        // ── Animated stat counters ──
+        function animateStat(el) {
+            const target = +el.getAttribute('data-target');
+            const step   = target / 45;
+            const tick   = () => {
+                const current = +el.textContent;
+                if (current < target) {
+                    el.textContent = Math.ceil(current + step);
+                    setTimeout(tick, 22);
+                } else {
+                    el.textContent = target + (el.getAttribute('data-target') === '100' ? '%' : '+');
+                }
+            };
+            tick();
+        }
+
+        const statsObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.querySelectorAll('.stat-num[data-target]').forEach(animateStat);
+                    statsObs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: .4 });
+        const introCard = document.querySelector('.intro-card');
+        if (introCard) statsObs.observe(introCard);
+    </script>
+</body>
+</html>

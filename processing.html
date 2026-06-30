@@ -1,0 +1,750 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyzing Profile... | TechPath Expert</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg:    #030712;
+            --cyan:  #00f0ff;
+            --glow:  rgba(0,240,255,0.55);
+            --purple:#8b5cf6;
+            --card:  rgba(17,24,39,0.6);
+            --text:  #f3f4f6;
+            --muted: #9ca3af;
+            --mono:  'Share Tech Mono', monospace;
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family:'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── BACKGROUNDS ── */
+        .grid-bg {
+            position:fixed; inset:0; z-index:-2;
+            background-image:
+                linear-gradient(rgba(0,240,255,.022) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,240,255,.022) 1px, transparent 1px);
+            background-size:55px 55px;
+            animation:gridDrift 30s linear infinite;
+        }
+        @keyframes gridDrift { to { background-position:55px 55px; } }
+
+        .glow-orb { position:fixed; border-radius:50%; filter:blur(120px); z-index:-1; opacity:.18; pointer-events:none; }
+        .orb-1 { width:500px; height:500px; background:var(--cyan);   top:-10%; left:-10%; animation:floatOrb 20s ease-in-out infinite alternate; }
+        .orb-2 { width:450px; height:450px; background:var(--purple); bottom:-10%; right:-10%; animation:floatOrb 17s ease-in-out infinite alternate-reverse; }
+        @keyframes floatOrb { 0%{transform:translate(0,0);} 100%{transform:translate(30px,-40px);} }
+
+        #particle-canvas { position:fixed; inset:0; z-index:-1; pointer-events:none; }
+
+        .text-cyan { color:var(--cyan); text-shadow:0 0 12px var(--glow); }
+
+        /* ── MAIN LAYOUT ── */
+        .main-layout {
+            flex:1; display:flex; align-items:center; justify-content:center;
+            padding:1.5rem 5%; position:relative; z-index:10;
+        }
+
+        /* ── PROCESSING CARD ── */
+        .proc-card {
+            background:var(--card);
+            backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,.06);
+            border-top:1px solid rgba(255,255,255,.14);
+            border-radius:24px;
+            padding:2rem 2.5rem;
+            width:100%; max-width:680px;
+            display:flex; flex-direction:column; align-items:center;
+            text-align:center;
+            position:relative; overflow:hidden;
+            box-shadow:0 25px 55px rgba(0,0,0,.55), 0 0 35px rgba(0,240,255,.07);
+            animation:cardIn .7s ease-out both;
+        }
+        @keyframes cardIn { from{opacity:0;transform:translateY(28px);} to{opacity:1;transform:translateY(0);} }
+
+        /* top gradient bar */
+        .proc-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+        }
+        /* slow sweep */
+        .proc-card::after {
+            content:''; position:absolute; top:0; left:-100%; width:50%; height:100%;
+            background:linear-gradient(90deg, transparent, rgba(0,240,255,.025), transparent);
+            animation:sweep 4s linear infinite;
+        }
+        @keyframes sweep { to { left:150%; } }
+
+        /* ── ANIMATED RINGS LOADER ── */
+        .rings-wrap {
+            position:relative; width:110px; height:110px;
+            display:flex; align-items:center; justify-content:center;
+            margin-bottom:1.4rem;
+        }
+
+        .ring {
+            position:absolute; border-radius:50%; border:2px solid transparent;
+        }
+        .ring-1 {
+            width:110px; height:110px;
+            border-top-color:var(--cyan); border-right-color:rgba(0,240,255,.3);
+            animation:spinCW 1.6s linear infinite;
+            box-shadow:0 0 18px rgba(0,240,255,.25);
+        }
+        .ring-2 {
+            width:84px; height:84px;
+            border-top-color:var(--purple); border-left-color:rgba(139,92,246,.3);
+            animation:spinCCW 2s linear infinite;
+            box-shadow:0 0 14px rgba(139,92,246,.2);
+        }
+        .ring-3 {
+            width:58px; height:58px;
+            border-top-color:rgba(0,240,255,.7); border-bottom-color:rgba(0,240,255,.2);
+            animation:spinCW 1.2s linear infinite;
+        }
+        .ring-core {
+            width:32px; height:32px; border-radius:50%;
+            background:radial-gradient(circle, rgba(0,240,255,.25) 0%, rgba(0,240,255,.05) 70%);
+            border:1px solid rgba(0,240,255,.4);
+            box-shadow:0 0 20px rgba(0,240,255,.4), inset 0 0 12px rgba(0,240,255,.15);
+            animation:pulsing 1.5s ease-in-out infinite;
+        }
+        @keyframes spinCW  { to{ transform:rotate(360deg); } }
+        @keyframes spinCCW { to{ transform:rotate(-360deg); } }
+        @keyframes pulsing { 0%,100%{box-shadow:0 0 20px rgba(0,240,255,.4);} 50%{box-shadow:0 0 35px rgba(0,240,255,.75);} }
+
+        /* ── TITLE ── */
+        .proc-title {
+            font-size:1.35rem; font-weight:600; color:#fff;
+            margin-bottom:.3rem; letter-spacing:.3px;
+        }
+        .proc-subtitle {
+            font-size:.78rem; color:var(--muted);
+            margin-bottom:1.4rem; font-family:var(--mono); letter-spacing:.5px;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-wrap { width:100%; max-width:560px; margin-bottom:1.4rem; }
+        .progress-track {
+            width:100%; height:4px; background:rgba(255,255,255,.07);
+            border-radius:4px; overflow:hidden;
+        }
+        .progress-fill {
+            height:100%; width:0%;
+            background:linear-gradient(90deg, var(--cyan), var(--purple));
+            border-radius:4px;
+            box-shadow:0 0 10px rgba(0,240,255,.5);
+            transition:width .5s ease;
+        }
+        .progress-label {
+            display:flex; justify-content:space-between; margin-top:.5rem;
+            font-size:.7rem; font-family:var(--mono); color:var(--muted);
+        }
+
+        /* ── STAGE INDICATORS ── */
+        .stages-row {
+            display:flex; align-items:center; gap:0; width:100%;
+            max-width:560px; margin-bottom:1.4rem;
+        }
+        .stage {
+            flex:1; display:flex; flex-direction:column; align-items:center; gap:.4rem;
+            position:relative;
+        }
+        .stage:not(:last-child)::after {
+            content:''; position:absolute;
+            top:14px; left:calc(50% + 14px); right:calc(-50% + 14px);
+            height:1px; background:rgba(255,255,255,.1);
+            transition:background .5s ease;
+        }
+        .stage.done:not(:last-child)::after { background:rgba(0,240,255,.4); }
+
+        .stage-dot {
+            width:28px; height:28px; border-radius:50%;
+            border:1.5px solid rgba(255,255,255,.15);
+            background:rgba(0,0,0,.3);
+            display:flex; align-items:center; justify-content:center;
+            font-size:.65rem; font-family:var(--mono); color:var(--muted);
+            transition:all .4s ease; position:relative; z-index:1;
+        }
+        .stage.active .stage-dot {
+            border-color:var(--cyan);
+            background:rgba(0,240,255,.1);
+            color:var(--cyan);
+            box-shadow:0 0 14px rgba(0,240,255,.4);
+            animation:pulsing 1.2s ease-in-out infinite;
+        }
+        .stage.done .stage-dot {
+            border-color:rgba(0,240,255,.5);
+            background:rgba(0,240,255,.12);
+            color:var(--cyan);
+            box-shadow:none;
+        }
+        .stage-label {
+            font-size:.62rem; font-family:var(--mono);
+            color:var(--muted); text-transform:uppercase; letter-spacing:.5px;
+            text-align:center; white-space:nowrap;
+        }
+        .stage.active .stage-label, .stage.done .stage-label { color:var(--cyan); }
+
+        /* ── TERMINAL ── */
+        .terminal-wrap { width:100%; max-width:560px; }
+        .terminal-bar {
+            display:flex; align-items:center; gap:.5rem;
+            background:rgba(0,0,0,.5); border:1px solid rgba(0,240,255,.25);
+            border-bottom:none; border-radius:10px 10px 0 0;
+            padding:.5rem .9rem;
+        }
+        .t-dot { width:10px; height:10px; border-radius:50%; }
+        .t-dot-r { background:#f87171; }
+        .t-dot-y { background:#fbbf24; }
+        .t-dot-g { background:#4ade80; }
+        .t-label { font-size:.65rem; font-family:var(--mono); color:var(--muted); margin-left:auto; letter-spacing:.5px; }
+
+        .terminal-box {
+            background:rgba(2,6,18,.9);
+            border:1px solid rgba(0,240,255,.25);
+            border-radius:0 0 10px 10px;
+            padding:1rem 1.2rem;
+            width:100%; height:145px;
+            overflow-y:auto; text-align:left;
+            font-family:var(--mono); font-size:.82rem;
+            color:var(--cyan); position:relative;
+        }
+        .terminal-box::-webkit-scrollbar { width:4px; }
+        .terminal-box::-webkit-scrollbar-track { background:transparent; }
+        .terminal-box::-webkit-scrollbar-thumb { background:rgba(0,240,255,.25); border-radius:2px; }
+
+        /* scanline texture */
+        .terminal-box::after {
+            content:''; position:absolute; inset:0;
+            background:repeating-linear-gradient(transparent, transparent 3px, rgba(0,0,0,.06) 3px, rgba(0,0,0,.06) 4px);
+            pointer-events:none;
+        }
+
+        .log-line {
+            margin:5px 0; opacity:0;
+            animation:logIn .35s ease forwards;
+            line-height:1.5;
+        }
+        .log-ok   { color:var(--cyan); }
+        .log-run  { color:#fbbf24; }
+        .log-done { color:#4ade80; }
+        @keyframes logIn { from{opacity:0;transform:translateX(-6px);} to{opacity:1;transform:translateX(0);} }
+
+        /* ── SHORT SCREENS (laptops ~768px height) ── */
+        @media (max-height: 800px) {
+            .main-layout { padding:1rem 5%; align-items:flex-start; }
+            .proc-card { padding:1.5rem 2rem; }
+            .rings-wrap { width:90px; height:90px; margin-bottom:1rem; }
+            .ring-1 { width:90px; height:90px; }
+            .ring-2 { width:68px; height:68px; }
+            .ring-3 { width:46px; height:46px; }
+            .ring-core { width:26px; height:26px; }
+            .proc-title { font-size:1.2rem; }
+            .proc-subtitle { margin-bottom:1rem; }
+            .progress-wrap { margin-bottom:1rem; }
+            .stages-row { margin-bottom:1rem; }
+            .terminal-box { height:120px; }
+        }
+
+        @media (max-width:640px) {
+            .proc-card { padding:1.5rem 1.2rem; }
+            .stage-label { font-size:.55rem; }
+        }
+        @media (max-width:380px) {
+            .proc-card { padding:1.2rem .9rem; }
+            .proc-title { font-size:1.05rem; }
+            .proc-subtitle { font-size:.7rem; }
+            .rings-wrap { width:80px; height:80px; margin-bottom:.9rem; }
+            .ring-1 { width:80px; height:80px; }
+            .ring-2 { width:60px; height:60px; }
+            .ring-3 { width:42px; height:42px; }
+            .ring-core { width:24px; height:24px; }
+            .stage-dot { width:24px; height:24px; font-size:.58rem; }
+            .stage-label { font-size:.5rem; }
+            .terminal-box { height:110px; padding:.8rem .9rem; font-size:.74rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-bg"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <header class="header-container">
+        <nav class="navbar">
+            <div class="logo"><h1>Tech<span class="text-cyan">Path</span></h1></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="knowledge-base.html">Career List</a></li>
+                <li><a href="about.html">About System</a></li>
+                <li><a href="cgpa.html">CGPA Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-layout">
+        <div class="proc-card">
+
+            <!-- Rings Loader -->
+            <div class="rings-wrap">
+                <div class="ring ring-1"></div>
+                <div class="ring ring-2"></div>
+                <div class="ring ring-3"></div>
+                <div class="ring-core"></div>
+            </div>
+
+            <div class="proc-title">Inference Engine is Running</div>
+            <div class="proc-subtitle" id="procSubtitle">Initializing analysis pipeline...</div>
+
+            <!-- Progress Bar -->
+            <div class="progress-wrap">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-label">
+                    <span id="progressPct">0%</span>
+                    <span id="progressStep">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Stage Indicators -->
+            <div class="stages-row">
+                <div class="stage active" id="stage-1">
+                    <div class="stage-dot">01</div>
+                    <div class="stage-label">Load</div>
+                </div>
+                <div class="stage" id="stage-2">
+                    <div class="stage-dot">02</div>
+                    <div class="stage-label">Analyze</div>
+                </div>
+                <div class="stage" id="stage-3">
+                    <div class="stage-dot">03</div>
+                    <div class="stage-label">Match</div>
+                </div>
+                <div class="stage" id="stage-4">
+                    <div class="stage-dot">04</div>
+                    <div class="stage-label">Result</div>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="terminal-wrap">
+                <div class="terminal-bar">
+                    <span class="t-dot t-dot-r"></span>
+                    <span class="t-dot t-dot-y"></span>
+                    <span class="t-dot t-dot-g"></span>
+                    <span class="t-label">TECHPATH // INFERENCE ENGINE v2.0</span>
+                </div>
+                <div class="terminal-box" id="terminalBox">
+                    <div class="log-line log-ok">&gt; System boot sequence initiated...</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+
+    <script>
+        // ── Particle Canvas ──
+        const canvas = document.getElementById('particle-canvas');
+        const ctx    = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.6 + .3;
+                this.speedX = Math.random() * .7 - .35; this.speedY = Math.random() * .7 - .35;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(0,240,255,.45)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        function init() {
+            particles = [];
+            const n = (canvas.width * canvas.height) / 14000;
+            for (let i = 0; i < n; i++) particles.push(new Particle());
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.update(); p.draw();
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = p.x - particles[j].x, dy = p.y - particles[j].y;
+                    const d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 110) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0,240,255,${.1 - d/1100})`;
+                        ctx.lineWidth = .7;
+                        ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+        init(); animate();
+    </script>
+
+    <script>
+        // ── Processing UI ──
+        const terminalBox   = document.getElementById('terminalBox');
+        const progressFill  = document.getElementById('progressFill');
+        const progressPct   = document.getElementById('progressPct');
+        const progressStep  = document.getElementById('progressStep');
+        const procSubtitle  = document.getElementById('procSubtitle');
+
+        const LOGS = [
+            { text: '> Loading user profile from session...          [ OK ]', cls:'log-ok',  pct:14, step:'Loading profile',  stage:1, subtitle:'Loading assessment data...' },
+            { text: '> Loading interest profile [15 parameters]...   [ OK ]', cls:'log-ok',  pct:28, step:'Reading interests', stage:1, subtitle:'Reading interest parameters...' },
+            { text: '> Loading technical skills assessment...         [ OK ]', cls:'log-ok',  pct:42, step:'Reading skills',   stage:2, subtitle:'Analyzing skills matrix...' },
+            { text: '> Processing personality matrix...               [ OK ]', cls:'log-ok',  pct:56, step:'Personality scan',  stage:2, subtitle:'Scanning personality indicators...' },
+            { text: '> Running Forward Chaining engine [135 rules]...       ', cls:'log-run', pct:70, step:'Firing rules',     stage:3, subtitle:'Executing inference rules...' },
+            { text: '> Calculating weighted career scores...                 ', cls:'log-run', pct:82, step:'Scoring careers',  stage:3, subtitle:'Computing match scores...' },
+            { text: '> Extracting top 3 career matches...            [ OK ]', cls:'log-ok',  pct:92, step:'Ranking results',  stage:3, subtitle:'Ranking career recommendations...' },
+            { text: '> Analysis complete. Redirecting to results...  [ DONE ]', cls:'log-done',pct:100, step:'Complete',      stage:4, subtitle:'Preparing your results...' },
+        ];
+
+        function setStage(n) {
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`stage-${i}`);
+                el.classList.remove('active','done');
+                if (i < n) el.classList.add('done');
+                else if (i === n) el.classList.add('active');
+            }
+        }
+
+        function addLog(log) {
+            const el = document.createElement('div');
+            el.className = `log-line ${log.cls}`;
+            el.textContent = log.text;
+            terminalBox.appendChild(el);
+            terminalBox.scrollTop = terminalBox.scrollHeight;
+            progressFill.style.width = log.pct + '%';
+            progressPct.textContent = log.pct + '%';
+            progressStep.textContent = log.step;
+            procSubtitle.textContent = log.subtitle;
+            setStage(log.stage);
+        }
+
+        let idx = 0;
+        function tick() {
+            if (idx < LOGS.length) {
+                addLog(LOGS[idx]);
+                idx++;
+                setTimeout(tick, 580);
+            } else {
+                runInferenceEngine();
+            }
+        }
+        setTimeout(tick, 700);
+
+        // ── INFERENCE ENGINE ──
+        function runInferenceEngine() {
+            const minat      = JSON.parse(localStorage.getItem('techpath_minat'))       || {};
+            const kemahiran  = JSON.parse(localStorage.getItem('techpath_kemahiran'))   || {};
+            const personaliti= JSON.parse(localStorage.getItem('techpath_personaliti')) || {};
+            const profil     = JSON.parse(localStorage.getItem('techpath_userProfile')) || {};
+
+            const careers = {
+                "Software Developer":0, "Web Developer":0, "Mobile App Developer":0,
+                "Data Analyst":0, "Data Scientist":0, "AI Engineer":0,
+                "Machine Learning Engineer":0, "Cybersecurity Analyst":0,
+                "Security Engineer":0, "Penetration Tester":0, "Network Engineer":0,
+                "Cloud Engineer":0, "System Administrator":0, "DevOps Engineer":0,
+                "UI/UX Designer":0, "IT Support Specialist":0,
+                "Database Administrator":0, "Business Analyst":0
+            };
+
+            // ══════════════════════════════════════════════════════
+            // INFERENCE ENGINE — 135 RULES (Forward Chaining)
+            // Explanation Facility: setiap rule yang fired direkod dalam
+            // `firedRules` supaya result.html boleh terangkan "kenapa"
+            // sesuatu career disyorkan.
+            // ══════════════════════════════════════════════════════
+            const firedRules = {};
+            function logFire(career, points, label) {
+                if (!firedRules[career]) firedRules[career] = [];
+                firedRules[career].push({ points, label });
+            }
+            function R(career, points, label, cond) {
+                if (cond) { careers[career] += points; logFire(career, points, label); }
+            }
+
+            // ── RULES 1–18: PRIMARY (+30) — Core Interest + Skill ──
+            R("Software Developer",        30, "High interest in programming & strong coding skill",                  minat.minat_1  >= 4 && kemahiran.kemahiran_1  >= 4);
+            R("Web Developer",             30, "High interest in web design & strong HTML/CSS/JS skill",              minat.minat_2  >= 4 && kemahiran.kemahiran_2  >= 4);
+            R("Mobile App Developer",      30, "High interest in mobile apps & strong coding skill",                  minat.minat_10 >= 4 && kemahiran.kemahiran_1  >= 4);
+            R("UI/UX Designer",            30, "Interest in web design & strong UI/UX skill",                         minat.minat_2  >= 4 && kemahiran.kemahiran_9  >= 4);
+            R("Data Analyst",              30, "High interest in analyzing data & strong data analysis skill",        minat.minat_3  >= 4 && kemahiran.kemahiran_4  >= 4);
+            R("Data Scientist",            30, "Very high interest in data & strong math/statistics skill",           minat.minat_3 >= 5 && kemahiran.kemahiran_3  >= 4);
+            R("AI Engineer",               30, "High interest in AI & strong Machine Learning skill",                 minat.minat_5  >= 4 && kemahiran.kemahiran_8  >= 4);
+            R("Machine Learning Engineer", 30, "High interest in AI & strong math/statistics skill",                  minat.minat_5  >= 4 && kemahiran.kemahiran_3  >= 4);
+            R("Cybersecurity Analyst",     30, "High interest in cybersecurity & strong networking skill",            minat.minat_6  >= 4 && kemahiran.kemahiran_6  >= 4);
+            R("Security Engineer",         30, "High interest in security & strong system architecture skill",        minat.minat_6  >= 4 && kemahiran.kemahiran_7  >= 4);
+            R("Penetration Tester",        30, "High interest in ethical hacking & strong security skill",            minat.minat_12 >= 4 && kemahiran.kemahiran_6  >= 4);
+            R("Network Engineer",          30, "High interest in networking & strong system architecture skill",      minat.minat_7  >= 4 && kemahiran.kemahiran_7  >= 4);
+            R("System Administrator",      30, "High interest in maintaining systems & strong server skill",          minat.minat_8  >= 4 && kemahiran.kemahiran_10 >= 4);
+            R("Cloud Engineer",            30, "High interest in cloud computing & strong server skill",              minat.minat_13 >= 4 && kemahiran.kemahiran_10 >= 4);
+            R("DevOps Engineer",           30, "High interest in system automation & strong server skill",            minat.minat_11 >= 4 && kemahiran.kemahiran_10 >= 4);
+            R("IT Support Specialist",     30, "High interest in helping others & strong hardware skill",             minat.minat_15 >= 4 && kemahiran.kemahiran_12 >= 4);
+            R("Database Administrator",    30, "High interest in managing databases & strong SQL skill",              minat.minat_9  >= 4 && kemahiran.kemahiran_5  >= 4);
+            R("Business Analyst",          30, "High interest in business requirement analysis & strong communication skill", minat.minat_14 >= 4 && kemahiran.kemahiran_14 >= 4);
+
+            // ── RULES 19–36: SUPPORTING (+15) — Skill + Personality ──
+            R("Software Developer",        15, "Interest in solving logical problems & personality that enjoys complex challenges", minat.minat_4 >= 4 && personaliti.personaliti_8 >= 4);
+            R("Web Developer",             15, "UI design skill & creative personality",                              kemahiran.kemahiran_9  >= 4 && personaliti.personaliti_3  >= 4);
+            R("Mobile App Developer",      15, "Basic web skill & adaptable personality",                             kemahiran.kemahiran_2  >= 3 && personaliti.personaliti_5  >= 4);
+            R("UI/UX Designer",            15, "Creative personality & confident communicating with stakeholders",     personaliti.personaliti_3 >= 4 && personaliti.personaliti_15 >= 4);
+            R("Data Analyst",              15, "Spreadsheet skill & strong documentation skill",                      kemahiran.kemahiran_11 >= 4 && kemahiran.kemahiran_15 >= 4);
+            R("Data Scientist",            15, "Interest in solving logical problems & personality that prefers working independently", minat.minat_4 >= 4 && personaliti.personaliti_1 >= 4);
+            R("AI Engineer",               15, "Strong coding skill & highly curious personality",                    kemahiran.kemahiran_1  >= 4 && personaliti.personaliti_11 >= 4);
+            R("Machine Learning Engineer", 15, "Machine Learning skill & personality that enjoys complex challenges",  kemahiran.kemahiran_8  >= 4 && personaliti.personaliti_8  >= 4);
+            R("Cybersecurity Analyst",     15, "High-integrity personality & very detail-oriented",                   personaliti.personaliti_14 >= 4 && personaliti.personaliti_4 >= 4);
+            R("Security Engineer",         15, "Security skill & personality that prefers clear structure",           kemahiran.kemahiran_6  >= 4 && personaliti.personaliti_7  >= 4);
+            R("Penetration Tester",        15, "Personality that enjoys calculated risk-taking & working independently", personaliti.personaliti_13 >= 4 && personaliti.personaliti_1 >= 4);
+            R("Network Engineer",          15, "Personality that prefers clear structure & stays calm under pressure", personaliti.personaliti_7 >= 4 && personaliti.personaliti_9 >= 4);
+            R("System Administrator",      15, "Hardware skill & highly patient personality",                        kemahiran.kemahiran_12 >= 4 && personaliti.personaliti_12 >= 4);
+            R("Cloud Engineer",            15, "Basic networking skill & adaptable personality",                      kemahiran.kemahiran_7  >= 3 && personaliti.personaliti_5  >= 4);
+            R("DevOps Engineer",           15, "Debugging skill & personality that enjoys teamwork",                  kemahiran.kemahiran_13 >= 4 && personaliti.personaliti_2  >= 4);
+            R("IT Support Specialist",     15, "Communication skill & personality that enjoys teaching others",       kemahiran.kemahiran_14 >= 4 && personaliti.personaliti_10 >= 4);
+            R("Database Administrator",    15, "Very detail-oriented personality & high integrity",                   personaliti.personaliti_4 >= 4 && personaliti.personaliti_14 >= 4);
+            R("Business Analyst",          15, "Documentation skill & personality that enjoys leading",               kemahiran.kemahiran_15 >= 4 && personaliti.personaliti_6 >= 4);
+
+            // ── RULES 37–54: TERTIARY RULE (+12) — Specific Combinations ──
+            R("Software Developer",        12, "Data analysis skill & personality that enjoys complex challenges",    kemahiran.kemahiran_4  >= 4 && personaliti.personaliti_8 >= 4);
+            R("Web Developer",             12, "Interest in web design & creative personality",                      minat.minat_2 >= 4 && personaliti.personaliti_3 >= 4);
+            R("Mobile App Developer",      12, "Adaptable & creative personality",                                    personaliti.personaliti_5 >= 4 && personaliti.personaliti_3 >= 4);
+            R("UI/UX Designer",            12, "Confidence with stakeholders & documentation skill",                  personaliti.personaliti_15 >= 4 && kemahiran.kemahiran_14 >= 4);
+            R("Data Analyst",              12, "Spreadsheet skill & very detail-oriented personality",                kemahiran.kemahiran_11 >= 4 && personaliti.personaliti_4 >= 4);
+            R("Data Scientist",            12, "Basic Machine Learning & strong math skill",                          kemahiran.kemahiran_8 >= 3 && kemahiran.kemahiran_3 >= 4);
+            R("AI Engineer",               12, "Very high AI interest & basic Machine Learning skill",                minat.minat_5 >= 5 && kemahiran.kemahiran_8 >= 3);
+            R("Machine Learning Engineer", 12, "Coding skill & strong math skill",                                    kemahiran.kemahiran_1 >= 4 && kemahiran.kemahiran_3 >= 4);
+            R("Cybersecurity Analyst",     12, "Very high cybersecurity interest & very detail-oriented",             minat.minat_6 >= 5 && personaliti.personaliti_4 >= 4);
+            R("Security Engineer",         12, "Security skill & basic coding skill",                                 kemahiran.kemahiran_6 >= 4 && kemahiran.kemahiran_1 >= 3);
+            R("Penetration Tester",        12, "Coding skill & personality that enjoys complex challenges",           kemahiran.kemahiran_1 >= 4 && personaliti.personaliti_8 >= 4);
+            R("Network Engineer",          12, "System architecture skill & basic security skill",                   kemahiran.kemahiran_7 >= 4 && kemahiran.kemahiran_6 >= 3);
+            R("System Administrator",      12, "Server skill & basic hardware skill",                                 kemahiran.kemahiran_10 >= 4 && kemahiran.kemahiran_12 >= 3);
+            R("Cloud Engineer",            12, "Very high cloud interest & basic server skill",                       minat.minat_13 >= 5 && kemahiran.kemahiran_10 >= 3);
+            R("DevOps Engineer",           12, "Debugging skill & basic server skill",                                kemahiran.kemahiran_13 >= 4 && kemahiran.kemahiran_10 >= 3);
+            R("IT Support Specialist",     12, "Hardware skill & personality that enjoys teaching",                   kemahiran.kemahiran_12 >= 4 && personaliti.personaliti_10 >= 4);
+            R("Database Administrator",    12, "SQL skill & basic spreadsheet skill",                                 kemahiran.kemahiran_5 >= 4 && kemahiran.kemahiran_11 >= 3);
+            R("Business Analyst",          12, "Communication skill & personality that enjoys leading",               kemahiran.kemahiran_14 >= 4 && personaliti.personaliti_6 >= 4);
+
+            // ── RULES 55–72: QUATERNARY RULE (+10) — Very High Interest / Unique Combination ──
+            R("Software Developer",        10, "Very high interest (5/5) in programming",                            minat.minat_1 >= 5);
+            R("Web Developer",             10, "Very high skill (5/5) in web development",                           kemahiran.kemahiran_2 >= 5);
+            R("Mobile App Developer",      10, "Very high interest (5/5) in mobile applications",                    minat.minat_10 >= 5);
+            R("UI/UX Designer",            10, "Very high skill (5/5) in UI design",                                 kemahiran.kemahiran_9 >= 5);
+            R("Data Analyst",              10, "Very high interest (5/5) in data",                                   minat.minat_3 >= 5);
+            R("Data Scientist",            10, "Highly curious personality & prefers working independently",         personaliti.personaliti_11 >= 4 && personaliti.personaliti_1 >= 4);
+            R("AI Engineer",               10, "Strong math skill & extremely curious personality (5/5)",            kemahiran.kemahiran_3 >= 4 && personaliti.personaliti_11 >= 5);
+            R("Machine Learning Engineer", 10, "Prefers working independently & highly curious personality",         personaliti.personaliti_1 >= 4 && personaliti.personaliti_11 >= 4);
+            R("Cybersecurity Analyst",     10, "Very high skill (5/5) in cybersecurity",                             kemahiran.kemahiran_6 >= 5);
+            R("Security Engineer",         10, "Stays calm under pressure & very detail-oriented personality",        personaliti.personaliti_9 >= 4 && personaliti.personaliti_4 >= 4);
+            R("Penetration Tester",        10, "Very high ethical hacking interest & basic security skill",          minat.minat_6 >= 5 && kemahiran.kemahiran_6 >= 3);
+            R("Network Engineer",          10, "Prefers structure & stays calm under pressure",                      personaliti.personaliti_7 >= 4 && personaliti.personaliti_9 >= 4);
+            R("System Administrator",      10, "Prefers structure & very detail-oriented personality",                personaliti.personaliti_7 >= 4 && personaliti.personaliti_4 >= 4);
+            R("Cloud Engineer",            10, "Basic coding skill & adaptable personality",                          kemahiran.kemahiran_1 >= 3 && personaliti.personaliti_5 >= 4);
+            R("DevOps Engineer",           10, "Personality that enjoys teamwork & adapts easily",                    personaliti.personaliti_2 >= 4 && personaliti.personaliti_5 >= 4);
+            R("IT Support Specialist",     10, "Extremely patient personality & enjoys teamwork",                     personaliti.personaliti_12 >= 4 && personaliti.personaliti_2 >= 4);
+            R("Database Administrator",    10, "Extremely detail-oriented personality (5/5) & high integrity",        personaliti.personaliti_4 >= 5 && personaliti.personaliti_14 >= 4);
+            R("Business Analyst",          10, "Confidence with stakeholders & documentation skill",                  personaliti.personaliti_15 >= 4 && kemahiran.kemahiran_15 >= 4);
+
+            // ── RULES 73–77: EXCELLENCE BONUS (+20) — Perfect Score in Critical Area ──
+            R("Software Developer",    20, "Excellent: interest & coding skill both perfect (5/5)",                  minat.minat_1  >= 5 && kemahiran.kemahiran_1  >= 5);
+            R("AI Engineer",           20, "Excellent: interest & AI skill both perfect (5/5)",                      minat.minat_5  >= 5 && kemahiran.kemahiran_8  >= 5);
+            R("Cybersecurity Analyst", 20, "Excellent: interest & security skill both perfect (5/5)",                minat.minat_6  >= 5 && kemahiran.kemahiran_6  >= 5);
+            R("Data Scientist",        20, "Excellent: data interest & analysis skill both perfect (5/5)",           minat.minat_3  >= 5 && kemahiran.kemahiran_4  >= 5);
+            R("Cloud Engineer",        20, "Excellent: interest & cloud skill both perfect (5/5)",                   minat.minat_13 >= 5 && kemahiran.kemahiran_10 >= 5);
+
+            // ── RULES 78–80: WEAKNESS PENALTY (Original) ──
+            { const c78 = (kemahiran.kemahiran_14 <= 2 || personaliti.personaliti_15 <= 2);
+              R("Business Analyst",      -20, "Weakness detected: low communication/documentation or low stakeholder confidence", c78);
+              R("IT Support Specialist", -10, "Weakness detected: low communication/documentation or low stakeholder confidence", c78);
+              R("UI/UX Designer",        -10, "Weakness detected: low communication/documentation or low stakeholder confidence", c78); }
+            { const c79 = (personaliti.personaliti_9 <= 2);
+              R("Cybersecurity Analyst", -15, "Weakness detected: not calm enough working under pressure", c79);
+              R("DevOps Engineer",       -10, "Weakness detected: not calm enough working under pressure", c79);
+              R("System Administrator",  -10, "Weakness detected: not calm enough working under pressure", c79); }
+            { const c80 = (personaliti.personaliti_14 <= 2);
+              R("Cybersecurity Analyst",  -20, "Weakness detected: integrity & work ethics not emphasized", c80);
+              R("Penetration Tester",     -20, "Weakness detected: integrity & work ethics not emphasized", c80);
+              R("Database Administrator", -15, "Weakness detected: integrity & work ethics not emphasized", c80); }
+
+            // ── RULES 81–86: WEAKNESS PENALTY (Additional) ──
+            { const c81 = (kemahiran.kemahiran_1 <= 1);
+              R("Software Developer",   -25, "Programming skill extremely weak (≤1/5)", c81);
+              R("Mobile App Developer", -25, "Programming skill extremely weak (≤1/5)", c81); }
+            { const c82 = (kemahiran.kemahiran_6 <= 1);
+              R("Cybersecurity Analyst", -25, "Cybersecurity skill extremely weak (≤1/5)", c82);
+              R("Security Engineer",     -25, "Cybersecurity skill extremely weak (≤1/5)", c82);
+              R("Penetration Tester",    -25, "Cybersecurity skill extremely weak (≤1/5)", c82); }
+            { const c83 = (personaliti.personaliti_4 <= 1);
+              R("Data Analyst",           -15, "Personality lacks attention to detail (≤1/5)", c83);
+              R("Database Administrator", -15, "Personality lacks attention to detail (≤1/5)", c83); }
+            R("Network Engineer", -25, "Networking skill extremely weak (≤1/5)",       kemahiran.kemahiran_7 <= 1);
+            R("Web Developer",    -20, "Web development skill extremely weak (≤1/5)", kemahiran.kemahiran_2 <= 1);
+            R("UI/UX Designer",   -20, "Creativity personality extremely low (≤1/5)",  personaliti.personaliti_3 <= 1);
+
+            // ── RULES 122–125: WEAKNESS PENALTY (Symmetry Fix) ──
+            // Previously, AI Engineer/Data Scientist/ML Engineer/Cloud Engineer
+            // had NO penalty rule at all — causing them to "win unfairly" when a
+            // user's overall profile is weak across the board, even when their
+            // answers don't actually support those careers.
+            R("AI Engineer",               -25, "Machine Learning skill extremely weak (≤1/5)",      kemahiran.kemahiran_8  <= 1);
+            R("Data Scientist",            -25, "Math/statistics skill extremely weak (≤1/5)",        kemahiran.kemahiran_3  <= 1);
+            R("Machine Learning Engineer", -25, "Math/statistics skill extremely weak (≤1/5)",        kemahiran.kemahiran_3  <= 1);
+            R("Cloud Engineer",            -25, "Server/cloud skill extremely weak (≤1/5)",            kemahiran.kemahiran_10 <= 1);
+
+            // ── RULES 126–135: WEAKNESS PENALTY (Tier ≤2 — Symmetry Fix Continued) ──
+            // R78–80 (tier ≤2) only covers 8 careers. R81–86 & R122–125 (tier ≤1)
+            // cover all 18 careers. This created a GAP at the EXACT value of 2 —
+            // the 10 careers below were "immune" at value 2 despite being
+            // penalized at value 1. These rules close that gap so all 18 careers
+            // now consistently have two penalty tiers (≤2 moderate, ≤1 severe).
+            R("Software Developer",        -12, "Programming skill weak (≤2/5)",          kemahiran.kemahiran_1  <= 2);
+            R("Web Developer",             -10, "Web development skill weak (≤2/5)",      kemahiran.kemahiran_2  <= 2);
+            R("Mobile App Developer",      -12, "Programming skill weak (≤2/5)",          kemahiran.kemahiran_1  <= 2);
+            R("Data Analyst",               -8, "Personality lacks attention to detail (≤2/5)", personaliti.personaliti_4 <= 2);
+            R("Data Scientist",            -12, "Math/statistics skill weak (≤2/5)",      kemahiran.kemahiran_3  <= 2);
+            R("AI Engineer",               -12, "Machine Learning skill weak (≤2/5)",     kemahiran.kemahiran_8  <= 2);
+            R("Machine Learning Engineer", -12, "Math/statistics skill weak (≤2/5)",      kemahiran.kemahiran_3  <= 2);
+            R("Security Engineer",         -12, "Cybersecurity skill weak (≤2/5)",        kemahiran.kemahiran_6  <= 2);
+            R("Network Engineer",          -12, "Networking skill weak (≤2/5)",           kemahiran.kemahiran_7  <= 2);
+            R("Cloud Engineer",            -12, "Server/cloud skill weak (≤2/5)",         kemahiran.kemahiran_10 <= 2);
+
+            // ── RULES 87–93: ACADEMIC TIE-BREAKER ──
+            if (profil.bidang) {
+                const b = profil.bidang.toLowerCase();
+                if (/komputer|computer|it\b|software|sains|science/.test(b)) {
+                    R("Software Developer", 3, "Academic background: Computer Science/IT field", true);
+                    R("AI Engineer",        3, "Academic background: Computer Science/IT field", true);
+                    R("Data Scientist",     3, "Academic background: Computer Science/IT field", true);
+                }
+                if (/perniagaan|business|pengurusan|management|kewangan|finance/.test(b)) {
+                    R("Business Analyst", 5, "Academic background: Business/Management field", true);
+                    R("Data Analyst",     3, "Academic background: Business/Management field", true);
+                }
+                if (/kreatif|creative|seni|art|multimedia|design|reka/.test(b)) {
+                    R("UI/UX Designer", 5, "Academic background: Creative/Art/Design field", true);
+                    R("Web Developer",  3, "Academic background: Creative/Art/Design field", true);
+                }
+                if (/matematik|maths|statistics|statistik|stat/.test(b)) {
+                    R("Data Scientist",           5, "Academic background: Mathematics/Statistics field", true);
+                    R("Data Analyst",             5, "Academic background: Mathematics/Statistics field", true);
+                    R("Machine Learning Engineer",3, "Academic background: Mathematics/Statistics field", true);
+                }
+                if (/kejuruteraan|engineering|elektrik|electronic/.test(b)) {
+                    R("Network Engineer",     5, "Academic background: Engineering field", true);
+                    R("System Administrator", 5, "Academic background: Engineering field", true);
+                    R("DevOps Engineer",      3, "Academic background: Engineering field", true);
+                }
+                if (/biologi|medik|health|perubatan|farmasi/.test(b)) {
+                    R("Data Analyst",     3, "Academic background: Biology/Medical field", true);
+                    R("Business Analyst", 3, "Academic background: Biology/Medical field", true);
+                }
+                if (/undang|law|polis|police|perakaunan|account|audit/.test(b)) {
+                    R("Business Analyst",      5, "Academic background: Law/Accounting field", true);
+                    R("Cybersecurity Analyst", 3, "Academic background: Law/Accounting field", true);
+                }
+            }
+
+            // ── RULES 94–103: DUAL INTEREST SYNERGY (+8–10) ──
+            R("AI Engineer",               10, "Synergy: high interest in programming AND AI simultaneously",        minat.minat_1 >= 4 && minat.minat_5 >= 4);
+            R("Security Engineer",         10, "Synergy: high interest in cybersecurity AND networking simultaneously", minat.minat_6 >= 4 && minat.minat_7 >= 4);
+            R("Machine Learning Engineer",  8, "Synergy: strong coding AND Machine Learning skill simultaneously",   kemahiran.kemahiran_1 >= 4 && kemahiran.kemahiran_8 >= 4);
+            { const c97 = (kemahiran.kemahiran_5 >= 4 && kemahiran.kemahiran_4 >= 4);
+              R("Database Administrator", 8, "Synergy: strong database AND data analysis skill simultaneously", c97);
+              R("Data Analyst",           8, "Synergy: strong database AND data analysis skill simultaneously", c97); }
+            { const c98 = (kemahiran.kemahiran_7 >= 4 && kemahiran.kemahiran_10 >= 4);
+              R("Network Engineer",     8, "Synergy: strong networking AND server skill simultaneously", c98);
+              R("System Administrator", 8, "Synergy: strong networking AND server skill simultaneously", c98); }
+            R("Penetration Tester", 8, "Synergy: security skill & high integrity simultaneously", kemahiran.kemahiran_6 >= 4 && personaliti.personaliti_14 >= 4);
+            { const c100 = (personaliti.personaliti_3 >= 4 && kemahiran.kemahiran_9 >= 4);
+              R("Web Developer",  8, "Synergy: creative personality AND strong UI skill simultaneously", c100);
+              R("UI/UX Designer", 8, "Synergy: creative personality AND strong UI skill simultaneously", c100); }
+            R("DevOps Engineer",  8, "Synergy: automation interest AND debugging skill simultaneously",          minat.minat_11 >= 4 && kemahiran.kemahiran_13 >= 4);
+            R("Business Analyst", 8, "Synergy: leadership personality AND stakeholder confidence simultaneously", personaliti.personaliti_6 >= 4 && personaliti.personaliti_15 >= 4);
+            R("Data Scientist",   8, "Synergy: strong math AND Machine Learning skill simultaneously",            kemahiran.kemahiran_3 >= 4 && kemahiran.kemahiran_8 >= 4);
+
+            // ── RULES 104–121: WEAK SIGNAL (+5) — Lower Threshold (≥3) ──
+            // Reflects "neutral/moderate" answers so profiles that don't clear
+            // the ≥4 threshold (primary rules) can still get slight
+            // differentiation between careers, instead of falling straight
+            // into a complete 0-0 tie.
+            R("Software Developer",        5, "Moderate tendency: interest & skill in programming",            minat.minat_1  >= 3 && kemahiran.kemahiran_1  >= 3);
+            R("Web Developer",             5, "Moderate tendency: interest & skill in web",                    minat.minat_2  >= 3 && kemahiran.kemahiran_2  >= 3);
+            R("Mobile App Developer",      5, "Moderate tendency: app interest & coding skill",                 minat.minat_10 >= 3 && kemahiran.kemahiran_1  >= 3);
+            R("UI/UX Designer",            5, "Moderate tendency: web interest & UI skill",                     minat.minat_2  >= 3 && kemahiran.kemahiran_9  >= 3);
+            R("Data Analyst",              5, "Moderate tendency: interest & skill in data analysis",           minat.minat_3  >= 3 && kemahiran.kemahiran_4  >= 3);
+            R("Data Scientist",            5, "Moderate tendency: data interest & math skill",                  minat.minat_3  >= 3 && kemahiran.kemahiran_3  >= 3);
+            R("AI Engineer",               5, "Moderate tendency: AI interest & ML skill",                      minat.minat_5  >= 3 && kemahiran.kemahiran_8  >= 3);
+            R("Machine Learning Engineer", 5, "Moderate tendency: AI interest & math skill",                    minat.minat_5  >= 3 && kemahiran.kemahiran_3  >= 3);
+            R("Cybersecurity Analyst",     5, "Moderate tendency: interest & skill in security",                minat.minat_6  >= 3 && kemahiran.kemahiran_6  >= 3);
+            R("Security Engineer",         5, "Moderate tendency: security interest & architecture skill",      minat.minat_6  >= 3 && kemahiran.kemahiran_7  >= 3);
+            R("Penetration Tester",        5, "Moderate tendency: ethical hacking interest & security skill",   minat.minat_12 >= 3 && kemahiran.kemahiran_6 >= 3);
+            R("Network Engineer",          5, "Moderate tendency: interest & skill in networking",              minat.minat_7  >= 3 && kemahiran.kemahiran_7  >= 3);
+            R("System Administrator",      5, "Moderate tendency: system interest & server skill",              minat.minat_8  >= 3 && kemahiran.kemahiran_10 >= 3);
+            R("Cloud Engineer",            5, "Moderate tendency: cloud interest & server skill",                minat.minat_13 >= 3 && kemahiran.kemahiran_10 >= 3);
+            R("DevOps Engineer",           5, "Moderate tendency: automation interest & server skill",          minat.minat_11 >= 3 && kemahiran.kemahiran_10 >= 3);
+            R("IT Support Specialist",     5, "Moderate tendency: helping interest & hardware skill",           minat.minat_15 >= 3 && kemahiran.kemahiran_12 >= 3);
+            R("Database Administrator",    5, "Moderate tendency: interest & skill in databases",               minat.minat_9  >= 3 && kemahiran.kemahiran_5  >= 3);
+            R("Business Analyst",          5, "Moderate tendency: interest & skill in communication",           minat.minat_14 >= 3 && kemahiran.kemahiran_14 >= 3);
+
+            localStorage.setItem('techpath_firedRules', JSON.stringify(firedRules));
+
+            // ── RANK & SAVE ──
+            // Simpan keputusan PENUH untuk kesemua 18 career (bukan top 3 je) —
+            // bukti forward chaining diproses merentas seluruh Knowledge Base,
+            // dipaparkan dalam "Full Inference Engine Results" table di result.html.
+            //
+            // PENTING: top3 SENTIASA diambil terus dari allRanked (data sebenar),
+            // walaupun skor rendah/negatif. Tiada lagi "fake fallback" — sebab
+            // result.html sudah ada Confidence Level (Exploratory Match) yang
+            // jujur memberitahu user bila padanan lemah. Fallback palsu dulu
+            // menyebabkan Top 3 Card (data palsu) bercanggah dengan Full
+            // Inference Results Table (data sebenar).
+            // Tie-breaker rawak: kalau dua/lebih career seri markah (contoh
+            // semua jawapan neutral), urutan tidak sentiasa bias kepada
+            // career yang ditulis dahulu dalam kod (cth: Software Developer).
+            const allRanked = Object.entries(careers)
+                .map(([name, score]) => ({ name, score, _r: Math.random() }))
+                .sort((a, b) => (b.score - a.score) || (b._r - a._r))
+                .map(({ name, score }) => ({ name, score }));
+
+            const top3 = allRanked.slice(0, 3);
+
+            localStorage.setItem('techpath_keputusan', JSON.stringify(top3));
+            localStorage.setItem('techpath_topCareers', JSON.stringify(top3));
+            localStorage.setItem('techpath_allCareerScores', JSON.stringify(allRanked));
+
+            setTimeout(() => { window.location.href = 'result.html'; }, 1000);
+        }
+    </script>
+</body>
+</html>

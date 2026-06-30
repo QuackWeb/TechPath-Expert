@@ -1,0 +1,758 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Roadmap | TechPath Expert</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg:    #030712;
+            --cyan:  #00f0ff;
+            --glow:  rgba(0,240,255,0.55);
+            --purple:#8b5cf6;
+            --card:  rgba(17,24,39,0.55);
+            --text:  #f3f4f6;
+            --muted: #9ca3af;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+
+        /* ── BACKGROUNDS ── */
+        .grid-bg {
+            position:fixed; inset:0; z-index:-2;
+            background-image: linear-gradient(rgba(0,240,255,.022) 1px,transparent 1px), linear-gradient(90deg,rgba(0,240,255,.022) 1px,transparent 1px);
+            background-size:55px 55px; animation:gridDrift 30s linear infinite;
+        }
+        @keyframes gridDrift { to { background-position:55px 55px; } }
+        .glow-orb { position:fixed; border-radius:50%; filter:blur(115px); z-index:-1; opacity:.17; pointer-events:none; }
+        .orb-1 { width:450px; height:450px; background:var(--cyan);   top:-5%;  left:-8%;  animation:floatOrb 20s ease-in-out infinite alternate; }
+        .orb-2 { width:480px; height:480px; background:var(--purple); bottom:-5%; right:-8%; animation:floatOrb 24s ease-in-out infinite alternate-reverse; }
+        @keyframes floatOrb { 0%{transform:translate(0,0);} 100%{transform:translate(25px,-40px);} }
+        #particle-canvas { position:fixed; inset:0; z-index:-1; pointer-events:none; }
+        .cursor-glow { width:300px; height:300px; background:radial-gradient(circle,rgba(0,240,255,.05) 0%,transparent 70%); border-radius:50%; position:fixed; pointer-events:none; transform:translate(-50%,-50%); z-index:0; transition:left .12s ease,top .12s ease; }
+
+
+        /* ── PAGE WRAPPER ── */
+        .page-wrap { max-width:820px; margin:0 auto; padding:2.5rem 5% 4rem; position:relative; z-index:10; }
+
+        /* ── HERO ── */
+        .roadmap-hero { text-align:center; margin-bottom:3rem; }
+        .hero-badge {
+            display:inline-flex; align-items:center; gap:8px;
+            padding:.4rem 1rem; margin-bottom:1rem;
+            background:rgba(0,240,255,.06); border:1px solid var(--cyan); border-radius:50px;
+            font-size:.75rem; color:var(--cyan); text-transform:uppercase; letter-spacing:1px; font-weight:600;
+            box-shadow:0 0 15px rgba(0,240,255,.12);
+        }
+        .hero-dot { width:6px; height:6px; background:var(--cyan); border-radius:50%; box-shadow:0 0 6px var(--cyan); animation:hdot 1.5s infinite; }
+        @keyframes hdot { 0%,100%{box-shadow:0 0 0 0 rgba(0,240,255,.7);} 70%{box-shadow:0 0 0 6px rgba(0,240,255,0);} }
+        .roadmap-hero h2 { font-size:2rem; font-weight:700; margin-bottom:.5rem; }
+        .career-name-display {
+            font-size:1.65rem; font-weight:700;
+            background:linear-gradient(135deg, var(--cyan) 0%, var(--purple) 60%, var(--cyan) 100%);
+            background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            animation:gradFlow 4s linear infinite; margin-bottom:.8rem; display:block;
+        }
+        @keyframes gradFlow { 0%{background-position:0% center;} 100%{background-position:200% center;} }
+        .roadmap-hero p { color:var(--muted); font-size:.95rem; max-width:500px; margin:0 auto; }
+
+        /* ── PHASE OVERVIEW BAR ── */
+        .phase-overview {
+            display:flex; gap:.5rem; margin-bottom:2.5rem;
+            background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.06);
+            border-radius:14px; padding:1.2rem 1.5rem;
+            justify-content:space-between; align-items:center;
+        }
+        .phase-overview-item { display:flex; flex-direction:column; align-items:center; gap:.3rem; flex:1; }
+        .pov-num { font-size:1.2rem; font-weight:700; color:var(--cyan); line-height:1; }
+        .pov-label { font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; text-align:center; }
+        .pov-divider { width:1px; height:32px; background:rgba(255,255,255,.08); flex-shrink:0; }
+
+        /* ── TIMELINE ── */
+        .timeline { position:relative; padding-left:2rem; }
+
+        /* Vertical line */
+        .timeline::before {
+            content:''; position:absolute; left:20px; top:20px; bottom:20px; width:1px;
+            background:linear-gradient(180deg, var(--cyan), rgba(0,240,255,.1));
+        }
+
+        /* ── TIMELINE ITEM ── */
+        .tl-item {
+            position:relative; margin-bottom:2rem;
+            opacity:0; transform:translateX(-20px);
+            transition:opacity .6s ease, transform .6s ease;
+        }
+        .tl-item.visible { opacity:1; transform:translateX(0); }
+
+        /* Phase dot on timeline */
+        .tl-dot {
+            position:absolute; left:-2rem; top:1.6rem;
+            width:40px; height:40px; border-radius:50%;
+            background:linear-gradient(135deg, var(--cyan), var(--purple));
+            display:flex; align-items:center; justify-content:center;
+            font-size:.85rem; font-weight:700; color:#000;
+            box-shadow:0 0 18px rgba(0,240,255,.45);
+            z-index:1; flex-shrink:0;
+        }
+
+        /* Card */
+        .tl-card {
+            background:var(--card); backdrop-filter:blur(16px);
+            border:1px solid rgba(255,255,255,.06);
+            border-top:1px solid rgba(255,255,255,.12);
+            border-radius:16px; padding:1.8rem 1.8rem 1.8rem 2rem;
+            position:relative; overflow:hidden;
+            transition:border-color .3s ease, box-shadow .3s ease, transform .3s ease;
+            margin-left:1.5rem;
+        }
+        .tl-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity:0; transition:opacity .3s ease;
+        }
+        .tl-item:hover .tl-card {
+            border-color:rgba(0,240,255,.25);
+            box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 25px rgba(0,240,255,.1);
+            transform:translateX(6px);
+        }
+        .tl-item:hover .tl-card::before { opacity:1; }
+
+        /* Card header */
+        .tl-header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:.8rem; flex-wrap:wrap; }
+        .tl-phase-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--cyan); margin-bottom:.3rem; }
+        .tl-title { font-size:1.1rem; font-weight:600; color:#fff; line-height:1.3; }
+        .tl-duration {
+            flex-shrink:0; padding:.25rem .75rem; border-radius:20px;
+            background:rgba(139,92,246,.1); border:1px solid rgba(139,92,246,.3);
+            font-size:.68rem; font-weight:600; color:#c084fc;
+            white-space:nowrap;
+        }
+
+        /* Description */
+        .tl-desc { font-size:.88rem; color:var(--muted); line-height:1.75; margin-bottom:1.2rem; }
+
+        /* Tech pills */
+        .tl-tech-row { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.8rem; }
+        .tl-tech-label { font-size:.65rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; flex-shrink:0; }
+        .tech-pill {
+            padding:.22rem .65rem; border-radius:5px;
+            background:rgba(0,240,255,.07); border:1px solid rgba(0,240,255,.2);
+            font-size:.72rem; color:var(--cyan); font-weight:500;
+            transition:all .2s ease;
+        }
+        .tl-item:hover .tech-pill { background:rgba(0,240,255,.12); }
+
+        /* Cert row */
+        .tl-cert-row { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+        .tl-cert-label { font-size:.65rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; flex-shrink:0; }
+        .cert-pill {
+            padding:.22rem .65rem; border-radius:5px;
+            background:rgba(74,222,128,.06); border:1px solid rgba(74,222,128,.2);
+            font-size:.72rem; color:#4ade80; font-weight:500;
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .action-row { display:flex; gap:.8rem; flex-wrap:wrap; justify-content:center; margin-top:2.5rem; }
+        .btn-primary-sm {
+            display:inline-flex; align-items:center; gap:.4rem;
+            padding:.55rem 1.3rem; border-radius:8px;
+            background:var(--cyan); color:#000;
+            font-family:'Poppins',sans-serif; font-size:.8rem; font-weight:700;
+            text-decoration:none; transition:all .3s; border:none; cursor:pointer;
+            box-shadow:0 0 14px rgba(0,240,255,.4);
+        }
+        .btn-primary-sm:hover { transform:translateY(-2px); box-shadow:0 0 24px rgba(0,240,255,.65); }
+        .btn-ghost-sm {
+            display:inline-flex; align-items:center; gap:.4rem;
+            padding:.55rem 1.3rem; border-radius:8px;
+            background:transparent; color:var(--muted);
+            border:1px solid rgba(255,255,255,.12);
+            font-family:'Poppins',sans-serif; font-size:.8rem; font-weight:500;
+            text-decoration:none; transition:all .3s;
+        }
+        .btn-ghost-sm:hover { color:var(--text); border-color:rgba(255,255,255,.25); }
+
+        /* ── ERROR STATE ── */
+        .error-card {
+            background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:16px;
+            padding:3rem; text-align:center;
+        }
+        .error-card h3 { color:#fff; margin-bottom:.6rem; }
+        .error-card p { color:var(--muted); font-size:.9rem; }
+
+        /* ── REVEAL ── */
+        .reveal { opacity:0; transform:translateY(22px); transition:opacity .6s ease,transform .6s ease; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        @media (max-width:640px) {
+            .nav-links { display:none; }
+            .page-wrap { padding:1.8rem 5% 3.5rem; }
+            .roadmap-hero h2 { font-size:1.6rem; }
+            .career-name-display { font-size:1.3rem; }
+
+            /* Phase overview: 2x2 grid instead of flex-wrap (dividers look broken when wrapped) */
+            .phase-overview { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1rem 1.2rem; }
+            .pov-divider { display:none; }
+            .pov-num { font-size:1.1rem; }
+            .pov-label { font-size:.6rem; }
+
+            /* Timeline: tighter indent so cards have more width on narrow screens */
+            .timeline { padding-left:1.4rem; }
+            .timeline::before { left:14px; }
+            .tl-dot { left:-1.4rem; width:32px; height:32px; font-size:.72rem; top:1.3rem; }
+            .tl-card { padding:1.3rem; margin-left:1rem; }
+            .tl-title { font-size:1rem; }
+            .tl-desc { font-size:.82rem; }
+
+            .action-row { flex-direction:column; }
+            .btn-primary-sm, .btn-ghost-sm { width:100%; justify-content:center; min-height:46px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <header class="header-container">
+        <nav class="navbar">
+            <div class="logo"><h1>Tech<span class="text-cyan">Path</span></h1></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="knowledge-base.html">Career List</a></li>
+                <li><a href="about.html">About System</a></li>
+                <li><a href="cgpa.html">CGPA Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="page-wrap">
+
+        <div class="roadmap-hero reveal">
+            <div class="hero-badge"><span class="hero-dot"></span> Learning Roadmap</div>
+            <h2>Your Path to Becoming a</h2>
+            <span class="career-name-display" id="careerTitle">Loading...</span>
+            <p>A step-by-step structured pathway with technologies and certifications for each phase.</p>
+        </div>
+
+        <div class="phase-overview reveal" id="phaseOverview">
+            <div class="phase-overview-item">
+                <div class="pov-num">4</div>
+                <div class="pov-label">Phases</div>
+            </div>
+            <div class="pov-divider"></div>
+            <div class="phase-overview-item">
+                <div class="pov-num" id="totalDuration">~12 mo</div>
+                <div class="pov-label">Est. Duration</div>
+            </div>
+            <div class="pov-divider"></div>
+            <div class="phase-overview-item">
+                <div class="pov-num" id="totalTech">16+</div>
+                <div class="pov-label">Technologies</div>
+            </div>
+            <div class="pov-divider"></div>
+            <div class="phase-overview-item">
+                <div class="pov-num" id="totalCerts">3+</div>
+                <div class="pov-label">Certifications</div>
+            </div>
+        </div>
+
+        <div class="timeline" id="roadmapContainer"></div>
+
+        <div class="action-row">
+            <a href="knowledge-base.html" id="exploreBtn" class="btn-primary-sm">Explore Career Details →</a>
+            <a href="result.html" class="btn-ghost-sm">← Back to Results</a>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+
+    <script>
+        // ── Cursor Glow ──
+        document.addEventListener('mousemove', e => {
+            const g = document.getElementById('cursorGlow');
+            g.style.left = e.clientX+'px'; g.style.top = e.clientY+'px';
+        });
+
+        // ── Particles ──
+        const canvas = document.getElementById('particle-canvas');
+        const ctx    = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        class Particle {
+            constructor(){ this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*1.8+.3; this.sx=Math.random()*.8-.4; this.sy=Math.random()*.8-.4; }
+            update(){ this.x+=this.sx; this.y+=this.sy; if(this.x>canvas.width||this.x<0)this.sx*=-1; if(this.y>canvas.height||this.y<0)this.sy*=-1; }
+            draw(){ ctx.fillStyle='rgba(0,240,255,.4)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+        }
+        function initP(){ particles=[]; const n=(canvas.width*canvas.height)/14000; for(let i=0;i<n;i++)particles.push(new Particle()); }
+        function animP(){
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p,i)=>{ p.update(); p.draw();
+                for(let j=i+1;j<particles.length;j++){
+                    const dx=p.x-particles[j].x,dy=p.y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy);
+                    if(d<110){ ctx.beginPath(); ctx.strokeStyle=`rgba(0,240,255,${.1-d/1100})`; ctx.lineWidth=.7; ctx.moveTo(p.x,p.y); ctx.lineTo(particles[j].x,particles[j].y); ctx.stroke(); }
+                }
+            });
+            requestAnimationFrame(animP);
+        }
+        initP(); animP();
+
+        // ── Scroll Reveal (hero + overview) ──
+        const roHero = new IntersectionObserver(entries => {
+            entries.forEach((e, i) => { if(e.isIntersecting) setTimeout(()=>e.target.classList.add('visible'), i*80); });
+        }, {threshold:.1});
+        document.querySelectorAll('.reveal').forEach(el => roHero.observe(el));
+    </script>
+
+    <script>
+        // ── ROADMAP DATA ──
+        // Each phase: { phase, title, duration, desc, tech:[], cert:[] }
+        const roadmapData = {
+            "Software Developer": {
+                totalDuration:"10–14 mo", totalTech:"18+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"CS Fundamentals & Version Control", duration:"1–2 months",
+                      desc:"Build the foundation every developer needs — understand how computers think, learn to write algorithms, and manage code changes professionally using Git.",
+                      tech:["Pseudocode","Data Structures","Algorithms","Git","Command Line"],
+                      cert:["CS50 (Harvard / edX — Free)"] },
+                    { phase:"Phase 2", title:"Core Object-Oriented Programming", duration:"2–3 months",
+                      desc:"Master one primary OOP language. Java and Python are the most in-demand for enterprise and general software development.",
+                      tech:["Java","Python","C#","OOP Principles","Unit Testing"],
+                      cert:["Oracle Certified Professional (Java)","Microsoft Certified: Azure Developer"] },
+                    { phase:"Phase 3", title:"Database Design & Management", duration:"1–2 months",
+                      desc:"Learn how to store, retrieve, and manage application data efficiently using relational databases and SQL.",
+                      tech:["SQL","MySQL","PostgreSQL","Database Design","Transactions"],
+                      cert:["Oracle Database SQL Certified Associate"] },
+                    { phase:"Phase 4", title:"Frameworks & Software Architecture", duration:"3–4 months",
+                      desc:"Use industry-standard frameworks to build scalable, maintainable software systems. Learn architectural patterns like MVC and REST APIs.",
+                      tech:["Spring Boot (Java)","Django / FastAPI (Python)",".NET (C#)","REST APIs","MVC Pattern"],
+                      cert:["AWS Certified Developer – Associate"] }
+                ]
+            },
+            "Web Developer": {
+                totalDuration:"8–12 mo", totalTech:"16+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Web Foundations", duration:"1–2 months",
+                      desc:"Build the structure, styling, and basic interactivity of web pages. These three technologies are the absolute foundation of every website.",
+                      tech:["HTML5","CSS3","JavaScript (ES6+)","Responsive Design","Browser DevTools"],
+                      cert:["freeCodeCamp Responsive Web Design"] },
+                    { phase:"Phase 2", title:"Frontend Frameworks & Modern UI", duration:"2–3 months",
+                      desc:"Build fast, component-based, and modern user interfaces that scale. React is the industry standard in Malaysia's tech market.",
+                      tech:["React.js","Vue.js","Tailwind CSS","TypeScript","State Management"],
+                      cert:["Meta Front-End Developer Certificate"] },
+                    { phase:"Phase 3", title:"Backend & API Development", duration:"2–3 months",
+                      desc:"Build the server-side logic that powers your web apps — handle authentication, databases, and API endpoints.",
+                      tech:["Node.js","Express.js","RESTful APIs","MongoDB","Authentication (JWT)"],
+                      cert:["freeCodeCamp Back End Development"] },
+                    { phase:"Phase 4", title:"Deployment, CI/CD & Cloud Hosting", duration:"1–2 months",
+                      desc:"Ship your applications to the internet reliably. Learn how to automate deployments and scale apps using cloud platforms.",
+                      tech:["Vercel","Netlify","AWS Amplify","GitHub Actions","Docker Basics"],
+                      cert:["AWS Certified Developer – Associate"] }
+                ]
+            },
+            "Cybersecurity Analyst": {
+                totalDuration:"12–18 mo", totalTech:"14+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Networking & Operating System Fundamentals", duration:"2–3 months",
+                      desc:"Every cybersecurity professional must deeply understand how networks operate and how both Linux and Windows systems work at the OS level.",
+                      tech:["TCP/IP","OSI Model","Subnetting","Linux CLI","Windows Server"],
+                      cert:["CompTIA Network+","CompTIA Linux+"] },
+                    { phase:"Phase 2", title:"Security Concepts & Threat Landscape", duration:"2–3 months",
+                      desc:"Learn core security principles: encryption, authentication, vulnerability types, and the OWASP Top 10 web attack categories.",
+                      tech:["Cryptography","OWASP Top 10","Firewalls","TLS/SSL","Risk Assessment"],
+                      cert:["CompTIA Security+"] },
+                    { phase:"Phase 3", title:"SOC Operations & SIEM Tools", duration:"3–4 months",
+                      desc:"Monitor network logs and security events in real-time using industry SIEM platforms to detect threats and suspicious activities.",
+                      tech:["Splunk","Elastic SIEM (ELK)","Wireshark","Suricata","IDS/IPS"],
+                      cert:["CompTIA CySA+","TryHackMe SOC Analyst Path"] },
+                    { phase:"Phase 4", title:"Incident Response & Threat Hunting", duration:"3–4 months",
+                      desc:"Contain and recover from active security incidents, conduct forensic analysis, and proactively hunt for threats hiding in the network.",
+                      tech:["Incident Response Playbooks","Digital Forensics","Threat Intelligence","MITRE ATT&CK"],
+                      cert:["CEH (Certified Ethical Hacker)","CISSP (advanced)"] }
+                ]
+            },
+            "Mobile App Developer": {
+                totalDuration:"10–14 mo", totalTech:"14+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Mobile Programming Foundations", duration:"2–3 months",
+                      desc:"Learn the language and paradigm of mobile development. Choose Flutter/Dart for cross-platform or Kotlin/Swift for native development.",
+                      tech:["Dart (Flutter)","Kotlin (Android)","Swift (iOS)","OOP Concepts"],
+                      cert:["Google Android Basics with Compose"] },
+                    { phase:"Phase 2", title:"UI Building & State Management", duration:"2–3 months",
+                      desc:"Design clean mobile layouts, handle user interactions, and manage application state so UI responds correctly to data changes.",
+                      tech:["Flutter Widgets","Jetpack Compose","SwiftUI","Provider / Riverpod","React Native"],
+                      cert:["Meta React Native Developer Certificate"] },
+                    { phase:"Phase 3", title:"Backend Integration & Local Storage", duration:"2–3 months",
+                      desc:"Store user data locally on the device and connect the app to remote servers and cloud services via APIs.",
+                      tech:["REST API","Firebase","SQLite","Shared Preferences","Authentication"],
+                      cert:["Google Associate Android Developer"] },
+                    { phase:"Phase 4", title:"Testing, Publishing & App Maintenance", duration:"2–3 months",
+                      desc:"Write unit and widget tests, optimize app performance, handle app store submission guidelines, and manage post-release updates.",
+                      tech:["Unit Testing","App Store Connect (iOS)","Google Play Console","CI/CD for Mobile","Performance Profiling"],
+                      cert:["Apple Development with Swift Certification"] }
+                ]
+            },
+            "Data Analyst": {
+                totalDuration:"8–12 mo", totalTech:"12+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Spreadsheet & Data Basics", duration:"1–2 months",
+                      desc:"Learn to collect, organize, and clean data using spreadsheets — the starting point for all data work in any industry.",
+                      tech:["Microsoft Excel","Google Sheets","VLOOKUP / XLOOKUP","Pivot Tables","Basic Statistics"],
+                      cert:["Microsoft Office Specialist: Excel"] },
+                    { phase:"Phase 2", title:"SQL & Database Querying", duration:"2–3 months",
+                      desc:"Extract, filter, and aggregate large volumes of structured data directly from relational databases — the most critical skill for a data analyst.",
+                      tech:["SQL","MySQL","PostgreSQL","Joins & Subqueries","Window Functions"],
+                      cert:["Google Data Analytics Certificate (Coursera)"] },
+                    { phase:"Phase 3", title:"Data Visualization & BI Dashboards", duration:"2–3 months",
+                      desc:"Transform raw query results into compelling interactive dashboards and reports for business stakeholders.",
+                      tech:["Tableau","Power BI","Looker Studio","DAX","Data Storytelling"],
+                      cert:["Microsoft Power BI Data Analyst (PL-300)"] },
+                    { phase:"Phase 4", title:"Python for Advanced Analysis", duration:"2–3 months",
+                      desc:"Use Python to automate data cleaning, perform statistical analysis, and handle datasets too large for spreadsheets.",
+                      tech:["Python","Pandas","NumPy","Matplotlib / Seaborn","Jupyter Notebooks"],
+                      cert:["IBM Data Analyst Professional Certificate"] }
+                ]
+            },
+            "Data Scientist": {
+                totalDuration:"14–20 mo", totalTech:"16+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Mathematics & Statistics Foundation", duration:"2–3 months",
+                      desc:"Data Science is built on math. Master the statistical concepts and linear algebra that underpin all machine learning models.",
+                      tech:["Linear Algebra","Calculus","Probability Theory","Descriptive Statistics","Python (NumPy)"],
+                      cert:["Statistics with Python — U. Michigan (Coursera)"] },
+                    { phase:"Phase 2", title:"Data Wrangling & Exploratory Analysis (EDA)", duration:"2–3 months",
+                      desc:"Clean messy real-world data and perform exploratory analysis to uncover hidden patterns and relationships.",
+                      tech:["Python (Pandas)","SQL","Matplotlib","Seaborn","Feature Engineering"],
+                      cert:["Google Data Analytics Certificate"] },
+                    { phase:"Phase 3", title:"Machine Learning Modelling", duration:"4–5 months",
+                      desc:"Build and evaluate supervised and unsupervised learning models to make predictions and discover clusters in data.",
+                      tech:["Scikit-Learn","XGBoost","LightGBM","Cross-Validation","Model Evaluation Metrics"],
+                      cert:["Machine Learning Specialization — Andrew Ng (Coursera)"] },
+                    { phase:"Phase 4", title:"Model Deployment & Production", duration:"3–4 months",
+                      desc:"Package and deploy ML models into production environments so they can serve real predictions to users and systems.",
+                      tech:["Flask / FastAPI","Streamlit","Docker","MLflow","Azure ML / AWS SageMaker"],
+                      cert:["Microsoft Azure Data Scientist Associate (DP-100)"] }
+                ]
+            },
+            "AI Engineer": {
+                totalDuration:"14–20 mo", totalTech:"16+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Python & Mathematical Foundations", duration:"2–3 months",
+                      desc:"Build a strong Python programming base and understand the mathematical concepts that make AI possible — vectors, matrices, and calculus.",
+                      tech:["Python","NumPy","Linear Algebra","Calculus","Probability"],
+                      cert:["Python for Everybody — University of Michigan"] },
+                    { phase:"Phase 2", title:"Classical Machine Learning", duration:"2–3 months",
+                      desc:"Understand how machines learn patterns from structured data using classical ML algorithms before moving to deep learning.",
+                      tech:["Scikit-Learn","Regression","Classification","Clustering","Model Evaluation"],
+                      cert:["Machine Learning Specialization — Andrew Ng (Coursera)"] },
+                    { phase:"Phase 3", title:"Deep Learning & Neural Networks", duration:"4–5 months",
+                      desc:"Build neural networks for computer vision (image recognition) and natural language processing (NLP) using deep learning frameworks.",
+                      tech:["TensorFlow","PyTorch","Keras","CNNs","Transformers (BERT, GPT)"],
+                      cert:["Deep Learning Specialization — DeepLearning.AI","NVIDIA Deep Learning Institute"] },
+                    { phase:"Phase 4", title:"Generative AI & LLM Integration", duration:"3–4 months",
+                      desc:"Work with large language models (LLMs) and generative AI tools to build intelligent applications, chatbots, and AI-powered features.",
+                      tech:["Hugging Face","OpenAI API","LangChain","RAG (Retrieval-Augmented Generation)","Prompt Engineering"],
+                      cert:["AWS Certified Machine Learning – Specialty","Google Professional ML Engineer"] }
+                ]
+            },
+            "Machine Learning Engineer": {
+                totalDuration:"14–18 mo", totalTech:"16+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Python & Software Engineering", duration:"2–3 months",
+                      desc:"ML Engineers write production-grade code. Master clean Python engineering, version control, and software design principles.",
+                      tech:["Advanced Python","Git","OOP & Design Patterns","CI/CD Basics","Unit Testing"],
+                      cert:["CS50 Python (Harvard — edX)"] },
+                    { phase:"Phase 2", title:"ML Modelling & Evaluation", duration:"3–4 months",
+                      desc:"Build, train, and rigorously evaluate machine learning models using the right metrics for the problem type.",
+                      tech:["Scikit-Learn","PyTorch","Hyperparameter Tuning","Cross-Validation","Experiment Tracking (MLflow)"],
+                      cert:["Machine Learning Specialization — Andrew Ng (Coursera)"] },
+                    { phase:"Phase 3", title:"Data Pipelines & Feature Engineering", duration:"3–4 months",
+                      desc:"Build automated, reliable data pipelines that continuously feed clean, transformed data to production ML models.",
+                      tech:["Apache Airflow","Apache Spark","dbt","SQL","Feature Stores (Feast)"],
+                      cert:["Databricks Certified Associate Developer for Apache Spark"] },
+                    { phase:"Phase 4", title:"MLOps & Production Infrastructure", duration:"3–4 months",
+                      desc:"Deploy, monitor, and scale ML models in cloud environments with full MLOps practices for reliability, versioning, and drift detection.",
+                      tech:["Docker","Kubernetes","AWS SageMaker","Prometheus / Grafana","Model Serving (Triton)"],
+                      cert:["Google Professional ML Engineer","AWS Machine Learning – Specialty"] }
+                ]
+            },
+            "Security Engineer": {
+                totalDuration:"14–18 mo", totalTech:"14+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Advanced Networking & OS Architecture", duration:"2–3 months",
+                      desc:"Security Engineers must deeply understand network internals and OS-level operations to design effective defenses.",
+                      tech:["TCP/IP","Routing & Switching","Linux System Administration","Windows Server","Virtualization"],
+                      cert:["CompTIA Network+","Red Hat RHCSA"] },
+                    { phase:"Phase 2", title:"Perimeter & Infrastructure Security", duration:"3–4 months",
+                      desc:"Design and implement defense layers — firewalls, intrusion detection systems, and VPNs that protect the network perimeter.",
+                      tech:["Next-Gen Firewalls (Palo Alto)","IDS/IPS (Snort, Suricata)","VPN","DMZ Architecture","Hardening Guides (CIS Benchmark)"],
+                      cert:["CompTIA Security+","CompTIA CASP+"] },
+                    { phase:"Phase 3", title:"Identity & Access Management (IAM)", duration:"2–3 months",
+                      desc:"Control who can access what, and when — implementing enterprise-grade access policies to minimize breach impact.",
+                      tech:["Active Directory","Azure AD / Entra ID","SSO (SAML, OAuth)","MFA","Privilege Access Management (PAM)"],
+                      cert:["Microsoft Identity & Access Administrator (SC-300)"] },
+                    { phase:"Phase 4", title:"Cloud Security & Zero Trust Architecture", duration:"4–5 months",
+                      desc:"Architect security frameworks for cloud-native environments using Zero Trust principles — where nothing is trusted by default.",
+                      tech:["AWS Security Hub","Azure Defender","Zero Trust Model","CSPM Tools","Security Automation (Python)"],
+                      cert:["CISSP","CISM (Certified Information Security Manager)"] }
+                ]
+            },
+            "Penetration Tester": {
+                totalDuration:"14–20 mo", totalTech:"14+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Linux & Scripting Foundations", duration:"2–3 months",
+                      desc:"Mastery of the Linux command line and scripting is non-negotiable for ethical hacking — Kali Linux is the standard pentesting OS.",
+                      tech:["Kali Linux","Bash Scripting","Python Basics","Networking Fundamentals","OSINT"],
+                      cert:["CompTIA Linux+","eJPT (eLearnSecurity Junior Pentester)"] },
+                    { phase:"Phase 2", title:"Reconnaissance & Vulnerability Scanning", duration:"2–3 months",
+                      desc:"Map the attack surface of target systems — discover open ports, running services, exposed versions, and known CVEs.",
+                      tech:["Nmap","Nessus","Shodan","OSINT Framework","Nikto"],
+                      cert:["CompTIA PenTest+","TryHackMe — Jr Penetration Tester Path"] },
+                    { phase:"Phase 3", title:"Exploitation & Web Application Attacks", duration:"4–5 months",
+                      desc:"Exploit discovered vulnerabilities using structured methodologies — covering both network-level and web application attacks (OWASP).",
+                      tech:["Metasploit Framework","Burp Suite Pro","SQL Injection","XSS / CSRF","Buffer Overflows"],
+                      cert:["CEH (Certified Ethical Hacker)","Hack The Box Pro Labs"] },
+                    { phase:"Phase 4", title:"Post-Exploitation, Pivoting & Reporting", duration:"3–4 months",
+                      desc:"Escalate privileges, move laterally through the network, and write professional penetration test reports with clear remediation steps.",
+                      tech:["Privilege Escalation (Windows & Linux)","Lateral Movement","Mimikatz","Report Writing","CVE Documentation"],
+                      cert:["OSCP (Offensive Security Certified Professional)"] }
+                ]
+            },
+            "Network Engineer": {
+                totalDuration:"12–16 mo", totalTech:"14+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Networking Fundamentals & OSI Model", duration:"2–3 months",
+                      desc:"Build a thorough understanding of how data travels across networks — from physical cables to application protocols.",
+                      tech:["OSI Model","TCP/IP Stack","IPv4 / IPv6","Subnetting","MAC Addressing"],
+                      cert:["CompTIA Network+"] },
+                    { phase:"Phase 2", title:"Router & Switch Configuration", duration:"3–4 months",
+                      desc:"Configure and troubleshoot enterprise-grade Cisco routers and switches using IOS CLI — the core hands-on skill of network engineering.",
+                      tech:["Cisco IOS","OSPF","BGP","VLANs","Spanning Tree Protocol (STP)"],
+                      cert:["CCNA (Cisco Certified Network Associate)"] },
+                    { phase:"Phase 3", title:"Network Security & VPN", duration:"2–3 months",
+                      desc:"Secure network traffic using access control lists, firewall policies, and encrypted VPN tunnels for remote access.",
+                      tech:["Access Control Lists (ACL)","Firewalls","IPsec VPN","802.1X","Network Segmentation"],
+                      cert:["CompTIA Security+ (Network context)"] },
+                    { phase:"Phase 4", title:"Network Automation & SD-WAN", duration:"3–4 months",
+                      desc:"Automate repetitive network configuration tasks using Python and Ansible, and modernize with software-defined networking.",
+                      tech:["Python (Netmiko / NAPALM)","Ansible","SD-WAN","Cisco DNA Center","REST APIs for Networking"],
+                      cert:["CCNP Enterprise"] }
+                ]
+            },
+            "Cloud Engineer": {
+                totalDuration:"12–16 mo", totalTech:"16+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Virtualization & Linux Fundamentals", duration:"2–3 months",
+                      desc:"Cloud runs on virtualization and Linux. Before working with cloud platforms, you need confidence in these foundational technologies.",
+                      tech:["Linux CLI","Virtual Machines","Networking Basics","Bash Scripting","VirtualBox / Hyper-V"],
+                      cert:["CompTIA Linux+"] },
+                    { phase:"Phase 2", title:"Cloud Platform Core Services", duration:"3–4 months",
+                      desc:"Get hands-on with one major cloud provider. AWS is the most in-demand in Malaysia. Learn compute, storage, networking, and IAM.",
+                      tech:["AWS (EC2, S3, VPC, IAM)","Azure (Virtual Machines, Blob, AAD)","GCP (Compute Engine, GCS)","Cloud Networking"],
+                      cert:["AWS Cloud Practitioner (CLF-C02)","Azure Fundamentals (AZ-900)"] },
+                    { phase:"Phase 3", title:"Infrastructure as Code (IaC)", duration:"2–3 months",
+                      desc:"Stop clicking through cloud consoles — write code to provision and manage entire cloud environments reproducibly and at scale.",
+                      tech:["Terraform","AWS CloudFormation","Ansible","Git for IaC","CI/CD Pipelines"],
+                      cert:["HashiCorp Terraform Associate","AWS Solutions Architect – Associate"] },
+                    { phase:"Phase 4", title:"Serverless & Cloud-Native Architecture", duration:"3–4 months",
+                      desc:"Design modern, scalable cloud-native applications using containers, serverless functions, and managed services with auto-scaling.",
+                      tech:["Docker","Kubernetes (EKS/AKS)","AWS Lambda","API Gateway","Load Balancers & Auto Scaling"],
+                      cert:["Certified Kubernetes Administrator (CKA)","AWS DevOps Engineer Professional"] }
+                ]
+            },
+            "System Administrator": {
+                totalDuration:"10–14 mo", totalTech:"12+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Operating System Administration", duration:"2–3 months",
+                      desc:"Configure, maintain, and troubleshoot both Windows Server and Linux server environments — the two OS platforms in most organizations.",
+                      tech:["Windows Server 2022","Ubuntu Server / CentOS","File System Management","User & Group Management","Package Management"],
+                      cert:["CompTIA A+","Microsoft AZ-800 (Windows Server Hybrid)"] },
+                    { phase:"Phase 2", title:"Active Directory, DNS & DHCP", duration:"2–3 months",
+                      desc:"Manage user identities and network services across the organization using Active Directory and core network infrastructure services.",
+                      tech:["Active Directory","Group Policy (GPO)","DNS","DHCP","Azure Active Directory (Entra ID)"],
+                      cert:["Microsoft 365 Fundamentals (MS-900)"] },
+                    { phase:"Phase 3", title:"Scripting & Task Automation", duration:"2–3 months",
+                      desc:"Automate repetitive administration tasks — like user creation, patch deployment, and log analysis — saving hours every week.",
+                      tech:["PowerShell","Bash Scripting","Task Scheduler","Cron Jobs","Python for System Admin"],
+                      cert:["Red Hat RHCSA"] },
+                    { phase:"Phase 4", title:"Monitoring, Backups & Virtualization", duration:"2–3 months",
+                      desc:"Ensure maximum system uptime through proactive monitoring, structured backup strategies, and virtualization platform management.",
+                      tech:["Zabbix / Nagios","Prometheus","VMware vSphere","Hyper-V","Backup Strategies (3-2-1 Rule)"],
+                      cert:["VMware VCP-DCV","CompTIA Server+"] }
+                ]
+            },
+            "DevOps Engineer": {
+                totalDuration:"12–18 mo", totalTech:"18+", totalCerts:"4+",
+                phases:[
+                    { phase:"Phase 1", title:"Linux & Scripting Automation", duration:"2–3 months",
+                      desc:"DevOps starts with confidence in Linux system administration and automating repetitive tasks using shell and Python scripts.",
+                      tech:["Linux CLI","Bash Scripting","Python","SSH","Cron & Systemd"],
+                      cert:["CompTIA Linux+"] },
+                    { phase:"Phase 2", title:"Version Control & CI/CD Pipelines", duration:"3–4 months",
+                      desc:"Build the automation pipelines that test, build, and deploy code automatically every time a developer pushes a change.",
+                      tech:["Git & GitHub","Jenkins","GitHub Actions","GitLab CI","SonarQube (Code Quality)"],
+                      cert:["GitHub Actions Certification"] },
+                    { phase:"Phase 3", title:"Containers & Orchestration", duration:"3–4 months",
+                      desc:"Package applications into containers so they run identically in any environment, then orchestrate them at scale with Kubernetes.",
+                      tech:["Docker","Docker Compose","Kubernetes","Helm Charts","Container Registry"],
+                      cert:["Certified Kubernetes Administrator (CKA)"] },
+                    { phase:"Phase 4", title:"Cloud Infrastructure & Observability", duration:"3–4 months",
+                      desc:"Provision cloud environments with code and implement full-stack observability — metrics, logs, and traces — to detect and resolve issues fast.",
+                      tech:["Terraform","AWS / Azure","Prometheus","Grafana","ELK Stack (Logging)"],
+                      cert:["AWS DevOps Engineer Professional","HashiCorp Terraform Associate"] }
+                ]
+            },
+            "UI/UX Designer": {
+                totalDuration:"8–12 mo", totalTech:"10+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Visual Design Fundamentals", duration:"1–2 months",
+                      desc:"Understand the core principles of visual design — color theory, typography hierarchy, layout grids, and white space — that make interfaces look professional.",
+                      tech:["Color Theory","Typography","Layout & Grids","Design Principles (Gestalt)","Accessibility (WCAG)"],
+                      cert:["Google UX Design Certificate (Coursera)"] },
+                    { phase:"Phase 2", title:"User Research & UX Strategy", duration:"2–3 months",
+                      desc:"Design decisions must be rooted in user needs, not assumptions. Learn how to discover what users actually want through structured research.",
+                      tech:["User Interviews","Surveys & Personas","User Journey Maps","Competitive Analysis","Affinity Mapping"],
+                      cert:["Nielsen Norman Group UX Research Certificate"] },
+                    { phase:"Phase 3", title:"Wireframing & Interactive Prototyping", duration:"2–3 months",
+                      desc:"Translate research insights into testable interface designs — from rough wireframes to high-fidelity interactive prototypes in Figma.",
+                      tech:["Figma","Adobe XD","Wireframing","Interaction Design","Auto Layout & Components"],
+                      cert:["Interaction Design Foundation (IDF) Certificate"] },
+                    { phase:"Phase 4", title:"Usability Testing & Design Systems", duration:"2–3 months",
+                      desc:"Validate designs with real users through usability tests, then build scalable design systems so teams can build consistently at speed.",
+                      tech:["Usability Testing","A/B Testing","Design System (Tokens & Components)","Figma Variables","Handoff (Zeplin / Dev Mode)"],
+                      cert:["Professional Scrum with UX (PSU-I)"] }
+                ]
+            },
+            "IT Support Specialist": {
+                totalDuration:"6–9 mo", totalTech:"10+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Hardware & Computer Components", duration:"1–2 months",
+                      desc:"Identify and understand computer components — CPUs, RAM, storage, and how they interact. Learn to safely assemble, upgrade, and troubleshoot hardware.",
+                      tech:["Computer Components (CPU, RAM, SSD)","Hardware Troubleshooting","BIOS/UEFI","Peripheral Devices","Preventive Maintenance"],
+                      cert:["CompTIA A+ (Core 1 — 220-1101)"] },
+                    { phase:"Phase 2", title:"Operating Systems & Software Support", duration:"2–3 months",
+                      desc:"Help users with Windows, macOS, and Microsoft 365 — the most common enterprise software stack. Learn how to resolve software conflicts and reinstall OS cleanly.",
+                      tech:["Windows 10/11","macOS","Microsoft 365 (Teams, Outlook, OneDrive)","Software Troubleshooting","Remote Desktop Tools"],
+                      cert:["CompTIA A+ (Core 2 — 220-1102)","Google IT Support Professional Certificate"] },
+                    { phase:"Phase 3", title:"Networking & Connectivity Support", duration:"1–2 months",
+                      desc:"Diagnose and fix user connectivity issues — from configuring Wi-Fi to resolving DNS problems and setting up VPN access.",
+                      tech:["IP Configuration (ipconfig/ifconfig)","DNS & DHCP","Wi-Fi Troubleshooting","VPN Setup","Network Printers"],
+                      cert:["CompTIA Network+ (optional)"] },
+                    { phase:"Phase 4", title:"Ticketing Systems & Professional Skills", duration:"1–2 months",
+                      desc:"Log, track, and resolve support requests professionally using industry ticketing platforms. Strong communication is what separates good from great support staff.",
+                      tech:["ServiceNow","Jira Service Management","Freshdesk","SLA Management","Escalation Procedures"],
+                      cert:["HDI Support Center Analyst (SCA)","Microsoft 365 Fundamentals (MS-900)"] }
+                ]
+            },
+            "Database Administrator": {
+                totalDuration:"10–14 mo", totalTech:"12+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Database Design & Normalization", duration:"2–3 months",
+                      desc:"Design logical, non-redundant database schemas using Entity-Relationship (ER) modeling and normalization to eliminate data anomalies.",
+                      tech:["ERD (Entity-Relationship Diagrams)","Database Normalization (1NF–3NF)","Data Modelling","SQL Basics","MySQL / PostgreSQL"],
+                      cert:["Oracle Database SQL Certified Associate"] },
+                    { phase:"Phase 2", title:"Advanced SQL & Query Optimization", duration:"2–3 months",
+                      desc:"Write complex, high-performance queries using stored procedures, triggers, window functions, and query execution plan analysis.",
+                      tech:["Advanced SQL","T-SQL (SQL Server)","PL/SQL (Oracle)","Stored Procedures","Indexes & Execution Plans"],
+                      cert:["Microsoft SQL Server Certification (DP-300)"] },
+                    { phase:"Phase 3", title:"Security, Access Control & Backups", duration:"2–3 months",
+                      desc:"Implement database security policies, manage user roles, encrypt sensitive data, and establish reliable backup and disaster recovery procedures.",
+                      tech:["User Roles & Permissions","Data Encryption (TDE)","Backup & Restore","High Availability (Replication)","Audit Logging"],
+                      cert:["Oracle Database 19c Administrator Certified Professional"] },
+                    { phase:"Phase 4", title:"Performance Tuning & Cloud Databases", duration:"2–3 months",
+                      desc:"Optimize query speed for high-traffic databases through indexing strategies, caching, and partitioning. Learn cloud-native database services.",
+                      tech:["Query Performance Tuning","Partitioning & Clustering","Redis (Caching)","AWS RDS / Aurora","Azure SQL Database"],
+                      cert:["PostgreSQL Associate Certification","AWS Database Specialty"] }
+                ]
+            },
+            "Business Analyst": {
+                totalDuration:"8–12 mo", totalTech:"10+", totalCerts:"3+",
+                phases:[
+                    { phase:"Phase 1", title:"Business & Software Lifecycle (SDLC)", duration:"1–2 months",
+                      desc:"Understand how IT systems are built from concept to deployment. Learn where Business Analysts fit within Agile and Waterfall project methodologies.",
+                      tech:["SDLC (Software Development Life Cycle)","Waterfall vs Agile","Stakeholder Management","Business Process Mapping","Confluence"],
+                      cert:["IIBA ECBA (Entry Certificate in Business Analysis)"] },
+                    { phase:"Phase 2", title:"Requirements Gathering & Documentation", duration:"2–3 months",
+                      desc:"The core BA skill — elicit, analyse, and document business requirements through stakeholder interviews, workshops, and use case analysis.",
+                      tech:["User Stories","Use Case Diagrams (UML)","Business Requirements Document (BRD)","Functional Specifications","Interview Techniques"],
+                      cert:["PMI-PBA (Professional in Business Analysis)"] },
+                    { phase:"Phase 3", title:"Data Analysis & Process Modelling", duration:"2–3 months",
+                      desc:"Translate business data into insights and model business processes visually so technical and non-technical stakeholders both understand.",
+                      tech:["Advanced Excel","SQL (Intermediate)","BPMN Process Diagrams","Wireframing (Balsamiq / Figma)","Power BI (Basics)"],
+                      cert:["Google Data Analytics Certificate"] },
+                    { phase:"Phase 4", title:"Agile Project Delivery & Scrum", duration:"2–3 months",
+                      desc:"Lead sprint ceremonies, write and prioritize backlog items, and facilitate UAT to ensure delivered solutions match what stakeholders actually need.",
+                      tech:["Scrum Framework","Jira","Sprint Planning","User Acceptance Testing (UAT)","Retrospectives"],
+                      cert:["CBAP (Certified Business Analysis Professional)","Certified Scrum Master (CSM)"] }
+                ]
+            }
+        };
+
+        // ── Render ──
+        const topCareers = JSON.parse(localStorage.getItem('techpath_topCareers'));
+        const topCareer  = topCareers ? topCareers[0].name : "Software Developer";
+
+        document.getElementById('careerTitle').textContent = topCareer;
+        document.getElementById('exploreBtn').href = 'knowledge-base.html?career=' + encodeURIComponent(topCareer);
+
+        const roadmap   = roadmapData[topCareer];
+        const container = document.getElementById('roadmapContainer');
+
+        if(roadmap){
+            document.getElementById('totalDuration').textContent = roadmap.totalDuration;
+            document.getElementById('totalTech').textContent     = roadmap.totalTech;
+            document.getElementById('totalCerts').textContent    = roadmap.totalCerts;
+
+            roadmap.phases.forEach((item, idx) => {
+                const techPills = item.tech.map(t => `<span class="tech-pill">${t}</span>`).join('');
+                const certPills = item.cert.map(c => `<span class="cert-pill">${c}</span>`).join('');
+
+                const el = document.createElement('div');
+                el.className = 'tl-item';
+                el.style.transitionDelay = (idx * 0.08) + 's';
+                el.innerHTML = `
+                    <div class="tl-dot">${idx + 1}</div>
+                    <div class="tl-card">
+                        <div class="tl-header">
+                            <div>
+                                <div class="tl-phase-label">${item.phase}</div>
+                                <div class="tl-title">${item.title}</div>
+                            </div>
+                            <div class="tl-duration">${item.duration}</div>
+                        </div>
+                        <p class="tl-desc">${item.desc}</p>
+                        <div class="tl-tech-row">
+                            <span class="tl-tech-label">Technologies</span>
+                            ${techPills}
+                        </div>
+                        ${certPills ? `<div class="tl-cert-row"><span class="tl-cert-label">Certifications</span>${certPills}</div>` : ''}
+                    </div>
+                `;
+                container.appendChild(el);
+
+                // Observe each timeline item
+                const obs = new IntersectionObserver(entries => {
+                    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
+                }, {threshold:.15});
+                obs.observe(el);
+            });
+        } else {
+            container.innerHTML = `
+                <div class="error-card">
+                    <h3>Roadmap Not Available</h3>
+                    <p>No structured roadmap was found for <strong>${topCareer}</strong>. Please contact us or explore the Career Knowledge Base for more details.</p>
+                </div>`;
+        }
+
+        // ── Scroll Reveal (hero + overview — already handled above) ──
+    </script>
+</body>
+</html>

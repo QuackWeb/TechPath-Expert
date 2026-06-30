@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TechPath Expert System — Full Documentation & References</title>
+<style>
+  /* ── PRINT / PDF STYLES ── */
+  @page {
+    size: A4;
+    margin: 20mm 18mm 20mm 18mm;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 10.5pt;
+    color: #1a1a2e;
+    background: #fff;
+    line-height: 1.6;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    page-break-after: always;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #0a0f1e 0%, #1a1a3e 100%);
+    color: #fff;
+    padding: 60px 40px;
+  }
+  .cover-logo {
+    font-size: 52pt;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .cover-logo span { color: #00f0ff; }
+  .cover-tagline {
+    font-size: 13pt;
+    color: #9ca3af;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 50px;
+  }
+  .cover-divider {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #00f0ff, #8b5cf6);
+    margin: 0 auto 50px;
+  }
+  .cover-title {
+    font-size: 22pt;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #e5e7eb;
+  }
+  .cover-subtitle {
+    font-size: 11pt;
+    color: #9ca3af;
+    max-width: 480px;
+    line-height: 1.8;
+    margin-bottom: 60px;
+  }
+  .cover-meta {
+    font-size: 9pt;
+    color: #6b7280;
+    letter-spacing: 1px;
+  }
+  .cover-meta span { color: #00f0ff; margin: 0 12px; }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 10px 0 0 0;
+    page-break-inside: avoid;
+  }
+  .page-break { page-break-before: always; padding-top: 10px; }
+
+  /* ── HEADINGS ── */
+  h1.section-title {
+    font-size: 16pt;
+    font-weight: 800;
+    color: #0f172a;
+    border-bottom: 3px solid #00c9d4;
+    padding-bottom: 8px;
+    margin-bottom: 18px;
+    letter-spacing: 0.5px;
+  }
+  h1.section-title .num {
+    display: inline-block;
+    background: linear-gradient(135deg, #00c9d4, #8b5cf6);
+    color: white;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 11pt;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  h2.sub-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 20px 0 10px 0;
+    padding: 6px 14px;
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 0 6px 6px 0;
+  }
+
+  h3.mini-title {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 14px 0 8px 0;
+  }
+
+  /* ── DESCRIPTION BOX ── */
+  .desc-box {
+    background: #f0fdf9;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 10pt;
+    color: #065f46;
+    line-height: 1.7;
+  }
+
+  /* ── TABLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+  }
+  th {
+    background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 9pt;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:hover td { background: #eff6ff; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 50px;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .badge-cyan  { background: #cffafe; color: #0e7490; border: 1px solid #a5f3fc; }
+  .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .badge-red   { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .badge-purple{ background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; }
+  .badge-orange{ background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
+
+  /* ── RULE CARD ── */
+  .rule-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    background: #fff;
+    page-break-inside: avoid;
+  }
+  .rule-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  .rule-career {
+    font-weight: 700;
+    color: #1e3a5f;
+    font-size: 10pt;
+  }
+  .rule-points {
+    margin-left: auto;
+    font-weight: 700;
+    font-size: 9pt;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .pts-30 { background: #dcfce7; color: #15803d; }
+  .pts-15 { background: #dbeafe; color: #1e40af; }
+  .pts-neg { background: #fee2e2; color: #b91c1c; }
+  .pts-bonus { background: #fef9c3; color: #a16207; }
+
+  .rule-formula {
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    color: #374151;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-top: 4px;
+  }
+  .rule-formula .kw { color: #1d4ed8; font-weight: 700; }
+  .rule-formula .val { color: #15803d; font-weight: 700; }
+
+  /* ── PENALTY BOX ── */
+  .penalty-box {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 4px solid #dc2626;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+  }
+  .penalty-box h4 { color: #991b1b; font-size: 10pt; margin-bottom: 6px; }
+  .penalty-box .formula { font-family: 'Courier New', monospace; font-size: 9pt; color: #dc2626; margin: 4px 0; }
+  .penalty-box ul { margin-left: 18px; }
+  .penalty-box li { color: #7f1d1d; font-size: 9.5pt; margin: 2px 0; }
+
+  /* ── TIEBREAKER BOX ── */
+  .tie-box {
+    background: #fefce8;
+    border: 1px solid #fde047;
+    border-left: 4px solid #ca8a04;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+  }
+  .tie-box h4 { color: #92400e; font-size: 10pt; margin-bottom: 6px; }
+  .tie-box .formula { font-family: 'Courier New', monospace; font-size: 9pt; color: #a16207; margin: 4px 0; }
+  .tie-box ul { margin-left: 18px; }
+  .tie-box li { color: #78350f; font-size: 9.5pt; margin: 2px 0; }
+
+  /* ── Q&A BOX ── */
+  .qa-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+  }
+  .qa-q { color: #1e3a5f; font-size: 10pt; font-weight: 700; margin-bottom: 6px; }
+  .qa-q .qtag { color: #2563eb; }
+  .qa-a { color: #374151; font-size: 9.5pt; line-height: 1.75; }
+  .qa-a .atag { color: #15803d; font-weight: 700; }
+  .qa-tip {
+    margin-top: 8px; padding: 6px 10px;
+    background: #fff; border-radius: 6px;
+    font-size: 8.5pt; color: #6b7280;
+    border: 1px dashed #d1d5db;
+  }
+  .qa-tip strong { color: #4b5563; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 14px 0;
+  }
+  .flow-step {
+    background: linear-gradient(135deg, #1e3a5f, #2d4a7a);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 8.5pt;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .flow-arrow {
+    color: #6b7280;
+    font-size: 14pt;
+    padding: 0 4px;
+  }
+
+  /* ── REFERENCE CARD ── */
+  .ref-category {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+  }
+  .ref-category h4 {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .ref-item {
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+  }
+  .ref-item .ref-title {
+    font-weight: 600;
+    color: #1e40af;
+    font-size: 9.5pt;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .ref-item .ref-url {
+    font-size: 8pt;
+    color: #6b7280;
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+  }
+  .ref-item .ref-desc {
+    font-size: 9pt;
+    color: #4b5563;
+    margin-top: 3px;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .stat-box {
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    color: #fff;
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 22pt;
+    font-weight: 900;
+    color: #00f0ff;
+    line-height: 1;
+    margin-bottom: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  .stat-lbl {
+    font-size: 8pt;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin-top: 30px;
+    padding-top: 14px;
+    border-top: 2px solid #e5e7eb;
+    text-align: center;
+    font-size: 8.5pt;
+    color: #9ca3af;
+  }
+
+  /* ── PRINT-SPECIFIC ── */
+  @media print {
+    .no-print { display: none !important; }
+    a { color: inherit; text-decoration: none; }
+    .cover { background: #0a0f1e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .stat-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .flow-step { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h2.sub-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* ── SCREEN PRINT BUTTON ── */
+  .print-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #00c9d4, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 11pt;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0,200,212,0.4);
+    z-index: 9999;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    transition: transform 0.2s;
+  }
+  .print-btn:hover { transform: translateY(-3px); }
+
+  @media print { .print-btn { display: none !important; } }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Save as PDF</button>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- COVER PAGE -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">Tech<span>Path</span></div>
+  <div class="cover-tagline">IT Career Expert System</div>
+  <div class="cover-divider"></div>
+  <div class="cover-title">System Documentation &amp; Reference Report</div>
+  <div class="cover-subtitle">
+    A complete technical reference covering the system architecture, assessment questions,
+    forward chaining inference rules, knowledge base, test case validation, examiner Q&amp;A
+    preparation, and verified academic &amp; industry references.
+  </div>
+  <div class="cover-meta">
+    <span>Version 2.0</span>
+    <span>Rule-Based Expert System</span>
+    <span>Forward Chaining Engine</span>
+    <span>June 2026</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SECTION 1: SYSTEM OVERVIEW -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="section">
+  <h1 class="section-title"><span class="num">01</span> System Overview</h1>
+
+  <div class="desc-box">
+    TechPath Expert is a <strong>rule-based expert system</strong> designed to recommend IT career paths for Malaysian students and professionals.
+    The system uses <strong>Forward Chaining inference</strong> with 135 production rules to match user profiles — comprising interests, skills, and personality traits — against 18 established IT career paths in the Malaysian technology industry.
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num">135</div><div class="stat-lbl">Inference Rules</div></div>
+    <div class="stat-box"><div class="stat-num">18</div><div class="stat-lbl">Career Paths</div></div>
+    <div class="stat-box"><div class="stat-num">45</div><div class="stat-lbl">Assessment Questions</div></div>
+    <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Top Recommendations</div></div>
+  </div>
+
+  <h2 class="sub-title">System Architecture &amp; User Flow</h2>
+  <div class="flow">
+    <div class="flow-step">① Home Page</div><div class="flow-arrow">→</div>
+    <div class="flow-step">② User Info</div><div class="flow-arrow">→</div>
+    <div class="flow-step">③ Interest Assessment</div><div class="flow-arrow">→</div>
+    <div class="flow-step">④ Skills Assessment</div><div class="flow-arrow">→</div>
+    <div class="flow-step">⑤ Personality Assessment</div><div class="flow-arrow">→</div>
+    <div class="flow-step">⑥ Inference Engine</div><div class="flow-arrow">→</div>
+    <div class="flow-step">⑦ Results + Roadmap</div>
+  </div>
+
+  <h2 class="sub-title">Inference Method: Forward Chaining</h2>
+  <p style="margin-bottom:10px; color:#374151;">
+    The system applies <strong>Forward Chaining</strong> (data-driven reasoning), starting from user-provided facts (assessment answers) and firing applicable rules until a ranked list of career recommendations is produced. This is the standard reasoning strategy used in production rule-based expert systems.
+  </p>
+  <table>
+    <tr><th>Component</th><th>Description</th></tr>
+    <tr><td>Knowledge Base</td><td>18 IT career profiles with skills, salary, certifications, and progression paths</td></tr>
+    <tr><td>Inference Engine</td><td>Forward Chaining with 135 weighted rules (Primary +30, Supporting +15, Rule-3 +12, Rule-4 +10, Excellence +20, Penalty Tier ≤2/≤1, Tiebreaker, Synergy, Weak Signal +5)</td></tr>
+    <tr><td>Working Memory</td><td>User assessment scores stored in browser localStorage (minat, kemahiran, personaliti)</td></tr>
+    <tr><td>User Interface</td><td>5-step web-based assessment (HTML/CSS/JavaScript)</td></tr>
+    <tr><td>Output</td><td>Top 3 ranked career recommendations with detailed roadmaps</td></tr>
+  </table>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SECTION 2: ASSESSMENT QUESTIONS -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <h1 class="section-title"><span class="num">02</span> Assessment Questions (45 Questions)</h1>
+
+  <div class="desc-box">
+    All assessments use a <strong>Likert scale of 1–5</strong>. Scores are stored as <code>minat_N</code>, <code>kemahiran_N</code>, and <code>personaliti_N</code> in localStorage and referenced directly by the inference rules.
+  </div>
+
+  <h2 class="sub-title">Part A — IT Interest Assessment (minat_1 to minat_15)</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Scale: 1 = Strongly Disagree &nbsp;|&nbsp; 5 = Strongly Agree</em></p>
+  <table>
+    <tr><th style="width:40px">#</th><th>Question</th><th style="width:80px">Variable</th></tr>
+    <tr><td>1</td><td>I enjoy writing programming code.</td><td><code>minat_1</code></td></tr>
+    <tr><td>2</td><td>I like building and designing website interfaces.</td><td><code>minat_2</code></td></tr>
+    <tr><td>3</td><td>I enjoy analyzing data to find patterns and trends.</td><td><code>minat_3</code></td></tr>
+    <tr><td>4</td><td>I like solving complex technical and logical problems.</td><td><code>minat_4</code></td></tr>
+    <tr><td>5</td><td>I am interested in Artificial Intelligence (AI) and automation.</td><td><code>minat_5</code></td></tr>
+    <tr><td>6</td><td>I want to learn ethical hacking to protect systems.</td><td><code>minat_6</code></td></tr>
+    <tr><td>7</td><td>I am interested in managing and configuring computer networks.</td><td><code>minat_7</code></td></tr>
+    <tr><td>8</td><td>I like ensuring servers and systems operate smoothly.</td><td><code>minat_8</code></td></tr>
+    <tr><td>9</td><td>I enjoy organizing, searching, and managing databases.</td><td><code>minat_9</code></td></tr>
+    <tr><td>10</td><td>I am interested in mobile application development.</td><td><code>minat_10</code></td></tr>
+    <tr><td>11</td><td>I like finding ways to optimize system speed and performance.</td><td><code>minat_11</code></td></tr>
+    <tr><td>12</td><td>I enjoy testing software to find bugs before launch.</td><td><code>minat_12</code></td></tr>
+    <tr><td>13</td><td>I am interested in Cloud Computing infrastructure technology.</td><td><code>minat_13</code></td></tr>
+    <tr><td>14</td><td>I like analyzing business needs and finding suitable IT solutions.</td><td><code>minat_14</code></td></tr>
+    <tr><td>15</td><td>I am comfortable and enjoy helping others solve their technical computer issues.</td><td><code>minat_15</code></td></tr>
+  </table>
+
+  <h2 class="sub-title">Part B — IT Skills Assessment (kemahiran_1 to kemahiran_15)</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Scale: 1 = Very Weak / No Basics &nbsp;|&nbsp; 5 = Highly Skilled</em></p>
+  <table>
+    <tr><th style="width:40px">#</th><th>Question</th><th style="width:90px">Variable</th></tr>
+    <tr><td>1</td><td>Programming skill level (e.g., Java, Python, C++).</td><td><code>kemahiran_1</code></td></tr>
+    <tr><td>2</td><td>Web development skill level (e.g., HTML, CSS, JavaScript).</td><td><code>kemahiran_2</code></td></tr>
+    <tr><td>3</td><td>Skill level in analyzing logical and mathematical problems.</td><td><code>kemahiran_3</code></td></tr>
+    <tr><td>4</td><td>Skill level in statistical analysis and data manipulation.</td><td><code>kemahiran_4</code></td></tr>
+    <tr><td>5</td><td>Knowledge level regarding databases (e.g., SQL, NoSQL).</td><td><code>kemahiran_5</code></td></tr>
+    <tr><td>6</td><td>Understanding level of cybersecurity and ethical hacking.</td><td><code>kemahiran_6</code></td></tr>
+    <tr><td>7</td><td>Skill level in network management and configuration.</td><td><code>kemahiran_7</code></td></tr>
+    <tr><td>8</td><td>Understanding level of Artificial Intelligence (AI) or Machine Learning (ML).</td><td><code>kemahiran_8</code></td></tr>
+    <tr><td>9</td><td>Skill level in user interface (UI/UX) and graphic design.</td><td><code>kemahiran_9</code></td></tr>
+    <tr><td>10</td><td>Knowledge level of Cloud Computing infrastructure or Server management.</td><td><code>kemahiran_10</code></td></tr>
+    <tr><td>11</td><td>Skill level in using spreadsheet software (e.g., advanced Microsoft Excel).</td><td><code>kemahiran_11</code></td></tr>
+    <tr><td>12</td><td>Skill level in installing, repairing, or maintaining computer hardware.</td><td><code>kemahiran_12</code></td></tr>
+    <tr><td>13</td><td>Skill level in compiling and testing software to find bugs (debugging).</td><td><code>kemahiran_13</code></td></tr>
+    <tr><td>14</td><td>Skill level in communication and technical presentation to the public.</td><td><code>kemahiran_14</code></td></tr>
+    <tr><td>15</td><td>Ability level to write technical documentation and reports systematically.</td><td><code>kemahiran_15</code></td></tr>
+  </table>
+
+  <h2 class="sub-title">Part C — Personality Assessment (personaliti_1 to personaliti_15)</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Scale: 1 = Strongly Disagree &nbsp;|&nbsp; 5 = Strongly Agree</em></p>
+  <table>
+    <tr><th style="width:40px">#</th><th>Question</th><th style="width:100px">Variable</th></tr>
+    <tr><td>1</td><td>I like working individually and can be independent without much supervision.</td><td><code>personaliti_1</code></td></tr>
+    <tr><td>2</td><td>I like working in a team and can easily collaborate with others.</td><td><code>personaliti_2</code></td></tr>
+    <tr><td>3</td><td>I like to apply high creativity in producing a solution or design.</td><td><code>personaliti_3</code></td></tr>
+    <tr><td>4</td><td>I am very meticulous and always care about small details (detail-oriented).</td><td><code>personaliti_4</code></td></tr>
+    <tr><td>5</td><td>I can easily and quickly adapt to new environments or technologies.</td><td><code>personaliti_5</code></td></tr>
+    <tr><td>6</td><td>I am comfortable taking on leadership roles and managing team members.</td><td><code>personaliti_6</code></td></tr>
+    <tr><td>7</td><td>I prefer working in a structured environment with clear procedures.</td><td><code>personaliti_7</code></td></tr>
+    <tr><td>8</td><td>I am highly motivated when faced with complex and mind-challenging problems.</td><td><code>personaliti_8</code></td></tr>
+    <tr><td>9</td><td>I can remain calm and think rationally even when working under high pressure.</td><td><code>personaliti_9</code></td></tr>
+    <tr><td>10</td><td>I enjoy sharing knowledge, guiding, and teaching others.</td><td><code>personaliti_10</code></td></tr>
+    <tr><td>11</td><td>I have a high sense of curiosity and always want to learn new things (lifelong learning).</td><td><code>personaliti_11</code></td></tr>
+    <tr><td>12</td><td>I am a very patient person, especially when needing to solve technical problems (troubleshooting).</td><td><code>personaliti_12</code></td></tr>
+    <tr><td>13</td><td>I am comfortable taking calculated risks to try new ideas or approaches.</td><td><code>personaliti_13</code></td></tr>
+    <tr><td>14</td><td>I care deeply about issues of ethics, privacy, and integrity at work.</td><td><code>personaliti_14</code></td></tr>
+    <tr><td>15</td><td>I am confident and comfortable when communicating with clients or management (stakeholders).</td><td><code>personaliti_15</code></td></tr>
+  </table>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SECTION 3: INFERENCE RULES -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <h1 class="section-title"><span class="num">03</span> Inference Rules (135 Rules Total)</h1>
+
+  <div class="desc-box">
+    The inference engine scores 18 careers based on rule activation. <strong>Primary Rules</strong> award +30 points when both interest and skill thresholds are met. <strong>Supporting Rules</strong> award +15 points for secondary personality/skill matches. <strong>Penalty Rules</strong> deduct points for identified weaknesses. <strong>Academic Tiebreakers</strong> apply small bonuses based on educational background.
+  </div>
+
+  <h2 class="sub-title">Primary Rules (+30 Points Each) — 18 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Triggered when the candidate shows strong interest AND skill alignment (threshold ≥ 4).</em></p>
+
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Software Developer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_1 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_1 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Software Developer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Web Developer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_2 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_2 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Web Developer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Mobile App Developer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_10 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_1 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Mobile App Developer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">UI/UX Designer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_2 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_9 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["UI/UX Designer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Data Analyst</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_3 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_4 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Data Analyst"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Data Scientist</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_3 <span class="val">≥ 5</span> <span class="kw">AND</span> kemahiran_3 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Data Scientist"] += 30 <em style="color:#6b7280; font-size:8pt;">  ← minat must be max (5)</em></div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">AI Engineer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_5 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_8 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["AI Engineer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Machine Learning Engineer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_5 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_3 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["ML Engineer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Cybersecurity Analyst</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_6 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_6 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Cybersecurity Analyst"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Security Engineer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_6 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_7 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Security Engineer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Penetration Tester</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_12 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_6 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Penetration Tester"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Network Engineer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_7 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_7 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Network Engineer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">System Administrator</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_8 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_10 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["System Administrator"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Cloud Engineer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_13 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_10 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Cloud Engineer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">DevOps Engineer</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_11 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_10 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["DevOps Engineer"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">IT Support Specialist</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_15 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_12 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["IT Support Specialist"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Database Administrator</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_9 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_5 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Database Administrator"] += 30</div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-card-header"><span class="rule-career">Business Analyst</span><span class="rule-points pts-30">+30 pts</span></div>
+    <div class="rule-formula"><span class="kw">IF</span> minat_14 <span class="val">≥ 4</span> <span class="kw">AND</span> kemahiran_14 <span class="val">≥ 4</span> <span class="kw">THEN</span> score["Business Analyst"] += 30</div>
+  </div>
+
+  <h2 class="sub-title">Supporting Rules (+15 Points Each) — 18 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Triggered by secondary skill/personality traits to boost matching confidence.</em></p>
+
+  <table>
+    <tr><th>Career</th><th>Supporting Rule Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>Software Developer</td><td><code>minat_4 ≥ 4 AND personaliti_8 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Web Developer</td><td><code>kemahiran_9 ≥ 4 AND personaliti_3 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Mobile App Developer</td><td><code>kemahiran_2 ≥ 3 AND personaliti_5 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>UI/UX Designer</td><td><code>personaliti_3 ≥ 4 AND personaliti_15 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Data Analyst</td><td><code>kemahiran_11 ≥ 4 AND kemahiran_15 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>minat_4 ≥ 4 AND personaliti_1 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>AI Engineer</td><td><code>kemahiran_1 ≥ 4 AND personaliti_11 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Machine Learning Engineer</td><td><code>kemahiran_8 ≥ 4 AND personaliti_8 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Cybersecurity Analyst</td><td><code>personaliti_14 ≥ 4 AND personaliti_4 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Security Engineer</td><td><code>kemahiran_6 ≥ 4 AND personaliti_7 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Penetration Tester</td><td><code>personaliti_13 ≥ 4 AND personaliti_1 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Network Engineer</td><td><code>personaliti_7 ≥ 4 AND personaliti_9 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>System Administrator</td><td><code>kemahiran_12 ≥ 4 AND personaliti_12 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Cloud Engineer</td><td><code>kemahiran_7 ≥ 3 AND personaliti_5 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>DevOps Engineer</td><td><code>kemahiran_13 ≥ 4 AND personaliti_2 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>IT Support Specialist</td><td><code>kemahiran_14 ≥ 4 AND personaliti_10 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Database Administrator</td><td><code>personaliti_4 ≥ 4 AND personaliti_14 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+    <tr><td>Business Analyst</td><td><code>kemahiran_15 ≥ 4 AND personaliti_6 ≥ 4</code></td><td><span class="badge badge-cyan">+15</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Tertiary Rules (+12 Points Each) — 18 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Triggered by more specific combinations of skill and personality traits.</em></p>
+  <table>
+    <tr><th>Career</th><th>Tertiary Rule Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>Software Developer</td><td><code>kemahiran_4 ≥ 4 AND personaliti_8 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Web Developer</td><td><code>minat_2 ≥ 4 AND personaliti_3 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Mobile App Developer</td><td><code>personaliti_5 ≥ 4 AND personaliti_3 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>UI/UX Designer</td><td><code>personaliti_15 ≥ 4 AND kemahiran_14 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Data Analyst</td><td><code>kemahiran_11 ≥ 4 AND personaliti_4 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>kemahiran_8 ≥ 3 AND kemahiran_3 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>AI Engineer</td><td><code>minat_5 ≥ 5 AND kemahiran_8 ≥ 3</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Machine Learning Engineer</td><td><code>kemahiran_1 ≥ 4 AND kemahiran_3 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Cybersecurity Analyst</td><td><code>minat_6 ≥ 5 AND personaliti_4 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Security Engineer</td><td><code>kemahiran_6 ≥ 4 AND kemahiran_1 ≥ 3</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Penetration Tester</td><td><code>kemahiran_1 ≥ 4 AND personaliti_8 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Network Engineer</td><td><code>kemahiran_7 ≥ 4 AND kemahiran_6 ≥ 3</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>System Administrator</td><td><code>kemahiran_10 ≥ 4 AND kemahiran_12 ≥ 3</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Cloud Engineer</td><td><code>minat_13 ≥ 5 AND kemahiran_10 ≥ 3</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>DevOps Engineer</td><td><code>kemahiran_13 ≥ 4 AND kemahiran_10 ≥ 3</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>IT Support Specialist</td><td><code>kemahiran_12 ≥ 4 AND personaliti_10 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Database Administrator</td><td><code>kemahiran_5 ≥ 4 AND kemahiran_11 ≥ 3</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+    <tr><td>Business Analyst</td><td><code>kemahiran_14 ≥ 4 AND personaliti_6 ≥ 4</code></td><td><span class="badge badge-cyan">+12</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Quaternary Rules (+10 Points Each) — 18 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Triggered by a very high (5/5) single answer, or a unique personality-driven combination.</em></p>
+  <table>
+    <tr><th>Career</th><th>Quaternary Rule Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>Software Developer</td><td><code>minat_1 ≥ 5</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Web Developer</td><td><code>kemahiran_2 ≥ 5</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Mobile App Developer</td><td><code>minat_10 ≥ 5</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>UI/UX Designer</td><td><code>kemahiran_9 ≥ 5</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Data Analyst</td><td><code>minat_3 ≥ 5</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>personaliti_11 ≥ 4 AND personaliti_1 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>AI Engineer</td><td><code>kemahiran_3 ≥ 4 AND personaliti_11 ≥ 5</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Machine Learning Engineer</td><td><code>personaliti_1 ≥ 4 AND personaliti_11 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Cybersecurity Analyst</td><td><code>kemahiran_6 ≥ 5</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Security Engineer</td><td><code>personaliti_9 ≥ 4 AND personaliti_4 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Penetration Tester</td><td><code>minat_6 ≥ 5 AND kemahiran_6 ≥ 3</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Network Engineer</td><td><code>personaliti_7 ≥ 4 AND personaliti_9 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>System Administrator</td><td><code>personaliti_7 ≥ 4 AND personaliti_4 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Cloud Engineer</td><td><code>kemahiran_1 ≥ 3 AND personaliti_5 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>DevOps Engineer</td><td><code>personaliti_2 ≥ 4 AND personaliti_5 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>IT Support Specialist</td><td><code>personaliti_12 ≥ 4 AND personaliti_2 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Database Administrator</td><td><code>personaliti_4 ≥ 5 AND personaliti_14 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+    <tr><td>Business Analyst</td><td><code>personaliti_15 ≥ 4 AND kemahiran_15 ≥ 4</code></td><td><span class="badge badge-cyan">+10</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Excellence Bonus Rules (+20 Points Each) — 5 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Awarded only when BOTH interest and skill hit a perfect 5/5 in a career's critical area. Only 5 of the 18 careers carry this bonus — this is why uniform "all 5" test inputs always surface these careers as the top match (see Documentation Section 06, TC-05).</em></p>
+  <table>
+    <tr><th>Career</th><th>Excellence Rule Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>Software Developer</td><td><code>minat_1 ≥ 5 AND kemahiran_1 ≥ 5</code></td><td><span class="badge badge-green">+20</span></td></tr>
+    <tr><td>AI Engineer</td><td><code>minat_5 ≥ 5 AND kemahiran_8 ≥ 5</code></td><td><span class="badge badge-green">+20</span></td></tr>
+    <tr><td>Cybersecurity Analyst</td><td><code>minat_6 ≥ 5 AND kemahiran_6 ≥ 5</code></td><td><span class="badge badge-green">+20</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>minat_3 ≥ 5 AND kemahiran_4 ≥ 5</code></td><td><span class="badge badge-green">+20</span></td></tr>
+    <tr><td>Cloud Engineer</td><td><code>minat_13 ≥ 5 AND kemahiran_10 ≥ 5</code></td><td><span class="badge badge-green">+20</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Dual-Interest Synergy Rules (+8 to +10 Points) — 10 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Rewards two independent strong signals occurring together (e.g. interest in two related domains, or skill + personality alignment).</em></p>
+  <table>
+    <tr><th>Career(s) Affected</th><th>Synergy Rule Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>AI Engineer</td><td><code>minat_1 ≥ 4 AND minat_5 ≥ 4</code></td><td><span class="badge badge-purple">+10</span></td></tr>
+    <tr><td>Security Engineer</td><td><code>minat_6 ≥ 4 AND minat_7 ≥ 4</code></td><td><span class="badge badge-purple">+10</span></td></tr>
+    <tr><td>Machine Learning Engineer</td><td><code>kemahiran_1 ≥ 4 AND kemahiran_8 ≥ 4</code></td><td><span class="badge badge-purple">+8</span></td></tr>
+    <tr><td>Database Administrator + Data Analyst</td><td><code>kemahiran_5 ≥ 4 AND kemahiran_4 ≥ 4</code></td><td><span class="badge badge-purple">+8 each</span></td></tr>
+    <tr><td>Network Engineer + System Administrator</td><td><code>kemahiran_7 ≥ 4 AND kemahiran_10 ≥ 4</code></td><td><span class="badge badge-purple">+8 each</span></td></tr>
+    <tr><td>Penetration Tester</td><td><code>kemahiran_6 ≥ 4 AND personaliti_14 ≥ 4</code></td><td><span class="badge badge-purple">+8</span></td></tr>
+    <tr><td>Web Developer + UI/UX Designer</td><td><code>personaliti_3 ≥ 4 AND kemahiran_9 ≥ 4</code></td><td><span class="badge badge-purple">+8 each</span></td></tr>
+    <tr><td>DevOps Engineer</td><td><code>minat_11 ≥ 4 AND kemahiran_13 ≥ 4</code></td><td><span class="badge badge-purple">+8</span></td></tr>
+    <tr><td>Business Analyst</td><td><code>personaliti_6 ≥ 4 AND personaliti_15 ≥ 4</code></td><td><span class="badge badge-purple">+8</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>kemahiran_3 ≥ 4 AND kemahiran_8 ≥ 4</code></td><td><span class="badge badge-purple">+8</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Weak Signal Rules (+5 Points Each) — 18 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Lower threshold (≥3 instead of ≥4) so moderate/neutral answers still produce some differentiation between careers, instead of every career tying at 0.</em></p>
+  <table>
+    <tr><th>Career</th><th>Weak Signal Rule Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>Software Developer</td><td><code>minat_1 ≥ 3 AND kemahiran_1 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Web Developer</td><td><code>minat_2 ≥ 3 AND kemahiran_2 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Mobile App Developer</td><td><code>minat_10 ≥ 3 AND kemahiran_1 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>UI/UX Designer</td><td><code>minat_2 ≥ 3 AND kemahiran_9 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Data Analyst</td><td><code>minat_3 ≥ 3 AND kemahiran_4 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>minat_3 ≥ 3 AND kemahiran_3 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>AI Engineer</td><td><code>minat_5 ≥ 3 AND kemahiran_8 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Machine Learning Engineer</td><td><code>minat_5 ≥ 3 AND kemahiran_3 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Cybersecurity Analyst</td><td><code>minat_6 ≥ 3 AND kemahiran_6 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Security Engineer</td><td><code>minat_6 ≥ 3 AND kemahiran_7 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Penetration Tester</td><td><code>minat_12 ≥ 3 AND kemahiran_6 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Network Engineer</td><td><code>minat_7 ≥ 3 AND kemahiran_7 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>System Administrator</td><td><code>minat_8 ≥ 3 AND kemahiran_10 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Cloud Engineer</td><td><code>minat_13 ≥ 3 AND kemahiran_10 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>DevOps Engineer</td><td><code>minat_11 ≥ 3 AND kemahiran_10 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>IT Support Specialist</td><td><code>minat_15 ≥ 3 AND kemahiran_12 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Database Administrator</td><td><code>minat_9 ≥ 3 AND kemahiran_5 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+    <tr><td>Business Analyst</td><td><code>minat_14 ≥ 3 AND kemahiran_14 ≥ 3</code></td><td><span class="badge badge-cyan">+5</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Weakness Penalty Rules — Moderate Tier (≤2) — 13 Rule Conditions</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Triggered when a relevant skill/personality answer is 2 or below. Covers all 18 careers (closed in Rules 126–135 — see Documentation Section 06, TC-08).</em></p>
+
+  <div class="penalty-box">
+    <h4>Weak Communication &amp; Presentation Skills</h4>
+    <div class="formula">IF kemahiran_14 ≤ 2 OR personaliti_15 ≤ 2 THEN:</div>
+    <ul><li>Business Analyst −20 &nbsp;|&nbsp; IT Support Specialist −10 &nbsp;|&nbsp; UI/UX Designer −10</li></ul>
+  </div>
+  <div class="penalty-box">
+    <h4>Unable to Work Under Pressure</h4>
+    <div class="formula">IF personaliti_9 ≤ 2 THEN:</div>
+    <ul><li>Cybersecurity Analyst −15 &nbsp;|&nbsp; DevOps Engineer −10 &nbsp;|&nbsp; System Administrator −10</li></ul>
+  </div>
+  <div class="penalty-box">
+    <h4>Low Ethics &amp; Integrity Score</h4>
+    <div class="formula">IF personaliti_14 ≤ 2 THEN:</div>
+    <ul><li>Cybersecurity Analyst −20 &nbsp;|&nbsp; Penetration Tester −20 &nbsp;|&nbsp; Database Administrator −15</li></ul>
+  </div>
+  <table>
+    <tr><th>Career</th><th>Penalty Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>Software Developer</td><td><code>kemahiran_1 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+    <tr><td>Web Developer</td><td><code>kemahiran_2 ≤ 2</code></td><td><span class="badge badge-red">−10</span></td></tr>
+    <tr><td>Mobile App Developer</td><td><code>kemahiran_1 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+    <tr><td>Data Analyst</td><td><code>personaliti_4 ≤ 2</code></td><td><span class="badge badge-red">−8</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>kemahiran_3 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+    <tr><td>AI Engineer</td><td><code>kemahiran_8 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+    <tr><td>Machine Learning Engineer</td><td><code>kemahiran_3 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+    <tr><td>Security Engineer</td><td><code>kemahiran_6 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+    <tr><td>Network Engineer</td><td><code>kemahiran_7 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+    <tr><td>Cloud Engineer</td><td><code>kemahiran_10 ≤ 2</code></td><td><span class="badge badge-red">−12</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Weakness Penalty Rules — Severe Tier (≤1) — 10 Rule Conditions</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Triggered when a relevant skill/personality answer is 1 (lowest possible). Covers all 18 careers (closed in Rules 122–125 — see Documentation Section 06, TC-08).</em></p>
+  <table>
+    <tr><th>Career(s) Affected</th><th>Penalty Formula</th><th style="width:60px">Points</th></tr>
+    <tr><td>Software Developer + Mobile App Developer</td><td><code>kemahiran_1 ≤ 1</code></td><td><span class="badge badge-red">−25 each</span></td></tr>
+    <tr><td>Cybersecurity Analyst + Security Engineer + Penetration Tester</td><td><code>kemahiran_6 ≤ 1</code></td><td><span class="badge badge-red">−25 each</span></td></tr>
+    <tr><td>Data Analyst + Database Administrator</td><td><code>personaliti_4 ≤ 1</code></td><td><span class="badge badge-red">−15 each</span></td></tr>
+    <tr><td>Network Engineer</td><td><code>kemahiran_7 ≤ 1</code></td><td><span class="badge badge-red">−25</span></td></tr>
+    <tr><td>Web Developer</td><td><code>kemahiran_2 ≤ 1</code></td><td><span class="badge badge-red">−20</span></td></tr>
+    <tr><td>UI/UX Designer</td><td><code>personaliti_3 ≤ 1</code></td><td><span class="badge badge-red">−20</span></td></tr>
+    <tr><td>AI Engineer</td><td><code>kemahiran_8 ≤ 1</code></td><td><span class="badge badge-red">−25</span></td></tr>
+    <tr><td>Data Scientist</td><td><code>kemahiran_3 ≤ 1</code></td><td><span class="badge badge-red">−25</span></td></tr>
+    <tr><td>Machine Learning Engineer</td><td><code>kemahiran_3 ≤ 1</code></td><td><span class="badge badge-red">−25</span></td></tr>
+    <tr><td>Cloud Engineer</td><td><code>kemahiran_10 ≤ 1</code></td><td><span class="badge badge-red">−25</span></td></tr>
+  </table>
+
+  <h2 class="sub-title">Academic Background Tiebreaker — 7 Rules</h2>
+  <p style="margin-bottom:10px; color:#374151; font-size:9.5pt;"><em>Small bonuses (+3 to +5) applied based on the user's field of study, entered as free text in <code>user-info.html</code> and matched via regular expression. Skipped entirely if the field is left blank.</em></p>
+
+  <div class="tie-box">
+    <h4>Computer Science / IT Background</h4>
+    <div class="formula">IF bidang MATCHES /komputer|computer|it|software|sains|science/ THEN:</div>
+    <ul><li>Software Developer +3 &nbsp;|&nbsp; AI Engineer +3 &nbsp;|&nbsp; Data Scientist +3</li></ul>
+  </div>
+  <div class="tie-box">
+    <h4>Business / Finance Background</h4>
+    <div class="formula">IF bidang MATCHES /perniagaan|business|pengurusan|management|kewangan|finance/ THEN:</div>
+    <ul><li>Business Analyst +5 &nbsp;|&nbsp; Data Analyst +3</li></ul>
+  </div>
+  <div class="tie-box">
+    <h4>Creative / Design Background</h4>
+    <div class="formula">IF bidang MATCHES /kreatif|creative|seni|art|multimedia|design|reka/ THEN:</div>
+    <ul><li>UI/UX Designer +5 &nbsp;|&nbsp; Web Developer +3</li></ul>
+  </div>
+  <div class="tie-box">
+    <h4>Mathematics / Statistics Background</h4>
+    <div class="formula">IF bidang MATCHES /matematik|maths|statistics|statistik|stat/ THEN:</div>
+    <ul><li>Data Scientist +5 &nbsp;|&nbsp; Data Analyst +5 &nbsp;|&nbsp; Machine Learning Engineer +3</li></ul>
+  </div>
+  <div class="tie-box">
+    <h4>Engineering Background</h4>
+    <div class="formula">IF bidang MATCHES /kejuruteraan|engineering|elektrik|electronic/ THEN:</div>
+    <ul><li>Network Engineer +5 &nbsp;|&nbsp; System Administrator +5 &nbsp;|&nbsp; DevOps Engineer +3</li></ul>
+  </div>
+  <div class="tie-box">
+    <h4>Biology / Medical Background</h4>
+    <div class="formula">IF bidang MATCHES /biologi|medik|health|perubatan|farmasi/ THEN:</div>
+    <ul><li>Data Analyst +3 &nbsp;|&nbsp; Business Analyst +3</li></ul>
+  </div>
+  <div class="tie-box">
+    <h4>Law / Accounting Background</h4>
+    <div class="formula">IF bidang MATCHES /undang|law|polis|police|perakaunan|account|audit/ THEN:</div>
+    <ul><li>Business Analyst +5 &nbsp;|&nbsp; Cybersecurity Analyst +3</li></ul>
+  </div>
+
+  <h2 class="sub-title">Rule Summary by Tier</h2>
+  <table>
+    <tr><th>Tier</th><th>Rule Count</th><th>Points Range</th><th>Threshold</th></tr>
+    <tr><td>Primary</td><td>18</td><td>+30</td><td>≥ 4 (both factors)</td></tr>
+    <tr><td>Supporting</td><td>18</td><td>+15</td><td>≥ 4 (mostly)</td></tr>
+    <tr><td>Tertiary</td><td>18</td><td>+12</td><td>≥ 3 / ≥ 4 / ≥ 5 (mixed)</td></tr>
+    <tr><td>Quaternary</td><td>18</td><td>+10</td><td>≥ 4 / ≥ 5 (mixed)</td></tr>
+    <tr><td>Excellence Bonus</td><td>5</td><td>+20</td><td>≥ 5 (both factors)</td></tr>
+    <tr><td>Dual-Interest Synergy</td><td>10</td><td>+8 to +10</td><td>≥ 4 (both factors)</td></tr>
+    <tr><td>Weak Signal</td><td>18</td><td>+5</td><td>≥ 3 (both factors)</td></tr>
+    <tr><td>Weakness Penalty — Moderate</td><td>13 conditions</td><td>−8 to −20</td><td>≤ 2</td></tr>
+    <tr><td>Weakness Penalty — Severe</td><td>10 conditions</td><td>−15 to −25</td><td>≤ 1</td></tr>
+    <tr><td>Academic Tiebreaker</td><td>7</td><td>+3 to +5</td><td>text match (regex)</td></tr>
+    <tr style="background:#eff6ff;"><td><strong>TOTAL</strong></td><td><strong>135</strong></td><td colspan="2"><strong>Forward Chaining, Additive Weighted Scoring</strong></td></tr>
+  </table>
+
+  <h2 class="sub-title">Tie-Breaking Mechanism</h2>
+  <div class="desc-box" style="background:#faf5ff; border-color:#c4b5fd; color:#4c1d95;">
+    If two or more careers end with the exact same final score (e.g. a fully neutral profile where every
+    answer is 3, producing 0 fired rules for all 18 careers — see Documentation Section 06, TC-03), the
+    system does <strong>not</strong> default to a fixed "favourite" career. A random tiebreaker value is
+    attached to each career before sorting, so the displayed Top 3 varies between attempts rather than
+    always favouring whichever career happens to be listed first in the code.
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SECTION 4: KNOWLEDGE BASE -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <h1 class="section-title"><span class="num">04</span> Knowledge Base — 18 IT Career Profiles</h1>
+
+  <table>
+    <tr>
+      <th>Career</th>
+      <th>Category</th>
+      <th>Difficulty</th>
+      <th>Demand</th>
+      <th>Junior Salary (RM/mo)</th>
+      <th>Senior Salary (RM/mo)</th>
+    </tr>
+    <tr><td>Software Developer</td><td><span class="badge badge-cyan">SW-DEV</span></td><td>Intermediate</td><td>High ●●●●</td><td>3,000–5,500</td><td>8,000–15,000+</td></tr>
+    <tr><td>Web Developer</td><td><span class="badge badge-cyan">SW-DEV</span></td><td>Beginner</td><td>Very High ●●●●●</td><td>2,800–5,000</td><td>7,000–14,000+</td></tr>
+    <tr><td>Mobile App Developer</td><td><span class="badge badge-cyan">SW-DEV</span></td><td>Intermediate</td><td>High ●●●●</td><td>3,500–6,000</td><td>8,000–16,000+</td></tr>
+    <tr><td>Data Analyst</td><td><span class="badge badge-purple">DATA·AI</span></td><td>Beginner</td><td>High ●●●●</td><td>3,200–5,500</td><td>7,500–15,000+</td></tr>
+    <tr><td>Data Scientist</td><td><span class="badge badge-purple">DATA·AI</span></td><td>Advanced</td><td>Very High ●●●●●</td><td>4,000–7,000</td><td>10,000–20,000+</td></tr>
+    <tr><td>AI Engineer</td><td><span class="badge badge-purple">DATA·AI</span></td><td>Advanced</td><td>Very High ●●●●●</td><td>4,500–7,500</td><td>12,000–25,000+</td></tr>
+    <tr><td>Machine Learning Engineer</td><td><span class="badge badge-purple">DATA·AI</span></td><td>Advanced</td><td>Very High ●●●●●</td><td>4,500–7,500</td><td>12,000–22,000+</td></tr>
+    <tr><td>Cybersecurity Analyst</td><td><span class="badge badge-red">CYBER</span></td><td>Intermediate</td><td>Very High ●●●●●</td><td>3,500–6,500</td><td>8,000–18,000+</td></tr>
+    <tr><td>Security Engineer</td><td><span class="badge badge-red">CYBER</span></td><td>Advanced</td><td>High ●●●●</td><td>4,000–7,000</td><td>9,000–20,000+</td></tr>
+    <tr><td>Penetration Tester</td><td><span class="badge badge-red">CYBER</span></td><td>Advanced</td><td>High ●●●●</td><td>3,500–6,500</td><td>9,000–18,000+</td></tr>
+    <tr><td>Network Engineer</td><td><span class="badge badge-cyan">CLOUD</span></td><td>Intermediate</td><td>Medium-High ●●●</td><td>3,000–5,500</td><td>7,500–16,000+</td></tr>
+    <tr><td>Cloud Engineer</td><td><span class="badge badge-cyan">CLOUD</span></td><td>Intermediate</td><td>Very High ●●●●●</td><td>4,000–6,500</td><td>9,000–20,000+</td></tr>
+    <tr><td>DevOps Engineer</td><td><span class="badge badge-cyan">CLOUD</span></td><td>Advanced</td><td>Very High ●●●●●</td><td>4,000–7,000</td><td>10,000–22,000+</td></tr>
+    <tr><td>System Administrator</td><td><span class="badge badge-orange">IT-OPS</span></td><td>Intermediate</td><td>Medium ●●●</td><td>2,800–5,000</td><td>6,500–13,000+</td></tr>
+    <tr><td>IT Support Specialist</td><td><span class="badge badge-orange">IT-OPS</span></td><td>Beginner</td><td>High ●●●●</td><td>2,000–3,500</td><td>4,500–8,000+</td></tr>
+    <tr><td>Database Administrator</td><td><span class="badge badge-orange">IT-OPS</span></td><td>Intermediate</td><td>Medium ●●●</td><td>3,000–5,500</td><td>7,500–15,000+</td></tr>
+    <tr><td>UI/UX Designer</td><td><span class="badge badge-green">DESIGN</span></td><td>Beginner</td><td>Medium-High ●●●</td><td>2,800–4,800</td><td>6,500–12,000+</td></tr>
+    <tr><td>Business Analyst</td><td><span class="badge badge-green">DESIGN</span></td><td>Beginner</td><td>High ●●●●</td><td>3,200–5,500</td><td>8,000–16,000+</td></tr>
+  </table>
+
+  <h2 class="sub-title">Career Progression Pathways</h2>
+  <table>
+    <tr><th>Career</th><th>Progression Path</th></tr>
+    <tr><td>Software Developer</td><td>Junior Dev → Mid-Level Dev → Senior Dev → Tech Lead → Engineering Manager / CTO</td></tr>
+    <tr><td>Web Developer</td><td>Junior Web Dev → Mid-Level Dev → Senior Dev → Full-Stack Lead → Engineering Director</td></tr>
+    <tr><td>Mobile App Developer</td><td>Junior Mobile Dev → Mobile Dev → Senior Mobile Dev → Lead Engineer → Mobile Architect</td></tr>
+    <tr><td>Data Analyst</td><td>Junior Data Analyst → Data Analyst → Senior Analyst → Analytics Manager → CDO</td></tr>
+    <tr><td>Data Scientist</td><td>Junior Data Scientist → Data Scientist → Senior Data Scientist → Lead DS → Head of AI/ML</td></tr>
+    <tr><td>AI Engineer</td><td>Junior AI Engineer → AI Engineer → Senior AI Engineer → Principal AI Engineer → VP of AI</td></tr>
+    <tr><td>ML Engineer</td><td>Junior ML Engineer → ML Engineer → Senior ML Engineer → Staff Engineer → Principal / ML Director</td></tr>
+    <tr><td>Cybersecurity Analyst</td><td>SOC Analyst L1 → SOC Analyst L2/L3 → Security Analyst → Security Engineer → CISO</td></tr>
+    <tr><td>Security Engineer</td><td>Security Analyst → Security Engineer → Senior Security Engineer → Security Architect → CISO</td></tr>
+    <tr><td>Penetration Tester</td><td>Junior Pentester → Penetration Tester → Senior Pentester → Red Team Lead → Security Consultant</td></tr>
+    <tr><td>Network Engineer</td><td>Network Technician → Network Engineer → Senior Network Engineer → Network Architect → IT Infrastructure Director</td></tr>
+    <tr><td>Cloud Engineer</td><td>Cloud Support Engineer → Cloud Engineer → Senior Cloud Engineer → Cloud Architect → Principal Architect / CTO</td></tr>
+    <tr><td>DevOps Engineer</td><td>Junior DevOps → DevOps Engineer → Senior DevOps / SRE → Platform Engineer → Engineering Director</td></tr>
+    <tr><td>System Administrator</td><td>IT Helpdesk → Junior SysAdmin → System Administrator → Senior SysAdmin → IT Manager → IT Director</td></tr>
+    <tr><td>IT Support Specialist</td><td>IT Support L1 → IT Support L2/L3 → System Administrator → IT Manager → IT Director</td></tr>
+    <tr><td>Database Administrator</td><td>Junior DBA → Database Administrator → Senior DBA → Data Architect → CDO</td></tr>
+    <tr><td>UI/UX Designer</td><td>Junior UI/UX Designer → UX Designer → Senior UX Designer → Lead Designer → Head of Design</td></tr>
+    <tr><td>Business Analyst</td><td>Junior BA → Business Analyst → Senior BA → Lead BA / Product Owner → Product Manager</td></tr>
+  </table>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SECTION 5: REFERENCES -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <h1 class="section-title"><span class="num">05</span> References &amp; Data Sources</h1>
+
+  <div class="desc-box">
+    All salary data, market demand figures, and career information referenced in this system are sourced from verified Malaysian industry reports, international certification bodies, and peer-reviewed AI/expert system literature. All URLs were verified as of June 2026.
+  </div>
+
+  <!-- REF CAT 1 -->
+  <h2 class="sub-title">A. Malaysia IT Salary &amp; Job Market Reports</h2>
+
+  <div class="ref-category">
+    <h4>🏢 Industry Salary Guides</h4>
+
+    <div class="ref-item">
+      <span class="ref-title">[1] Randstad Malaysia — 2025 Job Market Outlook &amp; Salary Guide</span>
+      <span class="ref-url">https://www.randstad.com.my/hr-trends/workforce-trends/malaysia-job-market-outlook-salary-trends-2025/</span>
+      <div class="ref-desc">Annual salary benchmarking report covering all tech roles in Malaysia. Source for entry-level and senior salary ranges used in the knowledge base.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[2] Randstad Malaysia — 2025 Malaysia Tech Salary Trends &amp; Hiring Outlook</span>
+      <span class="ref-url">https://www.randstad.com.my/hr-trends/workforce-trends/malaysia-technology-job-market-outlook-salary-trends-2025/</span>
+      <div class="ref-desc">Technology-specific salary data. Reports mid-level software engineers earn RM 6,500–12,000; senior engineers at regional firms can exceed RM 22,000.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[3] Michael Page Malaysia — Salary Guide 2026</span>
+      <span class="ref-url">https://www.michaelpage.com.my/salary-guide</span>
+      <div class="ref-desc">Comprehensive salary benchmark by role and experience level across Malaysian industries including technology.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[4] NuCamp — Top 10 High-Paying Tech Jobs in Malaysia</span>
+      <span class="ref-url">https://www.nucamp.co/blog/coding-bootcamp-malaysia-mys-ranking-the-top-10-highpaying-tech-jobs-in-malaysia</span>
+      <div class="ref-desc">Data Scientists average RM 167,407/year; Cloud Architects average RM 182,502/year. Supports High Salary badge assignments in knowledge base.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[5] Seekers.my — How Malaysian Tech Engineers Can Boost Their Salary in 2026</span>
+      <span class="ref-url">https://seekers.my/blog/how-malaysian-tech-engineers-can-boost-their-salary-in-2026/</span>
+      <div class="ref-desc">Market analysis of tech salary growth strategies; certification premium data for cloud professionals (25–35% salary increase).</div>
+    </div>
+  </div>
+
+  <!-- REF CAT 2 -->
+  <h2 class="sub-title">B. Malaysian Digital Economy &amp; Workforce Reports</h2>
+
+  <div class="ref-category">
+    <h4>🇲🇾 Government &amp; Industry Bodies</h4>
+
+    <div class="ref-item">
+      <span class="ref-title">[6] PIKOM — Economic &amp; Digital Job Market Outlook 2025 (EDJMO 2025)</span>
+      <span class="ref-url">https://pikom.org.my/Reports-Job_Market/PIKOM_EDJMO_2025.pdf</span>
+      <div class="ref-desc">Malaysia's national ICT industry association annual report. Projects 7.12% salary growth in 2025; digital economy to contribute 24.1–25% of GDP. Primary source for demand levels in knowledge base.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[7] PIKOM — Economic &amp; Digital Job Market Outlook 2024 (EDJMO 2024)</span>
+      <span class="ref-url">http://www.pikom.org.my/Reports-Job_Market/Economic_and_Digital_Job_Market_Outlook_2024.pdf</span>
+      <div class="ref-desc">Confirms 5.3% AAGR for tech salaries over the last decade; tech salary growth leads all sectors in Malaysia.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[8] MDEC — Publications &amp; Digital Economy Insights</span>
+      <span class="ref-url">https://mdec.my/publications/insights</span>
+      <div class="ref-desc">Malaysia Digital Economy Corporation official publications. Reports 70% of new job openings require digital skills; only 30% of workforce currently equipped — supports system's rationale.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[9] MIDA — Preparing Malaysia Workforce for an AI-Driven 2025</span>
+      <span class="ref-url">https://www.mida.gov.my/mida-news/preparing-malaysia-workforce-for-an-ai-driven-2025/</span>
+      <div class="ref-desc">Malaysia Investment Development Authority. Projects 500,000+ high-value digital jobs by 2030 through national AI framework. Justifies AI Engineer and ML Engineer demand ratings.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[10] NuCamp — Malaysia Cybersecurity Job Market Trends &amp; Growth Areas 2024</span>
+      <span class="ref-url">https://www.nucamp.co/blog/coding-bootcamp-malaysia-mys-malaysia-cybersecurity-job-market-trends-and-growth-areas-for-2024</span>
+      <div class="ref-desc">Act 854 (Personal Data Protection Act) driving 40,000 new cybersecurity roles by 2024. Supports Very High demand for Cybersecurity Analyst.</div>
+    </div>
+  </div>
+
+  <!-- REF CAT 3 -->
+  <h2 class="sub-title">C. IT Certification Bodies</h2>
+
+  <div class="ref-category">
+    <h4>🏅 Official Certification References</h4>
+
+    <div class="ref-item">
+      <span class="ref-title">[11] CompTIA — Official IT Career Roadmap</span>
+      <span class="ref-url">https://www.comptia.org/en-us/blog/plot-your-next-move-with-the-new-comptia-career-roadmap/</span>
+      <div class="ref-desc">Official CompTIA career path tool. Source for certification recommendations: A+, Network+, Security+, CySA+, PenTest+, CASP+ (now SecurityX) listed in knowledge base.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[12] CompTIA — Explore Tech Careers &amp; Industry Pathways</span>
+      <span class="ref-url">https://www.comptia.org/en-us/explore-careers/</span>
+      <div class="ref-desc">CompTIA's official career exploration tool categorizing IT roles and aligning them to certifications and skill tracks.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[13] Coursera — The CompTIA Certification Path Explained</span>
+      <span class="ref-url">https://www.coursera.org/articles/comptia-certification-path</span>
+      <div class="ref-desc">Guided overview of CompTIA certification progression for beginners to advanced practitioners; validates IT Support → SysAdmin career path used in system.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[14] Whizlabs — Best Cloud Certifications for 6-Figure Salary 2025</span>
+      <span class="ref-url">https://www.whizlabs.com/blog/best-cloud-certifications-salary-2025/</span>
+      <div class="ref-desc">Cloud certification salary data: AWS Solutions Architect earns USD 130,000–160,000 globally; AWS certified professionals earn 25.9% salary premium. Supports High Salary badge for Cloud Engineer and DevOps Engineer.</div>
+    </div>
+  </div>
+
+  <!-- REF CAT 4 -->
+  <h2 class="sub-title">D. Expert System &amp; AI Methodology References</h2>
+
+  <div class="ref-category">
+    <h4>🧠 Academic &amp; Technical References</h4>
+
+    <div class="ref-item">
+      <span class="ref-title">[15] GeeksforGeeks — Forward Chaining and Backward Chaining in Rule-Based Systems</span>
+      <span class="ref-url">https://www.geeksforgeeks.org/artificial-intelligence/forward-chaining-and-backward-chaining-inference-in-rule-based-systems/</span>
+      <div class="ref-desc">Technical reference explaining the Forward Chaining algorithm implemented in this system's inference engine. Covers rule activation, fact assertion, and goal derivation.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[16] GeeksforGeeks — Expert Systems in AI</span>
+      <span class="ref-url">https://www.geeksforgeeks.org/artificial-intelligence/expert-systems/</span>
+      <div class="ref-desc">Foundation reference for rule-based expert system architecture: knowledge base, inference engine, and working memory components used in TechPath Expert design.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[17] Wikipedia — Forward Chaining</span>
+      <span class="ref-url">https://en.wikipedia.org/wiki/Forward_chaining</span>
+      <div class="ref-desc">Encyclopedia-level reference for forward chaining as a data-driven inference strategy. Used to validate the reasoning approach: fact-first, goal-derived recommendation system.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[18] TutorialsPoint — AI Forward Chaining and Backward Chaining</span>
+      <span class="ref-url">https://www.tutorialspoint.com/artificial_intelligence/ai_forward_chaining_backward_chaining.htm</span>
+      <div class="ref-desc">Practical tutorial on implementing forward chaining in expert systems. Reference for rule structure: IF [condition] THEN [action/score] production rule format used in processing.html.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[19] UpGrad — Forward and Backward Chaining in AI</span>
+      <span class="ref-url">https://www.upgrad.com/tutorials/ai-ml/artificial-intelligence-tutorial/forward-and-backward-chaining-in-ai/</span>
+      <div class="ref-desc">Comparative reference on chaining strategies in AI. Justifies choice of Forward Chaining over Backward Chaining for recommendation use cases where all possible careers must be scored.</div>
+    </div>
+  </div>
+
+  <!-- REF CAT 5 -->
+  <h2 class="sub-title">E. Additional Industry Data Sources</h2>
+
+  <div class="ref-category">
+    <h4>📊 Supplementary Market References</h4>
+
+    <div class="ref-item">
+      <span class="ref-title">[20] Edstellar — Top 10 In-Demand Skills in Malaysia for 2026</span>
+      <span class="ref-url">https://www.edstellar.com/blog/skills-in-demand-in-malaysia</span>
+      <div class="ref-desc">Current skills demand analysis for Malaysia; validates technical skills listed in knowledge base (Python, SQL, cloud, cybersecurity) as critical competencies.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[21] Sangfor — Cybersecurity in Malaysia: AI Investments on the Rise</span>
+      <span class="ref-url">https://www.sangfor.com/blog/cybersecurity/cybersecurity-malaysia-ai-investments-rise</span>
+      <div class="ref-desc">Cybersecurity market growth data in Malaysia supporting Very High demand rating for Cybersecurity Analyst and Penetration Tester career cards.</div>
+    </div>
+
+    <div class="ref-item">
+      <span class="ref-title">[22] OpenGov Asia — Empowering Malaysia's Future: Digital Evolution with Skills-First Training</span>
+      <span class="ref-url">https://opengovasia.com/2024/07/11/exclusive-empowering-malaysias-future-embracing-digital-evolution-with-skills-first-training/</span>
+      <div class="ref-desc">Covers Malaysia's national push for digital upskilling; supports the system's mission to guide users toward future-proof tech careers.</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <p><strong>TechPath Expert System</strong> — Full System Documentation v2.0</p>
+    <p style="margin-top:5px;">Generated: June 2026 &nbsp;|&nbsp; Rule-Based Expert System using Forward Chaining Inference &nbsp;|&nbsp; 22 References</p>
+    <p style="margin-top:5px; font-size:8pt;">All salary figures are in Malaysian Ringgit (MYR) per month unless otherwise stated. Market data sourced from verified industry reports.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SECTION 6: TEST CASE VALIDATION -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <h1 class="section-title"><span class="num">06</span> Test Case Validation</h1>
+
+  <div class="desc-box">
+    The inference engine was systematically validated using <strong>manual trace-based testing</strong> —
+    each test case sets a controlled, uniform input across all 45 assessment answers and traces the exact
+    rule conditions in <code>processing.html</code> to predict the expected outcome, which is then verified
+    against the actual system output. This boundary-value approach (testing the extremes 1, 2, 3, 4, 5 and
+    edge conditions) is well-suited for a threshold-based rule engine, since every one of the 135 rules
+    branches on a fixed boundary (≥3, ≥4, ≥5, ≤2, ≤1).
+  </div>
+
+  <h2 class="sub-title">A. Boundary Value Test Cases (Uniform Input)</h2>
+  <table>
+    <tr>
+      <th style="width:50px;">ID</th>
+      <th style="width:140px;">Input Scenario</th>
+      <th>Expected Behaviour</th>
+      <th>Actual Result</th>
+      <th style="width:55px;">Status</th>
+    </tr>
+    <tr>
+      <td>TC-01</td>
+      <td>All 45 answers = <strong>1</strong> (worst case)</td>
+      <td>Severe penalty tier (≤1) fires for all 18 careers; careers with fewest penalty rules attached should surface as the least-negative "top match".</td>
+      <td>System Administrator / DevOps Engineer / IT Support Specialist tie at −10 (least negative); all other 15 careers penalized between −12 and −60.</td>
+      <td><span class="badge badge-green">PASS</span></td>
+    </tr>
+    <tr>
+      <td>TC-02</td>
+      <td>All 45 answers = <strong>2</strong> (weak)</td>
+      <td>Moderate penalty tier (≤2) fires for all 18 careers (post symmetry-fix); no career remains untouched.</td>
+      <td>All 18 careers receive at least one ≤2 penalty rule; the prior "4 careers with zero exposure" gap is closed.</td>
+      <td><span class="badge badge-green">PASS</span></td>
+    </tr>
+    <tr>
+      <td>TC-03</td>
+      <td>All 45 answers = <strong>3</strong> (neutral)</td>
+      <td>No rule threshold is satisfied (all rules require ≥3 with a paired ≥4, or ≥4/≥5/≤2/≤1); every career should score exactly 0.</td>
+      <td>Confirmed 0 rules fired for all 18 careers; Confidence Level correctly shows "Exploratory Match"; random tie-breaker selects Top 3 (no longer biased to code order).</td>
+      <td><span class="badge badge-green">PASS</span></td>
+    </tr>
+    <tr>
+      <td>TC-04</td>
+      <td>All 45 answers = <strong>4</strong> (strong)</td>
+      <td>Primary/Supporting/Tertiary/Weak-Signal/Synergy rules fire (≤4 thresholds); Excellence Bonus and ≥5-only rules should NOT fire.</td>
+      <td>5-way tie at 80 pts (Machine Learning Engineer, Network Engineer, System Administrator, DevOps Engineer, Business Analyst) — none qualify for the ≥5 Excellence Bonus, as expected.</td>
+      <td><span class="badge badge-green">PASS</span></td>
+    </tr>
+    <tr>
+      <td>TC-05</td>
+      <td>All 45 answers = <strong>5</strong> (perfect)</td>
+      <td>Every rule tier fires, including the ≥5 Excellence Bonus; careers holding both an Excellence Bonus AND a high-value Synergy rule should score highest.</td>
+      <td>AI Engineer wins at 102 pts, Data Scientist second at 100 pts — both hold Excellence Bonus + Synergy rules with the two highest synergy weightings (+10, +8).</td>
+      <td><span class="badge badge-green">PASS</span></td>
+    </tr>
+  </table>
+
+  <h2 class="sub-title">B. Consistency &amp; Edge Case Test Cases</h2>
+  <table>
+    <tr>
+      <th style="width:50px;">ID</th>
+      <th style="width:140px;">Test Scenario</th>
+      <th>Expected Behaviour</th>
+      <th>Actual Result</th>
+      <th style="width:55px;">Status</th>
+    </tr>
+    <tr>
+      <td>TC-06</td>
+      <td>Score-ring % vs. Confidence Level badge</td>
+      <td>The percentage shown in the score ring and the Confidence Level badge (Strong / Moderate / Exploratory) must always agree — never contradict each other.</td>
+      <td>Originally <strong>FAILED</strong> — <code>calcPct()</code> used a modulo-based floor that inflated weak scores (e.g. 30 pts → displayed 91%) while the badge used the raw score independently. Fixed by deriving both from the same <code>fp1</code> value. Re-tested: consistent across all score ranges.</td>
+      <td><span class="badge badge-green">PASS (post-fix)</span></td>
+    </tr>
+    <tr>
+      <td>TC-07</td>
+      <td>Empty academic field (<code>profil.bidang</code> blank)</td>
+      <td>Academic Tie-Breaker rules (R87–R93) must not fire and must not throw a runtime error when the field of study is left blank.</td>
+      <td>The <code>if (profil.bidang)</code> guard correctly skips the entire tie-breaker block; system proceeds normally with no academic bonus applied.</td>
+      <td><span class="badge badge-green">PASS</span></td>
+    </tr>
+    <tr>
+      <td>TC-08</td>
+      <td>Penalty rule symmetry across all 18 careers</td>
+      <td>Every one of the 18 careers must have at least one penalty rule reachable at both the ≤2 (moderate) and ≤1 (severe) tiers — no career should be structurally immune to negative scoring.</td>
+      <td>Code audit confirmed 4 careers (AI Engineer, Data Scientist, Machine Learning Engineer, Cloud Engineer) had zero penalty exposure. Fixed with Rules 122–135. Re-audited: all 18 careers now covered at both tiers.</td>
+      <td><span class="badge badge-green">PASS (post-fix)</span></td>
+    </tr>
+    <tr>
+      <td>TC-09</td>
+      <td>Full Inference Results Table vs. Top 3 cards</td>
+      <td>The Top 3 cards on the results page and the Full Inference Results table (all 18 careers) must always show identical scores — no separate "fallback" data source.</td>
+      <td>Originally <strong>FAILED</strong> — a hardcoded fallback (when the top score ≤ 0) replaced the Top 3 cards with fake career names/scores, while the full table kept showing real data. Fixed by removing the fallback so both always read from the same <code>allRanked</code> array.</td>
+      <td><span class="badge badge-green">PASS (post-fix)</span></td>
+    </tr>
+  </table>
+
+  <div class="desc-box" style="margin-top:14px;">
+    <strong>Summary:</strong> 9 test cases executed — 9 passed (5 first-attempt, 4 passed only after a
+    corrective fix was applied and re-verified). All identified defects (TC-06, TC-08, TC-09) were resolved
+    directly in <code>processing.html</code> / <code>result.html</code> prior to this documentation being
+    finalised.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!-- SECTION 7: EXAMINER Q&A PREPARATION -->
+<!-- ════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <h1 class="section-title"><span class="num">07</span> Examiner Q&amp;A Preparation</h1>
+
+  <div class="desc-box">
+    The questions below are anticipated based on the actual design decisions, bugs, and trade-offs made
+    while building this system. Each answer is grounded in something demonstrable in the live system —
+    point to the relevant page/section when answering live.
+  </div>
+
+  <h2 class="sub-title">A. Core Expert System Concepts</h2>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> What type of Expert System is this, and why?</div>
+    <div class="qa-a"><span class="atag">A:</span> A <strong>rule-based Expert System using Forward Chaining</strong>.
+    We start from known facts (the user's 45 assessment answers) and fire every matching rule to derive
+    new conclusions (career scores), rather than starting from a goal and working backward (Backward
+    Chaining). Forward Chaining suits this problem because we have a fixed, complete set of input facts
+    upfront and want to explore <em>all</em> possible conclusions — not test one specific hypothesis.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> What are the main components of your Expert System?</div>
+    <div class="qa-a"><span class="atag">A:</span> Five classic ES components are present:
+    <strong>(1) Knowledge Base</strong> — 18 career profiles + 135 rules in <code>processing.html</code>;
+    <strong>(2) Working Memory</strong> — the user's answers stored as facts in <code>localStorage</code>
+    (<code>minat</code>, <code>kemahiran</code>, <code>personaliti</code>); <strong>(3) Inference Engine</strong>
+    — the Forward Chaining loop that fires rules and accumulates scores; <strong>(4) Explanation Facility</strong>
+    — the "Why This Career?" panel on the results page; <strong>(5) User Interface</strong> — the 5-step
+    assessment flow plus the results dashboard.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> Where is your Knowledge Base, and what does it contain?</div>
+    <div class="qa-a"><span class="atag">A:</span> Two parts: the <strong>rule base</strong> (135 IF-THEN rules
+    in <code>processing.html</code>) and the <strong>career knowledge base</strong> (18 IT career profiles
+    in <code>knowledge-base.html</code> and <code>result.html</code>, each with description, required skills,
+    certifications, salary ranges, and career progression — sourced from verified Malaysian industry reports,
+    see Section 05 References).</div>
+  </div>
+
+  <h2 class="sub-title">B. Inference Engine &amp; Rule Design</h2>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> Walk us through what happens after a user submits the assessment.</div>
+    <div class="qa-a"><span class="atag">A:</span> (1) The three assessment pages save answers to
+    <code>localStorage</code>; (2) <code>processing.html</code> loads those answers and runs all 135 rules
+    against them, accumulating a weighted score per career and logging every fired rule; (3) all 18 careers
+    are ranked by score and saved in full (not just the top 3); (4) the user is redirected to
+    <code>result.html</code>, which reads the ranked list, the fired-rule log, and renders the score ring,
+    the Explanation Facility, and the Full Inference Engine Results table.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> Why does your system have 8 different rule tiers (Primary, Supporting, Tertiary, Quaternary, Excellence, Synergy, Weak Signal, Penalty) instead of one flat rule set?</div>
+    <div class="qa-a"><span class="atag">A:</span> Each tier captures a different <strong>strength of evidence</strong>.
+    Primary rules (+30) require strong interest AND skill together — the strongest single signal. Supporting/
+    Tertiary/Quaternary add weaker, more specific corroborating evidence. Excellence Bonus (+20) only rewards
+    a genuinely perfect (5/5) profile in a career's most critical area. Weak Signal (+5, ≥3 threshold) exists
+    specifically so that moderate/neutral answers still produce <em>some</em> differentiation instead of every
+    career tying at zero. Penalty rules subtract points when a critical skill is weak, so a career is never
+    recommended purely because nothing was checked.</div>
+    <div class="qa-tip"><strong>Tip:</strong> If pressed for a number, state clearly: 18+18+18+18+5+10+18 = 105
+    positive-scoring rules, 23 penalty conditions, 7 tiebreaker rules = <strong>135 total</strong>.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> Why do some rules use ≥3, others ≥4, others ≥5 as the threshold?</div>
+    <div class="qa-a"><span class="atag">A:</span> The threshold reflects how <strong>strong</strong> the
+    evidence needs to be for that tier. ≥4 is the standard "agree" bar used by Primary/Supporting rules.
+    ≥5 ("strongly agree" / perfect skill) is reserved for Excellence Bonus and a handful of Quaternary rules
+    that should only reward truly exceptional answers. ≥3 ("neutral/slightly agree") is used only in the
+    Weak Signal tier, deliberately set low so moderate profiles are not scored identically to someone who
+    disagreed with everything.</div>
+  </div>
+
+  <h2 class="sub-title">C. Conflict Resolution &amp; Certainty</h2>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> Multiple rules can fire for multiple careers at once — how does the system decide the final answer?</div>
+    <div class="qa-a"><span class="atag">A:</span> We use <strong>Additive Weighted Scoring</strong> as our
+    conflict resolution strategy (see Section 03 of this document and the "How The System Resolves Conflicts"
+    section on <code>about.html</code>). Every rule that fires adds its weight to that career's running total
+    — we do not stop at the first match, and we do not use a fixed priority order. The career with the highest
+    cumulative score after all 135 rules have been evaluated wins. This was chosen over First Match and
+    Priority Ordering specifically because it rewards <em>consistent, multi-dimensional</em> evidence rather
+    than any single strong signal.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> How does the system express uncertainty when the match is weak?</div>
+    <div class="qa-a"><span class="atag">A:</span> Through a <strong>Confidence Level</strong> (our Certainty
+    Factor implementation) shown directly above the rule list in "Why This Career?". It has three bands —
+    <em>Strong Match</em> (≥65% and ≥4 rules fired), <em>Moderate Match</em> (≥40%), and <em>Exploratory
+    Match</em> (below 40%) — each with a different explanatory message. Critically, the badge is derived from
+    the exact same percentage shown in the score ring, so the two numbers can never contradict each other
+    (this was a real bug we found and fixed — see Test Case TC-06).</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> What happens if a user answers every question identically (e.g. all 5s)?</div>
+    <div class="qa-a"><span class="atag">A:</span> Every rule with a satisfied threshold fires simultaneously,
+    so the differentiator becomes <em>how many rule tiers</em> are structurally attached to each career —
+    not the answers themselves. Only 5 of 18 careers carry an Excellence Bonus rule, so those 5 always rise
+    to the top; among them, AI Engineer and Data Scientist win because they also hold the two highest-value
+    Synergy rules (+10 and +8). This is documented and verified as Test Case TC-05.</div>
+  </div>
+
+  <h2 class="sub-title">D. Testing, Validation &amp; Limitations</h2>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> How did you test and validate the inference engine?</div>
+    <div class="qa-a"><span class="atag">A:</span> Through <strong>manual trace-based boundary value testing</strong>
+    (Section 06 of this document) — since every rule branches on a fixed numeric threshold (≥3/≥4/≥5/≤2/≤1),
+    we tested the extremes (uniform inputs of 1, 2, 3, 4, and 5) plus key edge cases (empty academic field,
+    score-display consistency, penalty symmetry). 9 test cases were run; 3 surfaced real defects, which were
+    fixed in the codebase and re-verified.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> Can you describe a bug you found and how you fixed it?</div>
+    <div class="qa-a"><span class="atag">A:</span> Yes — testing with all-1 answers revealed that 4 careers
+    (AI Engineer, Data Scientist, Machine Learning Engineer, Cloud Engineer) had <strong>no penalty rule at
+    all</strong>, so they "won" by default whenever the user's profile was weak everywhere, even though
+    nothing in the answers actually supported those careers. We fixed this by adding Rules 122–135, giving
+    every one of the 18 careers a penalty path at both a moderate (≤2) and severe (≤1) threshold, then
+    re-verified with the same test inputs.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> What are the limitations of your system?</div>
+    <div class="qa-a"><span class="atag">A:</span> (1) <strong>Data persistence</strong> — results are stored
+    in browser <code>localStorage</code>, not a server database, so they do not sync across devices and are
+    lost if the browser storage is cleared; (2) <strong>No Knowledge Acquisition Module</strong> — rules are
+    hardcoded in JavaScript rather than editable through an admin interface, so updating the rule base
+    requires a developer; (3) the rule thresholds and point weights were <strong>designed</strong> using
+    domain knowledge of real IT job requirements, not derived from a statistically validated dataset — this
+    is reasonable for an academic prototype but would benefit from real user outcome data in production.</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-q"><span class="qtag">Q:</span> How would you improve this system given more time?</div>
+    <div class="qa-a"><span class="atag">A:</span> Three priorities: (1) a <strong>Knowledge Acquisition
+    Module</strong> — an admin panel to add/edit rules without touching code; (2) move from
+    <code>localStorage</code> to a proper backend (e.g. Firebase or a small REST API) for persistence across
+    devices and sessions; (3) replace the manually-designed point weights with weights calibrated against
+    real graduate employment outcomes, turning the Certainty Factor into a statistically grounded confidence
+    score rather than a threshold-based heuristic.</div>
+  </div>
+
+  <h2 class="sub-title">E. Quick-Reference Facts (Memorise These)</h2>
+  <table>
+    <tr><th style="width:240px">Fact</th><th>Value</th></tr>
+    <tr><td>Total inference rules</td><td>135</td></tr>
+    <tr><td>Total careers in Knowledge Base</td><td>18</td></tr>
+    <tr><td>Total assessment questions</td><td>45 (15 interest + 15 skill + 15 personality)</td></tr>
+    <tr><td>Inference method</td><td>Forward Chaining</td></tr>
+    <tr><td>Conflict resolution strategy</td><td>Additive Weighted Scoring</td></tr>
+    <tr><td>Certainty mechanism</td><td>Confidence Level (Strong / Moderate / Exploratory Match)</td></tr>
+    <tr><td>Careers with Excellence Bonus</td><td>5 of 18 (Software Developer, AI Engineer, Cybersecurity Analyst, Data Scientist, Cloud Engineer)</td></tr>
+    <tr><td>Test cases executed</td><td>9 (9 passed, 3 surfaced fixed defects)</td></tr>
+    <tr><td>Data storage</td><td>Browser <code>localStorage</code> (client-side only)</td></tr>
+  </table>
+
+  <div class="qa-box" style="margin-top:14px;">
+    <div class="qa-q"><span class="qtag">Q:</span> What does "9 passed, 3 surfaced fixed defects" mean?</div>
+    <div class="qa-a"><span class="atag">A:</span> All <strong>9</strong> test cases show a <strong>PASS</strong>
+    status in the final results — but they got there two different ways. <strong>6 test cases</strong>
+    (TC-01, TC-02, TC-03, TC-04, TC-05, TC-07) matched the expected outcome on the <em>first</em> attempt —
+    no defect was found. The other <strong>3 test cases</strong> (TC-06, TC-08, TC-09) <em>initially failed</em>
+    — the actual output did not match what was expected, which is exactly how testing is supposed to catch
+    real bugs. Each of those 3 was fixed in the code and then re-run, after which it passed. So "9 passed"
+    is the final status of every test; "3 surfaced fixed defects" tells you which 3 of those 9 only passed
+    because a real bug was found and corrected along the way.</div>
+    <div class="qa-tip"><strong>Why mention this instead of just saying "9/9 passed":</strong> a test suite
+    that finds and fixes real defects is stronger evidence of genuine testing than one where nothing was
+    ever wrong — it shows the validation process was actually effective, not just a formality.</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1215 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results | TechPath Expert</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg:     #030712;
+            --cyan:   #00f0ff;
+            --glow:   rgba(0,240,255,0.55);
+            --purple: #8b5cf6;
+            --card:   rgba(17,24,39,0.6);
+            --text:   #f3f4f6;
+            --muted:  #9ca3af;
+            --mono:   'Courier New', Courier, monospace;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+
+        /* ── BACKGROUNDS ── */
+        .grid-bg {
+            position:fixed; inset:0; z-index:-2;
+            background-image: linear-gradient(rgba(0,240,255,.022) 1px,transparent 1px), linear-gradient(90deg,rgba(0,240,255,.022) 1px,transparent 1px);
+            background-size:55px 55px; animation:gridDrift 30s linear infinite;
+        }
+        @keyframes gridDrift { to { background-position:55px 55px; } }
+        .glow-orb { position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.18; pointer-events:none; }
+        .orb-1 { width:450px; height:450px; background:var(--cyan);   top:0;    left:-8%;  animation:floatOrb 18s ease-in-out infinite alternate; }
+        .orb-2 { width:500px; height:500px; background:var(--purple); bottom:0; right:-10%; animation:floatOrb 22s ease-in-out infinite alternate-reverse; }
+        @keyframes floatOrb { 0%{transform:translate(0,0);} 100%{transform:translate(25px,-40px);} }
+        #particle-canvas { position:fixed; inset:0; z-index:-1; pointer-events:none; }
+        .cursor-glow { width:300px; height:300px; background:radial-gradient(circle,rgba(0,240,255,.05) 0%,transparent 70%); border-radius:50%; position:fixed; pointer-events:none; transform:translate(-50%,-50%); z-index:0; transition:left .12s ease,top .12s ease; }
+
+
+        /* ── LAYOUT ── */
+        .dashboard-layout { max-width:1100px; margin:0 auto; padding:2.5rem 5% 4rem; position:relative; z-index:10; }
+
+        /* ── RESULT HERO ── */
+        .result-hero { text-align:center; margin-bottom:2.5rem; }
+        .result-badge {
+            display:inline-flex; align-items:center; gap:8px;
+            padding:.4rem 1rem; margin-bottom:1rem;
+            background:rgba(0,240,255,.06); border:1px solid var(--cyan); border-radius:50px;
+            font-size:.75rem; color:var(--cyan); text-transform:uppercase; letter-spacing:1px; font-weight:600;
+            box-shadow:0 0 15px rgba(0,240,255,.12);
+        }
+        .badge-dot { width:6px; height:6px; background:var(--cyan); border-radius:50%; box-shadow:0 0 6px var(--cyan); animation:bdot 1.5s infinite; }
+        @keyframes bdot { 0%,100%{box-shadow:0 0 0 0 rgba(0,240,255,.7);} 70%{box-shadow:0 0 0 6px rgba(0,240,255,0);} }
+        .result-hero h2 { font-size:2.2rem; font-weight:700; margin-bottom:.6rem; }
+        .result-hero p  { color:var(--muted); font-size:1rem; max-width:560px; margin:0 auto; line-height:1.7; }
+
+        /* ── GLASS CARD BASE ── */
+        .glass-card {
+            background:var(--card); backdrop-filter:blur(16px);
+            border:1px solid rgba(255,255,255,.06);
+            border-top:1px solid rgba(255,255,255,.13);
+            border-radius:20px;
+            box-shadow:0 20px 45px rgba(0,0,0,.5), 0 0 25px rgba(0,240,255,.05);
+            position:relative; overflow:hidden;
+            transition:border-color .3s ease, box-shadow .3s ease;
+        }
+        .glass-card:hover { border-color:rgba(0,240,255,.22); box-shadow:0 22px 50px rgba(0,0,0,.6),0 0 30px rgba(0,240,255,.1); }
+        .card-topline { position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--cyan),transparent); }
+        .card-topline-red { background:linear-gradient(90deg,transparent,#ef4444,transparent); }
+
+        /* ── TOP MATCH CARD ── */
+        .top-match-card { padding:2.5rem; margin-bottom:2rem; }
+        .top-match-inner { display:grid; grid-template-columns:220px 1fr; gap:2.5rem; align-items:start; }
+
+        /* Score column */
+        .score-col { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+        .score-ring-wrap {
+            position:relative; width:150px; height:150px;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .score-ring-bg {
+            position:absolute; inset:0; border-radius:50%;
+            border:8px solid rgba(0,240,255,.1);
+        }
+        .score-ring-fill {
+            position:absolute; inset:0; border-radius:50%;
+            border:8px solid transparent;
+            border-top-color:var(--cyan); border-right-color:var(--cyan);
+            animation:spinScore 1.5s ease-out forwards;
+            box-shadow:0 0 20px rgba(0,240,255,.3);
+        }
+        @keyframes spinScore { from{transform:rotate(-135deg);} to{transform:rotate(135deg);} }
+        .score-inner {
+            display:flex; flex-direction:column; align-items:center; z-index:1;
+        }
+        .score-value { font-size:2rem; font-weight:700; color:var(--cyan); font-family:var(--mono); line-height:1; text-shadow:0 0 18px rgba(0,240,255,.5); }
+        .score-sub   { font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-top:.2rem; }
+        .rank-pill {
+            padding:.28rem .85rem; border-radius:50px;
+            background:rgba(0,240,255,.1); border:1px solid var(--cyan);
+            font-size:.7rem; font-weight:700; color:var(--cyan);
+            text-transform:uppercase; letter-spacing:.5px;
+            box-shadow:0 0 12px rgba(0,240,255,.18);
+        }
+        .score-col-label { font-size:.72rem; color:var(--muted); text-align:center; font-family:var(--mono); letter-spacing:.5px; }
+
+        /* Info column */
+        .info-col { padding-top:.2rem; }
+        .info-col h2 { font-size:1.9rem; font-weight:700; color:#fff; margin-bottom:.6rem; line-height:1.2; }
+        .info-col > p { color:var(--muted); font-size:.95rem; line-height:1.75; margin-bottom:1.5rem; }
+
+        .info-pills { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1.5rem; }
+        .info-pill {
+            display:inline-flex; align-items:center; gap:.4rem;
+            padding:.28rem .8rem; border-radius:6px; font-size:.72rem; font-weight:600;
+        }
+        .pill-demand  { background:rgba(0,240,255,.08); border:1px solid rgba(0,240,255,.25); color:var(--cyan); }
+        .pill-salary  { background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.25); color:#4ade80; }
+        .pill-skills  { background:rgba(139,92,246,.08); border:1px solid rgba(139,92,246,.25); color:#c084fc; }
+
+        .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:1.5rem; }
+        .detail-box {
+            background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.05);
+            border-radius:10px; padding:1rem 1.1rem;
+            transition:border-color .25s ease, background .25s ease;
+        }
+        .detail-box:hover { border-color:rgba(0,240,255,.18); background:rgba(0,240,255,.04); }
+        .detail-box h4 { font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:.45rem; font-weight:600; }
+        .detail-box p  { font-size:.85rem; color:var(--text); line-height:1.5; }
+        .detail-box p strong { color:var(--cyan); }
+
+        /* ── ACTION BUTTONS (kecil) ── */
+        .action-row { display:flex; gap:.7rem; flex-wrap:wrap; align-items:center; }
+
+        .btn-action-primary {
+            display:inline-flex; align-items:center; gap:.4rem;
+            padding:.5rem 1.1rem; border-radius:8px;
+            background:var(--cyan); color:#000;
+            font-family:'Poppins',sans-serif; font-size:.78rem; font-weight:700;
+            text-decoration:none; cursor:pointer; border:none;
+            box-shadow:0 0 14px rgba(0,240,255,.4);
+            transition:all .3s ease; letter-spacing:.2px;
+        }
+        .btn-action-primary:hover { transform:translateY(-2px); box-shadow:0 0 24px rgba(0,240,255,.65); }
+
+        .btn-action-secondary {
+            display:inline-flex; align-items:center; gap:.4rem;
+            padding:.5rem 1.1rem; border-radius:8px;
+            background:transparent; color:var(--cyan);
+            border:1px solid rgba(0,240,255,.4);
+            font-family:'Poppins',sans-serif; font-size:.78rem; font-weight:600;
+            text-decoration:none; cursor:pointer;
+            transition:all .3s ease; letter-spacing:.2px;
+        }
+        .btn-action-secondary:hover { background:rgba(0,240,255,.1); transform:translateY(-2px); }
+
+        /* ── EXPLANATION FACILITY ── */
+        .explain-card { padding:2rem; margin-bottom:2rem; }
+        .explain-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:.6rem; }
+        .explain-header .card-section-title { margin-bottom:0; }
+        .explain-summary { font-size:.8rem; color:var(--muted); }
+        .explain-summary strong { color:var(--cyan); }
+
+        /* Confidence badge */
+        .confidence-box {
+            display:flex; align-items:center; gap:1rem;
+            padding:1rem 1.2rem; border-radius:12px; margin-bottom:1.3rem;
+            border:1px solid; flex-wrap:wrap;
+        }
+        .confidence-badge {
+            display:inline-flex; align-items:center; gap:.4rem;
+            padding:.35rem .9rem; border-radius:50px;
+            font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px;
+            border:1px solid; flex-shrink:0; white-space:nowrap;
+        }
+        .confidence-text { font-size:.82rem; color:var(--text); line-height:1.6; flex:1; min-width:200px; }
+        .confidence-text strong { color:inherit; }
+        .explain-list { display:flex; flex-direction:column; gap:.55rem; }
+        .explain-item {
+            display:flex; align-items:center; gap:.85rem;
+            background:rgba(0,0,0,.25); border:1px solid rgba(0,240,255,.08);
+            border-radius:10px; padding:.75rem 1rem;
+        }
+        .explain-item.penalty { border-color:rgba(239,68,68,.15); background:rgba(239,68,68,.04); }
+        .explain-icon {
+            width:26px; height:26px; border-radius:50%; flex-shrink:0;
+            display:flex; align-items:center; justify-content:center;
+            font-size:.78rem; font-weight:700;
+            background:rgba(0,240,255,.1); color:var(--cyan); border:1px solid rgba(0,240,255,.25);
+        }
+        .explain-item.penalty .explain-icon { background:rgba(239,68,68,.1); color:#f87171; border-color:rgba(239,68,68,.3); }
+        .explain-text { flex:1; font-size:.83rem; color:var(--text); line-height:1.5; }
+        .explain-points {
+            font-family:'Courier New',monospace; font-weight:700; font-size:.8rem;
+            flex-shrink:0; padding:.22rem .6rem; border-radius:6px;
+            background:rgba(74,222,128,.1); color:#4ade80; border:1px solid rgba(74,222,128,.25);
+        }
+        .explain-points.negative { background:rgba(239,68,68,.1); color:#f87171; border-color:rgba(239,68,68,.25); }
+        .explain-toggle {
+            background:transparent; border:1px solid rgba(0,240,255,.3); color:var(--cyan);
+            border-radius:8px; padding:.45rem 1.1rem; font-size:.78rem; font-weight:600;
+            cursor:pointer; transition:all .2s; font-family:'Poppins',sans-serif;
+        }
+        .explain-toggle:hover { background:rgba(0,240,255,.08); }
+        .explain-empty { text-align:center; color:var(--muted); font-size:.85rem; padding:1.5rem; }
+
+        /* ── FULL INFERENCE RESULTS TABLE ── */
+        .full-results-card { padding:2rem; margin-bottom:2rem; }
+        .full-results-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:.6rem; }
+        .full-results-header .card-section-title { margin-bottom:0; }
+        .full-results-note { font-size:.78rem; color:var(--muted); }
+        .full-results-note strong { color:var(--cyan); }
+        .fr-table { width:100%; border-collapse:collapse; }
+        .fr-table th {
+            text-align:left; font-size:.64rem; text-transform:uppercase; letter-spacing:.6px;
+            color:var(--cyan); padding:.6rem .8rem; border-bottom:1px solid rgba(0,240,255,.15);
+            font-weight:700;
+        }
+        .fr-table th.num { text-align:right; }
+        .fr-row td { padding:.65rem .8rem; font-size:.83rem; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:middle; }
+        .fr-row td.num { text-align:right; font-family:'Courier New',monospace; }
+        .fr-row:hover { background:rgba(0,240,255,.03); }
+        .fr-rank {
+            display:inline-flex; align-items:center; justify-content:center;
+            width:24px; height:24px; border-radius:50%; font-size:.7rem; font-weight:700; border:1px solid;
+        }
+        .fr-rank.r1    { background:rgba(0,240,255,.15);   color:var(--cyan); border-color:rgba(0,240,255,.3); }
+        .fr-rank.r2    { background:rgba(251,191,36,.1);   color:#fbbf24;     border-color:rgba(251,191,36,.25); }
+        .fr-rank.r3    { background:rgba(168,85,247,.1);   color:#c084fc;     border-color:rgba(168,85,247,.25); }
+        .fr-rank.other { background:rgba(255,255,255,.04); color:var(--muted); border-color:rgba(255,255,255,.08); }
+        .fr-bar-track { width:100%; height:5px; background:rgba(255,255,255,.06); border-radius:5px; overflow:hidden; margin-top:.35rem; max-width:220px; }
+        .fr-bar-fill  { height:100%; border-radius:5px; background:linear-gradient(90deg,var(--cyan),var(--purple)); }
+        .fr-career-name { color:var(--text); font-weight:600; }
+        .fr-score-neg { color:#f87171; }
+
+        /* ── CHART + RUNNER UPS ROW ── */
+        .bottom-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem; }
+
+        /* Radar chart card */
+        .chart-card { padding:1.8rem; }
+        .card-section-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--cyan); margin-bottom:1.2rem; display:flex; align-items:center; gap:.5rem; }
+        .card-section-title::before { content:''; width:3px; height:14px; background:var(--cyan); border-radius:2px; flex-shrink:0; }
+        .chart-container { position:relative; height:230px; }
+        #spiderChart { display:block !important; }
+
+        /* Runner up cards */
+        .runner-ups-col { display:flex; flex-direction:column; gap:1.2rem; }
+        .runner-up-card { padding:1.5rem; }
+        .runner-rank-pill {
+            display:inline-block; padding:.18rem .6rem; border-radius:4px;
+            font-size:.62rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+            margin-bottom:.7rem;
+        }
+        .rank-2 { background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.3); color:#fbbf24; }
+        .rank-3 { background:rgba(168,85,247,.1); border:1px solid rgba(168,85,247,.3); color:#c084fc; }
+        .runner-up-card h3 { font-size:1.05rem; font-weight:600; color:#fff; margin-bottom:1rem; }
+
+        .ru-progress-row { display:flex; align-items:center; gap:.8rem; margin-bottom:1rem; }
+        .ru-bar { flex:1; height:6px; background:rgba(255,255,255,.07); border-radius:6px; overflow:hidden; }
+        .ru-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--purple)); border-radius:6px; box-shadow:0 0 8px rgba(0,240,255,.4); transition:width 1.4s cubic-bezier(.1,.8,.2,1); width:0%; }
+        .ru-pct { font-size:.8rem; font-weight:600; color:var(--cyan); font-family:var(--mono); flex-shrink:0; width:38px; text-align:right; }
+
+        .btn-read-more {
+            display:inline-flex; align-items:center; gap:.3rem;
+            padding:.38rem .85rem; border-radius:7px;
+            background:transparent; color:var(--cyan);
+            border:1px solid rgba(0,240,255,.3);
+            font-family:'Poppins',sans-serif; font-size:.72rem; font-weight:600;
+            text-decoration:none; transition:all .25s;
+        }
+        .btn-read-more:hover { background:rgba(0,240,255,.08); transform:translateX(2px); }
+
+        /* ── RED FLAG SECTION ── */
+        .red-flag-section { display:none; margin-top:2rem; }
+        .red-flag-card {
+            background:rgba(17,24,39,.7); backdrop-filter:blur(16px);
+            border:1px solid rgba(239,68,68,.3);
+            border-top:1px solid rgba(239,68,68,.55);
+            border-radius:20px; padding:2rem;
+            box-shadow:0 15px 35px rgba(0,0,0,.5), 0 0 30px rgba(239,68,68,.08);
+            position:relative; overflow:hidden;
+        }
+        .rf-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
+        .rf-icon-box {
+            width:46px; height:46px; border-radius:10px; flex-shrink:0;
+            background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3);
+            display:flex; align-items:center; justify-content:center; font-size:1.4rem;
+        }
+        .rf-title { font-size:1.4rem; font-weight:700; color:#ef4444; text-shadow:0 0 12px rgba(239,68,68,.4); margin-bottom:.15rem; }
+        .rf-subtitle { font-size:.72rem; color:#fca5a5; text-transform:uppercase; letter-spacing:.8px; }
+        .rf-message {
+            background:rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.18);
+            border-radius:12px; padding:1.3rem; margin-bottom:1.5rem;
+            color:var(--text); line-height:1.85; font-size:.9rem;
+        }
+        .rf-message strong { color:#fca5a5; }
+        .rf-sec-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#fca5a5; margin-bottom:.9rem; display:flex; align-items:center; gap:.5rem; }
+        .rf-sec-title::before { content:''; width:3px; height:12px; background:#ef4444; border-radius:2px; }
+
+        .skill-status-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:.7rem; margin-bottom:1.5rem; }
+        .skill-status-item {
+            background:rgba(0,0,0,.3); border-radius:8px; padding:.75rem 1rem;
+            display:flex; align-items:center; justify-content:space-between; gap:.5rem;
+        }
+        .skill-status-item.low-skill { border:1px solid rgba(239,68,68,.3); }
+        .skill-status-item.ok-skill  { border:1px solid rgba(0,240,255,.15); }
+        .skill-name-label { font-size:.82rem; color:var(--text); }
+        .skill-level-badge { padding:.18rem .6rem; border-radius:5px; font-size:.7rem; font-weight:600; white-space:nowrap; }
+        .badge-low    { background:rgba(239,68,68,.12); color:#f87171; border:1px solid rgba(239,68,68,.3); }
+        .badge-medium { background:rgba(251,146,60,.12); color:#fb923c; border:1px solid rgba(251,146,60,.3); }
+        .badge-good   { background:rgba(0,240,255,.1);   color:var(--cyan); border:1px solid rgba(0,240,255,.25); }
+
+        .recommendations-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+        .recommendation-box {
+            background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.06);
+            border-radius:10px; padding:1.2rem; transition:border-color .3s;
+        }
+        .recommendation-box:hover { border-color:rgba(251,146,60,.25); }
+        .recommendation-box h4 { color:#fb923c; margin-bottom:.7rem; font-size:.85rem; }
+        .recommendation-box ul { padding-left:1.1rem; color:var(--muted); line-height:1.9; font-size:.82rem; }
+
+        .pathway-suggestion { background:rgba(0,0,0,.3); border:1px solid rgba(0,240,255,.12); border-radius:10px; padding:1.2rem; margin-bottom:1.2rem; }
+        .pathway-tags { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.7rem; }
+        .pathway-tag {
+            padding:.32rem .9rem; background:rgba(0,240,255,.07); border:1px solid rgba(0,240,255,.22);
+            border-radius:20px; color:var(--cyan); font-size:.78rem; transition:all .2s;
+        }
+        .pathway-tag:hover { background:rgba(0,240,255,.14); }
+
+        .encouragement-box {
+            background:rgba(0,240,255,.03); border:1px solid rgba(0,240,255,.1);
+            border-radius:10px; padding:1.3rem; text-align:center;
+            color:var(--muted); line-height:1.8; font-size:.88rem;
+        }
+        .encouragement-box strong { color:var(--cyan); }
+
+        /* ── FOOTER ROW ── */
+        .footer-row { text-align:center; padding:1.5rem 0; }
+        .retake-link { font-size:.85rem; color:var(--muted); text-decoration:none; transition:color .3s; }
+        .retake-link:hover { color:var(--cyan); text-shadow:0 0 8px var(--glow); }
+
+        /* ── REVEAL ── */
+        .reveal { opacity:0; transform:translateY(24px); transition:opacity .6s ease,transform .6s ease; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        /* ── CAREER MODAL ── */
+        .career-modal-backdrop {
+            position:fixed; inset:0; z-index:500;
+            background:rgba(3,7,18,.85);
+            backdrop-filter:blur(8px);
+            display:flex; align-items:center; justify-content:center;
+            padding:1.5rem;
+            opacity:0; pointer-events:none;
+            transition:opacity .3s ease;
+        }
+        .career-modal-backdrop.open { opacity:1; pointer-events:all; }
+
+        .career-modal {
+            background:var(--card);
+            backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,.08);
+            border-top:1px solid rgba(255,255,255,.18);
+            border-radius:20px;
+            width:100%; max-width:780px;
+            max-height:88vh; overflow-y:auto;
+            position:relative;
+            box-shadow:0 30px 70px rgba(0,0,0,.75), 0 0 40px rgba(0,240,255,.1);
+            transform:scale(.92) translateY(24px);
+            transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+        }
+        .career-modal-backdrop.open .career-modal { transform:scale(1) translateY(0); }
+        .career-modal::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+            border-radius:20px 20px 0 0;
+        }
+        .career-modal::-webkit-scrollbar { width:4px; }
+        .career-modal::-webkit-scrollbar-track { background:transparent; }
+        .career-modal::-webkit-scrollbar-thumb { background:rgba(0,240,255,.2); border-radius:2px; }
+
+        .modal-header {
+            display:flex; justify-content:space-between; align-items:flex-start;
+            padding:2rem 2rem 1.5rem;
+            border-bottom:1px solid rgba(255,255,255,.06);
+            gap:1rem;
+        }
+        .modal-body { padding:1.5rem 2rem 2rem; }
+
+        .cdp-badge {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:.3rem .9rem; margin-bottom:.7rem;
+            background:rgba(0,240,255,.07); border:1px solid rgba(0,240,255,.25);
+            border-radius:50px; font-size:.72rem; color:var(--cyan);
+            text-transform:uppercase; letter-spacing:1px; font-weight:600;
+        }
+        .modal-header h2 { font-size:1.7rem; font-weight:700; color:#fff; margin-bottom:.4rem; }
+        .modal-header > div > p { color:var(--muted); font-size:.92rem; line-height:1.7; }
+        .cdp-close {
+            background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+            color:var(--muted); border-radius:8px; width:38px; height:38px; font-size:1.1rem;
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            transition:all .2s; flex-shrink:0; font-family:var(--font-main);
+        }
+        .cdp-close:hover { background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.35); color:#f87171; transform:scale(1.1); }
+
+        .cdp-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .cdp-section { background:rgba(0,0,0,.25); border:1px solid rgba(0,240,255,.08); border-radius:12px; padding:1.2rem; }
+        .cdp-section.full { grid-column:1 / -1; }
+        .cdp-section-title {
+            font-size:.68rem; font-weight:700; text-transform:uppercase;
+            letter-spacing:1px; color:var(--cyan); margin-bottom:.9rem;
+            display:flex; align-items:center; gap:.4rem;
+        }
+        .cdp-section-title::before { content:''; width:3px; height:12px; background:var(--cyan); border-radius:2px; }
+        .cdp-salary-row { display:flex; align-items:center; gap:1rem; }
+        .cdp-salary-box {
+            flex:1; background:rgba(0,240,255,.05); border:1px solid rgba(0,240,255,.15);
+            border-radius:8px; padding:.8rem 1rem; text-align:center;
+        }
+        .cdp-salary-box .sl { font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.3rem; }
+        .cdp-salary-box .sv { font-size:.95rem; font-weight:700; color:#4ade80; }
+        .cdp-salary-arrow { color:var(--muted); font-size:1.2rem; flex-shrink:0; }
+        .cdp-tags { display:flex; flex-wrap:wrap; gap:.45rem; }
+        .cdp-tag { padding:.28rem .75rem; border-radius:6px; font-size:.75rem; font-weight:600; background:rgba(0,240,255,.08); border:1px solid rgba(0,240,255,.22); color:var(--cyan); }
+        .cdp-tag-purple { background:rgba(139,92,246,.08); border:1px solid rgba(139,92,246,.25); color:#c084fc; }
+        .cdp-list { list-style:none; display:flex; flex-direction:column; gap:.55rem; }
+        .cdp-list li { font-size:.85rem; color:var(--text); line-height:1.6; padding-left:1.1rem; position:relative; }
+        .cdp-list li::before { content:'▸'; position:absolute; left:0; color:var(--cyan); font-size:.7rem; top:.15rem; }
+        .cdp-progression { display:flex; flex-wrap:wrap; align-items:center; gap:.4rem; }
+        .cdp-prog-step { padding:.35rem .85rem; background:rgba(0,240,255,.07); border:1px solid rgba(0,240,255,.2); border-radius:20px; font-size:.75rem; color:var(--text); white-space:nowrap; }
+        .cdp-prog-arrow { color:var(--cyan); font-size:.85rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width:900px) {
+            .top-match-inner { grid-template-columns:1fr; }
+            .score-col { flex-direction:row; justify-content:flex-start; gap:1.5rem; }
+            .bottom-grid { grid-template-columns:1fr; }
+        }
+        @media (max-width:768px) {
+            .cdp-grid { grid-template-columns:1fr; }
+            .modal-header { flex-direction:column; }
+            .cdp-salary-row { flex-direction:column; }
+            .career-modal { max-height:92vh; }
+            .modal-header, .modal-body { padding:1.5rem; }
+        }
+        @media (max-width:600px) {
+            .nav-links { display:none; }
+            .result-hero h2 { font-size:1.8rem; }
+            .info-col h2 { font-size:1.5rem; }
+            .detail-grid { grid-template-columns:1fr; }
+            .score-col { flex-direction:column; align-items:center; }
+        }
+
+        /* ── Mobile result page ── */
+        @media (max-width:600px) {
+            .dashboard-layout { padding: 1.5rem 4% 5rem; }
+            .top-match-card { padding: 1.2rem; }
+            .info-pills { gap: .35rem; }
+            .info-pill { font-size: .65rem; padding: .22rem .65rem; }
+            .detail-grid { gap: .6rem; }
+            .detail-box { padding: .8rem; }
+            .detail-box h4 { font-size: .65rem; }
+            .detail-box p { font-size: .78rem; }
+            .runner-up-card { padding: 1rem; }
+            .result-badge { font-size: .68rem; }
+            /* Action buttons stack on mobile */
+            .action-row { flex-direction: column; gap: .5rem; }
+            .btn-action-primary, .btn-action-secondary, #exploreCareerBtn {
+                width: 100%; justify-content: center;
+                min-height: 46px; font-size: .85rem;
+            }
+            .btn-read-more { width: 100%; justify-content: center; min-height: 42px; }
+
+            /* ── Why This Career? ── */
+            .explain-card { padding: 1.2rem; }
+            .explain-header { flex-direction: column; align-items: flex-start; gap: .4rem; }
+            .explain-summary { font-size: .76rem; }
+            .confidence-box { padding: .85rem 1rem; gap: .6rem; }
+            .confidence-badge { font-size: .68rem; padding: .3rem .75rem; }
+            .confidence-text { font-size: .78rem; min-width: 100%; }
+            .explain-item { padding: .65rem .8rem; gap: .6rem; }
+            .explain-icon { width: 22px; height: 22px; font-size: .7rem; }
+            .explain-text { font-size: .78rem; }
+            .explain-points { font-size: .72rem; padding: .18rem .5rem; }
+            .explain-toggle { font-size: .72rem; padding: .45rem .9rem; width: 100%; }
+
+            /* ── Full Inference Engine Results ── */
+            .full-results-card { padding: 1.2rem; }
+            .full-results-header { flex-direction: column; align-items: flex-start; gap: .4rem; }
+            .full-results-note { font-size: .72rem; }
+            .fr-table th { font-size: .6rem; padding: .5rem .55rem; white-space: nowrap; }
+            .fr-row td { font-size: .76rem; padding: .55rem .55rem; }
+            .fr-rank { width: 20px; height: 20px; font-size: .62rem; }
+            .fr-bar-track { max-width: 120px; }
+            .fr-career-name { font-size: .76rem; }
+
+            /* ── Radar chart card ── */
+            .chart-card { padding: 1.2rem; }
+            .chart-container { height: 200px; }
+
+            /* ── Red Flag / Weak Match Section ── */
+            .red-flag-card { padding: 1.2rem; }
+            .rf-header { gap: .7rem; margin-bottom: 1.1rem; }
+            .rf-icon-box { width: 38px; height: 38px; font-size: 1.1rem; }
+            .rf-title { font-size: 1.1rem; }
+            .rf-subtitle { font-size: .64rem; }
+            .rf-message { padding: 1rem; font-size: .82rem; line-height: 1.7; }
+            .skill-status-grid { grid-template-columns: 1fr; gap: .55rem; }
+            .skill-status-item { padding: .65rem .85rem; }
+            .skill-name-label { font-size: .78rem; }
+            .recommendations-grid { grid-template-columns: 1fr; gap: .8rem; }
+            .recommendation-box { padding: 1rem; }
+            .pathway-suggestion { padding: 1rem; }
+            .pathway-tag { font-size: .72rem; padding: .28rem .75rem; }
+            .encouragement-box { padding: 1.1rem; font-size: .82rem; }
+
+            /* ── Career Detail Modal ── */
+            .modal-header h2 { font-size: 1.35rem; }
+            .cdp-badge { font-size: .66rem; }
+            .cdp-section { padding: 1rem; }
+            .cdp-salary-box .sv { font-size: .85rem; }
+            .cdp-tag, .cdp-prog-step { font-size: .7rem; padding: .26rem .65rem; }
+            .cdp-list li { font-size: .8rem; }
+        }
+
+        /* ── iPhone SE & small mobile (≤390px) ── */
+        @media (max-width:390px) {
+            /* Full-width buttons — no overlap with chat widget */
+            .action-row {
+                flex-direction: column;
+                width: 100%;
+                gap: .6rem;
+            }
+            .btn-action-primary,
+            .btn-action-secondary,
+            #exploreCareerBtn {
+                width: 100%;
+                justify-content: center;
+                min-height: 48px;     /* iOS recommended touch target */
+                padding: .75rem 1rem;
+                font-size: .88rem;
+                border-radius: 10px;
+            }
+            /* Runner-up explore buttons */
+            .btn-read-more {
+                width: 100%;
+                justify-content: center;
+                min-height: 44px;
+                padding: .65rem 1rem;
+            }
+            /* Extra bottom padding — push content above chat widget */
+            .dashboard-layout {
+                padding-bottom: 6rem;
+            }
+            /* Score ring smaller */
+            .score-ring-wrap { width:120px; height:120px; }
+            .score-value { font-size:1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- NAV -->
+    <header class="header-container">
+        <nav class="navbar">
+            <div class="logo"><h1>Tech<span class="text-cyan">Path</span></h1></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="knowledge-base.html">Career List</a></li>
+                <li><a href="about.html">About System</a></li>
+                <li><a href="cgpa.html">CGPA Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-layout">
+
+        <!-- HERO -->
+        <div class="result-hero reveal">
+            <div class="result-badge"><span class="badge-dot"></span> Analysis Complete</div>
+            <h2>Your <span class="text-cyan">Top IT Career</span> Matches</h2>
+            <p>Based on your interests, technical skills, and personality profile — here are the careers best aligned with who you are.</p>
+        </div>
+
+        <!-- TOP MATCH CARD -->
+        <div class="glass-card top-match-card reveal">
+            <div class="card-topline"></div>
+            <div class="top-match-inner">
+
+                <!-- Score Ring -->
+                <div class="score-col">
+                    <div class="score-ring-wrap">
+                        <div class="score-ring-bg"></div>
+                        <div class="score-ring-fill"></div>
+                        <div class="score-inner">
+                            <div class="score-value" id="topMatchPercent">—</div>
+                            <div class="score-sub">Match</div>
+                        </div>
+                    </div>
+                    <div class="rank-pill">#1 Top Match</div>
+                    <div class="score-col-label">Inference Score</div>
+                </div>
+
+                <!-- Career Info -->
+                <div class="info-col">
+                    <h2 id="topCareerName">Analyzing...</h2>
+                    <p id="topCareerDesc">Please wait while we load your results.</p>
+
+                    <div class="info-pills">
+                        <span class="info-pill pill-demand" id="demandPill">— Demand</span>
+                        <span class="info-pill pill-salary" id="salaryPill">— Salary</span>
+                        <span class="info-pill pill-skills" id="skillsPill">— Skills</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-box">
+                            <h4>Junior Salary</h4>
+                            <p><strong id="juniorSalary">—</strong></p>
+                        </div>
+                        <div class="detail-box">
+                            <h4>Senior Salary</h4>
+                            <p><strong id="seniorSalary">—</strong></p>
+                        </div>
+                        <div class="detail-box">
+                            <h4>Key Skills</h4>
+                            <p id="keySkills" style="font-size:.78rem;">—</p>
+                        </div>
+                        <div class="detail-box">
+                            <h4>Certifications</h4>
+                            <p id="keyCerts" style="font-size:.78rem;">—</p>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <a href="roadmap.html" class="btn-action-primary">View Roadmap →</a>
+                        <button id="exploreCareerBtn" onclick="" class="btn-action-secondary">Explore Career</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLANATION FACILITY ("Why This Career?") -->
+        <div class="glass-card explain-card reveal">
+            <div class="card-topline"></div>
+            <div class="explain-header">
+                <div class="card-section-title">Why This Career?</div>
+                <div class="explain-summary" id="explainSummary">—</div>
+            </div>
+            <div id="confidenceBox"></div>
+            <div class="explain-list" id="explainList"></div>
+            <div style="text-align:center; margin-top:1.1rem;">
+                <button class="explain-toggle" id="explainToggle" style="display:none;">Show All Rules</button>
+            </div>
+        </div>
+
+        <!-- CHART + RUNNER UPS -->
+        <div class="bottom-grid">
+
+            <!-- Radar Chart -->
+            <div class="glass-card chart-card reveal">
+                <div class="card-topline"></div>
+                <div class="card-section-title">Profile Radar</div>
+                <div class="chart-container">
+                    <canvas id="spiderChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Runner Ups -->
+            <div class="runner-ups-col">
+                <div class="glass-card runner-up-card reveal">
+                    <div class="card-topline"></div>
+                    <div class="runner-rank-pill rank-2">Choice #2</div>
+                    <h3 id="rank2Name">Loading...</h3>
+                    <div class="ru-progress-row">
+                        <div class="ru-bar"><div class="ru-fill" id="rank2Bar"></div></div>
+                        <div class="ru-pct" id="rank2Score">—</div>
+                    </div>
+                    <button id="readMore2" onclick="" class="btn-read-more">Explore →</button>
+                </div>
+
+                <div class="glass-card runner-up-card reveal">
+                    <div class="card-topline"></div>
+                    <div class="runner-rank-pill rank-3">Choice #3</div>
+                    <h3 id="rank3Name">Loading...</h3>
+                    <div class="ru-progress-row">
+                        <div class="ru-bar"><div class="ru-fill" id="rank3Bar"></div></div>
+                        <div class="ru-pct" id="rank3Score">—</div>
+                    </div>
+                    <button id="readMore3" onclick="" class="btn-read-more">Explore →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FULL INFERENCE RESULTS TABLE -->
+        <div class="glass-card full-results-card reveal">
+            <div class="card-topline"></div>
+            <div class="full-results-header">
+                <div class="card-section-title">Full Inference Engine Results</div>
+                <div class="full-results-note">Forward Chaining processed across <strong>all 18 careers</strong> in the Knowledge Base</div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="fr-table">
+                    <thead>
+                        <tr>
+                            <th style="width:46px;">#</th>
+                            <th>Career</th>
+                            <th class="num" style="width:90px;">Raw Score</th>
+                            <th class="num" style="width:80px;">Match %</th>
+                            <th class="num" style="width:100px;">Rules Fired</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fullResultsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RED FLAG ALERT -->
+        <section id="redFlagSection" class="red-flag-section reveal">
+            <div class="red-flag-card">
+                <div class="card-topline card-topline-red"></div>
+                <div class="rf-header">
+                    <div class="rf-icon-box">⚠</div>
+                    <div>
+                        <div class="rf-title">Skill Gap Detected</div>
+                        <div class="rf-subtitle">Assessment 2 — Action Required</div>
+                    </div>
+                </div>
+
+                <div class="rf-message">
+                    <p>Your assessment shows that the majority of core IT skills are currently at a low level. This does <strong>not</strong> mean you cannot enter the IT field — it simply means you need to <strong>build a stronger foundation</strong> first. Structured courses, hands-on practice, and small personal projects will significantly improve your readiness for your chosen career pathway.</p>
+                </div>
+
+                <div class="rf-sec-title">Your Skill Level Overview</div>
+                <div id="skillStatusGrid" class="skill-status-grid"></div>
+
+                <div class="rf-sec-title">How to Improve</div>
+                <div class="recommendations-grid">
+                    <div class="recommendation-box">
+                        <h4>Online Learning Resources</h4>
+                        <ul>
+                            <li>freeCodeCamp — free coding courses</li>
+                            <li>CS50 (Harvard / edX) — Intro to CS</li>
+                            <li>Google IT Support Certificate (Coursera)</li>
+                            <li>Udemy / YouTube — structured guides</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-box">
+                        <h4>Hands-On Practice</h4>
+                        <ul>
+                            <li>Build mini-projects (to-do app, calculator)</li>
+                            <li>Try HackerRank or LeetCode (Easy level)</li>
+                            <li>Set up a home lab for networking basics</li>
+                            <li>Practice SQL with free sandbox tools</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-box">
+                        <h4>Entry-Level Certifications</h4>
+                        <ul>
+                            <li>CompTIA IT Fundamentals (ITF+)</li>
+                            <li>CompTIA A+ — IT support foundation</li>
+                            <li>Microsoft 365 Fundamentals (MS-900)</li>
+                            <li>Cisco NetAcad intro courses</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="encouragement-box">
+                    <p>Everyone starts from zero. <strong>The IT field is open to anyone willing to learn.</strong> With consistent effort and the right resources, you can absolutely develop the skills needed to thrive. Take it one step at a time — your journey starts now.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-row">
+            <a href="index.html" class="retake-link">← Retake Assessment</a>
+        </div>
+    </main>
+
+    <!-- CAREER MODAL CLOSE — fixed outside scrollable area, always tappable -->
+    <button id="modalCloseBtn"
+            style="display:none; position:fixed; top:1rem; right:1rem; z-index:502;
+                   width:44px; height:44px; border-radius:50%;
+                   background:rgba(17,24,39,.95); border:1px solid rgba(0,240,255,.4);
+                   color:#00f0ff; font-size:1.2rem; cursor:pointer;
+                   align-items:center; justify-content:center;
+                   box-shadow:0 0 15px rgba(0,240,255,.2);"
+            onclick="document.getElementById('careerModalBackdrop').classList.remove('open'); document.body.style.overflow=''; this.style.display='none';"
+            aria-label="Close modal">✕</button>
+
+    <!-- CAREER MODAL -->
+    <div id="careerModalBackdrop" class="career-modal-backdrop" onclick="if(event.target===this){this.classList.remove('open');document.body.style.overflow='';document.getElementById('modalCloseBtn').style.display='none';}">
+        <div class="career-modal" id="careerModal">
+            <div class="modal-header">
+                <div>
+                    <div class="cdp-badge">⚡ Career Deep Dive</div>
+                    <h2 id="cdpName">—</h2>
+                    <p id="cdpDesc">—</p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="cdp-grid">
+                    <div class="cdp-section">
+                        <div class="cdp-section-title">Salary Range (Malaysia)</div>
+                        <div class="cdp-salary-row">
+                            <div class="cdp-salary-box">
+                                <div class="sl">Junior / Entry</div>
+                                <div class="sv" id="cdpJunior">—</div>
+                            </div>
+                            <div class="cdp-salary-arrow">→</div>
+                            <div class="cdp-salary-box">
+                                <div class="sl">Senior / Expert</div>
+                                <div class="sv" id="cdpSenior">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cdp-section">
+                        <div class="cdp-section-title">Required Skills</div>
+                        <div id="cdpSkills" class="cdp-tags"></div>
+                    </div>
+                    <div class="cdp-section full">
+                        <div class="cdp-section-title">Roles & Responsibilities</div>
+                        <ul id="cdpRoles" class="cdp-list"></ul>
+                    </div>
+                    <div class="cdp-section full">
+                        <div class="cdp-section-title">Career Progression</div>
+                        <div id="cdpProgression" class="cdp-progression"></div>
+                    </div>
+                    <div class="cdp-section full">
+                        <div class="cdp-section-title">Recommended Certifications</div>
+                        <div id="cdpCerts" class="cdp-tags"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        // ── Cursor Glow ──
+        document.addEventListener('mousemove', e => {
+            const g = document.getElementById('cursorGlow');
+            g.style.left = e.clientX+'px'; g.style.top = e.clientY+'px';
+        });
+
+        // ── Scroll Reveal ──
+        const ro = new IntersectionObserver(entries => {
+            entries.forEach((e, i) => { if(e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i*100); });
+        }, {threshold:.1});
+        document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+        // ── Particles ──
+        const canvas = document.getElementById('particle-canvas');
+        const ctx    = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        class Particle {
+            constructor(){ this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*1.8+.3; this.sx=Math.random()*.8-.4; this.sy=Math.random()*.8-.4; }
+            update(){ this.x+=this.sx; this.y+=this.sy; if(this.x>canvas.width||this.x<0)this.sx*=-1; if(this.y>canvas.height||this.y<0)this.sy*=-1; }
+            draw(){ ctx.fillStyle='rgba(0,240,255,.45)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+        }
+        function initP(){ particles=[]; const n=(canvas.width*canvas.height)/14000; for(let i=0;i<n;i++)particles.push(new Particle()); }
+        function animP(){
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p,i)=>{ p.update(); p.draw();
+                for(let j=i+1;j<particles.length;j++){
+                    const dx=p.x-particles[j].x, dy=p.y-particles[j].y, d=Math.sqrt(dx*dx+dy*dy);
+                    if(d<110){ ctx.beginPath(); ctx.strokeStyle=`rgba(0,240,255,${.1-d/1100})`; ctx.lineWidth=.7; ctx.moveTo(p.x,p.y); ctx.lineTo(particles[j].x,particles[j].y); ctx.stroke(); }
+                }
+            });
+            requestAnimationFrame(animP);
+        }
+        initP(); animP();
+    </script>
+
+    <script>
+        // ── Knowledge Base ──
+        const knowledgeBase = [
+            { name:"Software Developer",       desc:"Creates, tests, and maintains software applications and systems.",                  junior:"RM3,000–RM5,500",  senior:"RM8,000–RM15,000+",  demand:"High",        skills:"JavaScript, Python, Java, SQL, Git",               certs:"Oracle Java, Microsoft Developer" },
+            { name:"Web Developer",            desc:"Develops and maintains responsive, interactive websites and web applications.",      junior:"RM2,800–RM5,000",  senior:"RM7,000–RM14,000+",  demand:"Very High",   skills:"HTML, CSS, JavaScript, React, Node.js",            certs:"AWS Developer, Meta Front-End" },
+            { name:"Cybersecurity Analyst",    desc:"Monitors and defends organizational networks and systems from cyber threats.",       junior:"RM3,500–RM6,500",  senior:"RM8,000–RM18,000+",  demand:"Very High",   skills:"SIEM, Network Security, Incident Response, Linux", certs:"CompTIA Security+, CEH, CISSP" },
+            { name:"Mobile App Developer",     desc:"Builds native or cross-platform applications for iOS and Android devices.",         junior:"RM3,500–RM6,000",  senior:"RM8,000–RM16,000+",  demand:"High",        skills:"Swift, Kotlin, Flutter, React Native, Firebase",   certs:"Google Associate Android Developer" },
+            { name:"Data Analyst",             desc:"Collects, processes, and analyzes data to generate actionable business insights.",  junior:"RM3,200–RM5,500",  senior:"RM7,500–RM15,000+",  demand:"High",        skills:"SQL, Python, Excel, Tableau, Power BI",            certs:"Google Data Analytics, PL-300" },
+            { name:"Data Scientist",           desc:"Builds predictive models using advanced statistics and machine learning.",          junior:"RM4,000–RM7,000",  senior:"RM10,000–RM20,000+", demand:"Very High",   skills:"Python, R, Machine Learning, TensorFlow, SQL",     certs:"Azure Data Scientist, Google ML Engineer" },
+            { name:"AI Engineer",              desc:"Designs and deploys AI-powered systems including NLP and computer vision.",         junior:"RM4,500–RM7,500",  senior:"RM12,000–RM25,000+", demand:"Very High",   skills:"Python, TensorFlow, PyTorch, NLP, LLMs",           certs:"AWS ML Specialty, NVIDIA DLI" },
+            { name:"Machine Learning Engineer",desc:"Designs and deploys scalable, production-ready ML systems and pipelines.",          junior:"RM4,500–RM7,500",  senior:"RM12,000–RM22,000+", demand:"Very High",   skills:"Python, PyTorch, MLOps, Docker, Kubernetes",       certs:"Google Professional ML Engineer" },
+            { name:"Security Engineer",        desc:"Architects and builds robust IT security systems and infrastructure.",              junior:"RM4,000–RM7,000",  senior:"RM9,000–RM20,000+",  demand:"High",        skills:"Security Architecture, Firewalls, Encryption, PKI",certs:"CISSP, CISM, CompTIA CASP+" },
+            { name:"Penetration Tester",       desc:"Legally simulates cyberattacks to discover and report exploitable vulnerabilities.",junior:"RM3,500–RM6,500",  senior:"RM9,000–RM18,000+",  demand:"High",        skills:"Kali Linux, Metasploit, Burp Suite, Python",       certs:"OSCP, CEH, CompTIA PenTest+" },
+            { name:"Network Engineer",         desc:"Plans, designs, and manages data communication networks.",                         junior:"RM3,000–RM5,500",  senior:"RM7,500–RM16,000+",  demand:"Medium-High", skills:"Cisco IOS, OSPF/BGP, TCP/IP, VPN, SD-WAN",         certs:"CCNA, CCNP Enterprise" },
+            { name:"Cloud Engineer",           desc:"Builds and manages scalable, secure cloud infrastructure on AWS, Azure, or GCP.",   junior:"RM4,000–RM6,500",  senior:"RM9,000–RM20,000+",  demand:"Very High",   skills:"AWS/Azure/GCP, Terraform, Docker, Kubernetes",     certs:"AWS Solutions Architect, AZ-104" },
+            { name:"System Administrator",     desc:"Manages and maintains servers, operating systems, and IT infrastructure.",         junior:"RM2,800–RM5,000",  senior:"RM6,500–RM13,000+",  demand:"Medium",      skills:"Windows Server, Linux, Active Directory, PowerShell",certs:"CompTIA Server+, Red Hat RHCSA" },
+            { name:"DevOps Engineer",          desc:"Bridges development and operations to automate delivery pipelines.",               junior:"RM4,000–RM7,000",  senior:"RM10,000–RM22,000+", demand:"Very High",   skills:"CI/CD, Docker, Kubernetes, Terraform, Linux",       certs:"CKA, AWS DevOps Engineer Professional" },
+            { name:"UI/UX Designer",           desc:"Designs intuitive, user-centered digital interfaces and experiences.",             junior:"RM2,800–RM4,800",  senior:"RM6,500–RM12,000+",  demand:"Medium-High", skills:"Figma, Adobe XD, Wireframing, User Research",      certs:"Google UX Design, IDF Certification" },
+            { name:"IT Support Specialist",    desc:"Provides frontline technical helpdesk support and resolves hardware/software issues.",junior:"RM2,000–RM3,500",senior:"RM4,500–RM8,000+",   demand:"High",        skills:"Troubleshooting, Windows, Hardware, Active Directory",certs:"CompTIA A+, Google IT Support" },
+            { name:"Database Administrator",   desc:"Designs, installs, and maintains databases for performance and high availability.", junior:"RM3,000–RM5,500",  senior:"RM7,500–RM15,000+",  demand:"Medium",      skills:"SQL, Oracle DB, MySQL/PostgreSQL, Performance Tuning",certs:"Oracle DBA 19c, PostgreSQL Associate" },
+            { name:"Business Analyst",         desc:"Bridges business and IT by translating needs into technology solutions.",          junior:"RM3,200–RM5,500",  senior:"RM8,000–RM16,000+",  demand:"High",        skills:"Requirements Gathering, Agile/Scrum, SQL, Jira",    certs:"CBAP, PMI-PBA, IIBA ECBA" }
+        ];
+
+        // ── Load Results ──
+        const topCareers = JSON.parse(localStorage.getItem('techpath_topCareers'));
+
+        // Honest, monotonic percentage — directly proportional to raw rule score.
+        // No artificial floor/inflation, so this always agrees with the
+        // Confidence Level shown in the Explanation Facility below.
+        function calcPct(score) {
+            const MAX_SCORE = 110; // realistic ceiling if nearly all rules fire for one career
+            let p = Math.round((Math.max(score, 0) / MAX_SCORE) * 100);
+            return Math.min(Math.max(p, 5), 98);
+        }
+
+        const s1 = topCareers ? topCareers[0].score : 87;
+        const s2 = topCareers ? topCareers[1].score : 60;
+        const s3 = topCareers ? topCareers[2].score : 45;
+        const p1 = calcPct(s1), p2 = calcPct(s2), p3 = calcPct(s3);
+        const fp1 = p1;
+        const fp2 = p2 >= fp1 ? Math.max(fp1 - 1, 5) : p2;
+        const fp3 = Math.max(Math.min(p3, fp2-2), 5);
+
+        const n1 = topCareers ? topCareers[0].name : "Software Developer";
+        const n2 = topCareers ? topCareers[1].name : "Data Analyst";
+        const n3 = topCareers ? topCareers[2].name : "Cybersecurity Analyst";
+
+        const info1 = knowledgeBase.find(c => c.name === n1);
+
+        // ── Extended Knowledge Base (roles + progression) ──
+        const careerDetails = {
+            "Software Developer":        { roles:["Design, develop, and test software applications","Write clean, maintainable, and efficient code","Debug and resolve software defects and performance issues","Collaborate with cross-functional teams (design, QA, DevOps)","Participate in code reviews and technical planning","Document technical specifications and system designs"], progression:["Junior Developer","Mid-Level Developer","Senior Developer","Lead Developer","Software Architect"] },
+            "Web Developer":             { roles:["Build and maintain responsive websites and web applications","Develop frontend UI components using HTML, CSS, JavaScript","Integrate RESTful APIs and backend services","Optimize web performance, SEO, and accessibility","Debug cross-browser compatibility issues","Collaborate with UI/UX designers to implement designs"], progression:["Junior Web Developer","Web Developer","Senior Web Developer","Lead Frontend/Backend Engineer","Full Stack Architect"] },
+            "Cybersecurity Analyst":     { roles:["Monitor security systems and analyze threat intelligence","Conduct vulnerability assessments and penetration testing","Respond to and investigate security incidents","Implement and maintain security policies and protocols","Perform security audits and compliance checks","Train staff on cybersecurity best practices"], progression:["Junior Security Analyst","Security Analyst","Senior Analyst","Security Team Lead","CISO / Security Director"] },
+            "Mobile App Developer":      { roles:["Design and develop mobile apps for iOS and/or Android","Integrate third-party APIs, payment gateways, and services","Optimize app performance and battery consumption","Debug crashes and compatibility issues","Publish and maintain apps on App Store / Google Play","Collaborate with backend developers and UI/UX designers"], progression:["Junior Mobile Developer","Mobile Developer","Senior Mobile Developer","Mobile Tech Lead","Head of Mobile Engineering"] },
+            "Data Analyst":              { roles:["Collect, clean, and process large datasets","Build dashboards and visualizations using BI tools","Identify trends, patterns, and actionable insights","Prepare regular reports for stakeholders","Collaborate with business teams to define KPIs","Develop and maintain SQL queries and data pipelines"], progression:["Junior Data Analyst","Data Analyst","Senior Data Analyst","Analytics Manager","Head of Data / Chief Data Officer"] },
+            "Data Scientist":            { roles:["Build and validate predictive and statistical models","Apply machine learning algorithms to solve business problems","Conduct exploratory data analysis (EDA)","Deploy and monitor ML models in production","Communicate findings to non-technical stakeholders","Research and implement state-of-the-art AI techniques"], progression:["Junior Data Scientist","Data Scientist","Senior Data Scientist","Principal Data Scientist","Director of Data Science"] },
+            "AI Engineer":               { roles:["Design and implement AI-powered systems and pipelines","Develop NLP, computer vision, and generative AI solutions","Fine-tune large language models (LLMs) and transformers","Build AI APIs and integrate them into products","Monitor AI model performance and bias","Research and prototype new AI approaches"], progression:["Junior AI Engineer","AI Engineer","Senior AI Engineer","AI Architect","Head of AI / VP of AI"] },
+            "Machine Learning Engineer": { roles:["Design and deploy scalable ML pipelines and systems","Train, evaluate, and optimize machine learning models","Implement MLOps practices for model lifecycle management","Optimize model inference speed and resource usage","Collaborate with data scientists to productionize models","Maintain ML infrastructure and feature stores"], progression:["Junior ML Engineer","ML Engineer","Senior ML Engineer","Staff ML Engineer","ML Platform Lead / Director"] },
+            "Security Engineer":         { roles:["Design and implement enterprise security architectures","Configure and maintain firewalls, IDS/IPS, SIEM systems","Conduct threat modeling and risk assessments","Develop security automation and monitoring tools","Ensure compliance with security frameworks (ISO 27001, NIST)","Lead incident response and forensic investigations"], progression:["Security Engineer","Senior Security Engineer","Principal Security Engineer","Security Architect","CISO"] },
+            "Penetration Tester":        { roles:["Perform authorized ethical hacking and penetration tests","Identify and exploit vulnerabilities in networks, web apps, APIs","Write detailed penetration test reports and remediation plans","Conduct social engineering and phishing simulations","Develop custom exploits and proof-of-concept scripts","Stay updated with latest CVEs and attack techniques"], progression:["Junior Pentester","Penetration Tester","Senior Pentester","Lead Penetration Tester","Red Team Manager"] },
+            "Network Engineer":          { roles:["Design, implement, and manage LAN/WAN network infrastructure","Configure routers, switches, firewalls, and VPNs","Monitor network performance and troubleshoot issues","Plan and execute network upgrades and migrations","Implement network security policies and access controls","Maintain network documentation and topology diagrams"], progression:["Junior Network Engineer","Network Engineer","Senior Network Engineer","Network Architect","Head of Network Infrastructure"] },
+            "Cloud Engineer":            { roles:["Design and deploy scalable cloud architectures (AWS/Azure/GCP)","Manage cloud infrastructure using IaC tools (Terraform, Ansible)","Implement cloud security, IAM policies, and compliance","Monitor cloud cost optimization and resource utilization","Set up disaster recovery and backup strategies","Migrate on-premise systems to cloud environments"], progression:["Junior Cloud Engineer","Cloud Engineer","Senior Cloud Engineer","Cloud Architect","Director of Cloud Infrastructure"] },
+            "System Administrator":      { roles:["Install, configure, and maintain servers and OS (Windows/Linux)","Manage user accounts, permissions, and Active Directory","Perform system backups, patching, and updates","Monitor system performance and uptime","Provide Tier 2/3 technical support","Document system configurations and procedures"], progression:["Junior SysAdmin","System Administrator","Senior SysAdmin","IT Manager","IT Director / VP of Infrastructure"] },
+            "DevOps Engineer":           { roles:["Design and maintain CI/CD pipelines and automation workflows","Manage containerized environments (Docker, Kubernetes)","Implement infrastructure as code (Terraform, Ansible)","Monitor system performance, alerting, and logging","Ensure high availability and disaster recovery","Bridge development and operations collaboration"], progression:["Junior DevOps Engineer","DevOps Engineer","Senior DevOps Engineer","Platform Engineer","Head of Platform / VP Engineering"] },
+            "UI/UX Designer":            { roles:["Conduct user research, interviews, and usability testing","Create wireframes, prototypes, and interactive mockups","Design intuitive and accessible user interfaces","Build and maintain design systems and style guides","Collaborate with developers for design implementation","Analyze user behavior data to inform design decisions"], progression:["Junior UI/UX Designer","UI/UX Designer","Senior Designer","Lead Designer","Head of Design / Chief Design Officer"] },
+            "IT Support Specialist":     { roles:["Provide frontline helpdesk support for hardware/software issues","Install, configure, and troubleshoot computers and peripherals","Manage ticketing systems and track resolution times","Support onboarding of new employees with IT setup","Maintain IT asset inventory and documentation","Escalate complex issues to Tier 2/3 support teams"], progression:["IT Support Specialist","Senior IT Support","IT Team Lead","IT Manager","IT Director"] },
+            "Database Administrator":    { roles:["Install, configure, and maintain database systems (Oracle, MySQL, MSSQL)","Monitor database performance and optimize slow queries","Implement database backup, recovery, and high availability","Manage database security, access control, and encryption","Plan and execute database migrations and upgrades","Design and maintain database schemas and stored procedures"], progression:["Junior DBA","Database Administrator","Senior DBA","Lead DBA","Data Engineering Manager"] },
+            "Business Analyst":          { roles:["Gather and document business requirements from stakeholders","Analyze business processes and identify improvement opportunities","Translate business needs into functional IT specifications","Facilitate workshops, meetings, and sprint planning","Create use cases, user stories, and process flow diagrams","Validate and test solutions against business requirements"], progression:["Junior Business Analyst","Business Analyst","Senior Business Analyst","Lead BA / Product Owner","Product Director"] }
+        };
+
+        // ── Career Modal Functions ──
+        function showCareerModal(name) {
+            const kb  = knowledgeBase.find(c => c.name === name);
+            const ext = careerDetails[name];
+            if (!kb) return;
+
+            document.getElementById('cdpName').textContent    = name;
+            document.getElementById('cdpDesc').textContent    = kb.desc;
+            document.getElementById('cdpJunior').textContent  = kb.junior;
+            document.getElementById('cdpSenior').textContent  = kb.senior;
+
+            document.getElementById('cdpSkills').innerHTML = kb.skills.split(',').map(s =>
+                `<span class="cdp-tag">${s.trim()}</span>`
+            ).join('');
+
+            document.getElementById('cdpCerts').innerHTML = kb.certs.split(',').map(c =>
+                `<span class="cdp-tag cdp-tag-purple">${c.trim()}</span>`
+            ).join('');
+
+            document.getElementById('cdpRoles').innerHTML = ext
+                ? ext.roles.map(r => `<li>${r}</li>`).join('')
+                : '<li>Information not available.</li>';
+
+            document.getElementById('cdpProgression').innerHTML = ext
+                ? ext.progression.map((step, i) =>
+                    `<span class="cdp-prog-step">${step}</span>${i < ext.progression.length-1 ? '<span class="cdp-prog-arrow">→</span>' : ''}`
+                  ).join('')
+                : '<span class="cdp-prog-step">Information not available</span>';
+
+            // Reset scroll position
+            document.getElementById('careerModal').scrollTop = 0;
+            document.getElementById('careerModalBackdrop').classList.add('open');
+            document.getElementById('modalCloseBtn').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCareerModal() {
+            document.getElementById('careerModalBackdrop').classList.remove('open');
+            document.getElementById('modalCloseBtn').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // ESC key to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeCareerModal();
+        });
+
+        if(info1){
+            document.getElementById('topMatchPercent').textContent = fp1+'%';
+            document.getElementById('topCareerName').textContent   = n1;
+            document.getElementById('topCareerDesc').textContent   = info1.desc;
+            document.getElementById('demandPill').textContent      = info1.demand+' Demand';
+            document.getElementById('salaryPill').textContent      = info1.junior+' entry';
+            document.getElementById('skillsPill').textContent      = info1.skills.split(',')[0].trim()+' +more';
+            document.getElementById('juniorSalary').textContent    = info1.junior;
+            document.getElementById('seniorSalary').textContent    = info1.senior;
+            document.getElementById('keySkills').textContent       = info1.skills;
+            document.getElementById('keyCerts').textContent        = info1.certs;
+            document.getElementById('exploreCareerBtn').onclick    = () => showCareerModal(n1);
+        } else {
+            document.getElementById('topCareerName').textContent = 'Error: Career not found';
+            document.getElementById('topCareerDesc').textContent = 'This career is not in the knowledge base.';
+        }
+
+        // ── EXPLANATION FACILITY ("Why This Career?") ──
+        // Memenuhi keperluan ES sebenar: sistem mesti boleh terangkan SEBAB
+        // sesuatu kesimpulan dicapai (bukan sekadar tunjuk hasil akhir).
+        (function renderExplanation() {
+            const allFired   = JSON.parse(localStorage.getItem('techpath_firedRules')) || {};
+            const rules      = (allFired[n1] || []).slice().sort((a, b) => b.points - a.points);
+            const listEl     = document.getElementById('explainList');
+            const summaryEl  = document.getElementById('explainSummary');
+            const toggleBtn  = document.getElementById('explainToggle');
+
+            if (!rules.length) {
+                listEl.innerHTML = `<div class="explain-empty">No specific rule was recorded for this match (system default decision).</div>`;
+                summaryEl.textContent = '';
+                return;
+            }
+
+            const positiveCount = rules.filter(r => r.points > 0).length;
+            const penaltyCount  = rules.filter(r => r.points < 0).length;
+            summaryEl.innerHTML = `<strong>${rules.length}</strong> out of <strong>135</strong> rules matched your profile for <strong>${n1}</strong>`;
+
+            // ── Confidence Level (Certainty Factor) ──
+            // Derived from the SAME percentage shown in the score ring (fp1),
+            // so the badge here can NEVER contradict the % Match above.
+            const gapPct = fp1 - fp2; // gap % compared to Choice #2
+            let conf;
+            if (fp1 >= 65 && rules.length >= 4) {
+                conf = { label:'Strong Match', color:'#4ade80',
+                    text:`Your profile shows a <strong>clear and consistent</strong> tendency toward ${n1} — many rules (interest, skills, personality) matched simultaneously.` };
+            } else if (fp1 >= 40) {
+                conf = { label:'Moderate Match', color:'#00f0ff',
+                    text:`Your profile is <strong>reasonably</strong> matched with ${n1}, although not every aspect (interest/skills/personality) shows a maximum tendency.` };
+            } else {
+                conf = { label:'Exploratory Match', color:'#fbbf24',
+                    text:`Your answers <strong>do not show a strong tendency</strong> toward one specific IT field. ${n1} is the <strong>best match compared to the other 17 careers</strong> (only ${gapPct > 0 ? gapPct : 0}% ahead of Choice #2), but treat this result as a <strong>starting point for exploration</strong>, not a final decision. Try retaking the assessment with answers that more confidently reflect who you really are.` };
+            }
+            document.getElementById('confidenceBox').innerHTML = `
+                <div class="confidence-box" style="background:${conf.color}0d; border-color:${conf.color}40;">
+                    <span class="confidence-badge" style="color:${conf.color}; border-color:${conf.color}66; background:${conf.color}1a;">● ${conf.label}</span>
+                    <span class="confidence-text">${conf.text}</span>
+                </div>`;
+
+            function renderRow(r) {
+                const isPenalty = r.points < 0;
+                return `
+                <div class="explain-item ${isPenalty ? 'penalty' : ''}">
+                    <div class="explain-icon">${isPenalty ? '⚠' : '✓'}</div>
+                    <div class="explain-text">${r.label}</div>
+                    <div class="explain-points ${isPenalty ? 'negative' : ''}">${r.points > 0 ? '+' : ''}${r.points}</div>
+                </div>`;
+            }
+
+            const TOP_N = 5;
+            let expanded = false;
+
+            function paint() {
+                const toShow = expanded ? rules : rules.slice(0, TOP_N);
+                listEl.innerHTML = toShow.map(renderRow).join('');
+                if (rules.length > TOP_N) {
+                    toggleBtn.style.display = 'inline-block';
+                    toggleBtn.textContent = expanded
+                        ? 'Show Fewer'
+                        : `Show All ${rules.length} Rules (${positiveCount} positive${penaltyCount ? ', ' + penaltyCount + ' penalty' : ''})`;
+                } else {
+                    toggleBtn.style.display = 'none';
+                }
+            }
+
+            toggleBtn.addEventListener('click', () => { expanded = !expanded; paint(); });
+            paint();
+        })();
+
+        // ── FULL INFERENCE ENGINE RESULTS (all 18 careers) ──
+        // Bukti forward chaining diproses merentas SELURUH knowledge base,
+        // bukan cuma top 3. Penting untuk demonstrasi "Application to ES Context".
+        (function renderFullResults() {
+            const allScores = JSON.parse(localStorage.getItem('techpath_allCareerScores')) || [];
+            const allFired  = JSON.parse(localStorage.getItem('techpath_firedRules')) || {};
+            const tbody = document.getElementById('fullResultsBody');
+
+            if (!allScores.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem;">No data available.</td></tr>`;
+                return;
+            }
+
+            const maxScore = Math.max(...allScores.map(c => c.score), 1);
+
+            tbody.innerHTML = allScores.map((c, i) => {
+                const rank      = i + 1;
+                const pct       = calcPct(c.score);
+                const ruleCount = (allFired[c.name] || []).length;
+                const rankClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : 'other';
+                const barWidth  = Math.max((c.score / maxScore) * 100, 2);
+                return `
+                <tr class="fr-row">
+                    <td><span class="fr-rank ${rankClass}">${rank}</span></td>
+                    <td>
+                        <span class="fr-career-name">${c.name}</span>
+                        <div class="fr-bar-track"><div class="fr-bar-fill" style="width:${Math.max(barWidth,0)}%;"></div></div>
+                    </td>
+                    <td class="num ${c.score < 0 ? 'fr-score-neg' : ''}">${c.score}</td>
+                    <td class="num">${pct}%</td>
+                    <td class="num">${ruleCount}</td>
+                </tr>`;
+            }).join('');
+        })();
+
+        setTimeout(() => {
+            document.getElementById('rank2Name').textContent  = n2;
+            document.getElementById('rank2Score').textContent = fp2+'%';
+            document.getElementById('rank2Bar').style.width   = fp2+'%';
+            document.getElementById('readMore2').onclick      = () => showCareerModal(n2);
+
+            document.getElementById('rank3Name').textContent  = n3;
+            document.getElementById('rank3Score').textContent = fp3+'%';
+            document.getElementById('rank3Bar').style.width   = fp3+'%';
+            document.getElementById('readMore3').onclick      = () => showCareerModal(n3);
+
+            // ── Radar Chart ──
+            const kemahiran  = JSON.parse(localStorage.getItem('techpath_kemahiran'))   || {};
+            const minat      = JSON.parse(localStorage.getItem('techpath_minat'))       || {};
+            const personaliti= JSON.parse(localStorage.getItem('techpath_personaliti')) || {};
+
+            function avg(obj) {
+                const keys = Object.keys(obj);
+                if(!keys.length) return 70;
+                return Math.floor(keys.reduce((sum,k) => sum+parseInt(obj[k]),0) / (keys.length*5) * 100);
+            }
+
+            const techSkills     = avg(kemahiran);
+            const careerInterest = avg(minat);
+            const personalityFit = avg(personaliti);
+            const problemSolving = Math.floor((techSkills+personalityFit)/2);
+            const adaptability   = Math.min(personalityFit+10, 100);
+
+            const ctxRadar = document.getElementById('spiderChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type:'radar',
+                data:{
+                    labels:['Technical Skills','Problem Solving','Personality Fit','Career Interest','Adaptability'],
+                    datasets:[{
+                        label:'Profile Index',
+                        data:[techSkills,problemSolving,personalityFit,careerInterest,adaptability],
+                        backgroundColor:'rgba(0,240,255,.18)',
+                        borderColor:'#00f0ff',
+                        pointBackgroundColor:'#030712',
+                        pointBorderColor:'#00f0ff',
+                        pointHoverBackgroundColor:'#00f0ff',
+                        borderWidth:2,
+                    }]
+                },
+                options:{
+                    responsive:true, maintainAspectRatio:false,
+                    scales:{ r:{ min:0, max:100,
+                        angleLines:{ color:'rgba(255,255,255,.08)' },
+                        grid:{ color:'rgba(255,255,255,.08)' },
+                        pointLabels:{ color:'#f3f4f6', font:{ family:"'Poppins',sans-serif", size:10 } },
+                        ticks:{ display:false }
+                    }},
+                    plugins:{
+                        legend:{ display:false },
+                        tooltip:{ backgroundColor:'rgba(3,7,18,.9)', titleColor:'#00f0ff', bodyColor:'#fff', borderColor:'#00f0ff', borderWidth:1 }
+                    }
+                }
+            });
+
+            // ── Red Flag Analysis ──
+            const skillData = JSON.parse(localStorage.getItem('techpath_kemahiran')) || {};
+            const skillKeys = Object.keys(skillData);
+
+            if(skillKeys.length > 0){
+                const LOW = 2;
+                const labels = { kemahiran_1:'Programming',kemahiran_2:'Web Development',kemahiran_3:'Mathematics & Statistics',kemahiran_4:'Data Analysis',kemahiran_5:'Database Management',kemahiran_6:'Networking & Security',kemahiran_7:'System Architecture',kemahiran_8:'Machine Learning',kemahiran_9:'UI Design',kemahiran_10:'Server & OS Management',kemahiran_11:'Statistical Analysis',kemahiran_12:'Hardware Knowledge',kemahiran_13:'DevOps & Automation',kemahiran_14:'Communication & Documentation',kemahiran_15:'Business Process Analysis' };
+                const grid = document.getElementById('skillStatusGrid');
+                grid.innerHTML = '';
+                let lowCount = 0; const lowKeys = [];
+
+                skillKeys.forEach(key => {
+                    const val = parseInt(skillData[key]);
+                    if(isNaN(val)) return;
+                    const label = labels[key] || key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+                    const isLow = val <= LOW;
+                    if(isLow){ lowCount++; lowKeys.push(key); }
+                    let bc,bt;
+                    if(val<=2){ bc='badge-low'; bt=val+'/5 — Low'; }
+                    else if(val===3){ bc='badge-medium'; bt='3/5 — Average'; }
+                    else { bc='badge-good'; bt=val+'/5 — Good'; }
+                    const el = document.createElement('div');
+                    el.className = `skill-status-item ${isLow?'low-skill':'ok-skill'}`;
+                    el.innerHTML = `<span class="skill-name-label">${label}</span><span class="skill-level-badge ${bc}">${bt}</span>`;
+                    grid.appendChild(el);
+                });
+
+                if(lowCount > skillKeys.length/2){
+                    document.getElementById('redFlagSection').style.display = 'block';
+                }
+            }
+        }, 300);
+    </script>
+</body>
+</html>
